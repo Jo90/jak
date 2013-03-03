@@ -1,0 +1,13 @@
+/** /css/pod/info.css
+ *
+ */
+
+.jak-pod-info .yui3-widget-bd {overflow:auto;} /*expand with list*/
+
+.jak-pod-info .jak-info-list {width:200px;float:left;}
+.jak-pod-info .jak-info-detail {margin-left:205px;}
+.jak-pod-info .jak-info-detail > fieldset {border:1px solid #999;}
+
+.jak-pod-info .jak-info-list > .jak-record-focus > input {background-color:#fcf;font-weight:bold;}
+
+.jak-pod-info .yui3-widget-bd {overflow:auto;} /*constrain block*/

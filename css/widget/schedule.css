@@ -1,0 +1,14 @@
+/** /css/widget/schedule.css
+ *
+ */
+.jak-schedule {
+  overflow:auto;
+  height:20em;
+  width:180px;
+}
+
+/* .jak-schedule div {color:#bbb;overflow:auto;height:60px} */
+.jak-schedule .yui3-jak-schedule-content>div>span {color:#bbb;}
+.jak-schedule .yui3-jak-schedule-content>div>em {border:1px dotted #f00;}
+
+.jak-schedule .jak-event-time {font-size:0.6em; padding-right:1em;}

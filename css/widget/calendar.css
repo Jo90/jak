@@ -1,0 +1,13 @@
+/** /css/widget/calendar.css
+ *
+ */
+.jak-calendar .jak-date {
+  width:7em;
+}
+.yui3-calendar,.jak-calendar {
+  position:absolute;
+  top:30px;
+  left:30px;
+  z-index:9999;
+}
+

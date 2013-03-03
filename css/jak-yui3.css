@@ -1,0 +1,184 @@
+/** //css/jak-yui3.css
+ *
+ *  YUI3 Style overrides
+ */
+/*
+ * >>>FINISH
+ * Too may !important flags, need to rationalize the css
+ */
+/* YUI Tab Style Override */
+.yui3-tab-panel {display:none;}
+.yui3-tab-panel-selected {display:block;}
+.yui3-tabview-list, .yui3-tab {
+  list-style:none outside none;
+  margin:0;
+  padding:0;
+}
+.yui3-tabview {
+  position:relative;
+  margin:0 1em;
+}
+.yui3-tab {
+  cursor:pointer;
+  display:inline-block;
+  vertical-align:bottom;
+}
+.yui3-tab-label {
+  display:inline-block;
+  padding:6px 10px;
+  position:relative;
+  text-decoration:none;
+  vertical-align:bottom;
+}
+.yui3-skin-sam .yui3-tabview-list {
+  margin-top:12px;
+  -moz-border-bottom-colors:none;
+  -moz-border-image:none;
+  -moz-border-left-colors:none;
+  -moz-border-right-colors:none;
+  -moz-border-top-colors:none;
+  border-color:#2647A0;
+  border-style:solid;
+  border-width:0 0 5px;
+}
+.yui3-skin-sam .yui3-tab {
+  position:relative;
+  margin:0 0.2em 0 0;
+  padding:1px 0 0;
+}
+.yui3-skin-sam .yui3-tab-selected {margin-bottom:-1px;}
+.yui3-skin-sam .yui3-tab-label {
+  color:#000 !important;
+  background:#008DF2 !important;
+  background:-webkit-gradient(linear, left top, left bottom, from(#d6e2de), to(#f8f4e9) ) !important;
+  background:-moz-linear-gradient(-90deg, #d6e2de, #f8f4e9) !important;
+  filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#d6e2de', endColorstr='#f8f4e9') !important;
+  -x-system-font:none !important;
+  font-family:arial,helvetica,clean,sans-serif;
+  font-size:13px;
+  font-size-adjust:none;
+  font-stretch:normal;
+  font-style:normal;
+  font-variant:normal;
+  font-weight:normal;
+  -moz-border-radius-topright:.435em;
+  -moz-border-radius-topleft:.435em;
+  -webkit-border-top-right-radius:.435em;
+  -webkit-border-top-left-radius:.435em;
+}
+.yui3-skin-sam .yui3-tab-selected .yui3-tab-label, .yui3-skin-sam .yui3-tab-selected .yui3-tab-label:focus, .yui3-skin-sam .yui3-tab-selected .yui3-tab-label:hover {
+  color:#fff !important;
+  background:#008DF2 !important;
+  background:-webkit-gradient(linear, left top, left bottom, from(#008DF2), to(#006CC9) ) !important;
+  background:-moz-linear-gradient(-90deg, #008DF2, #006CC9) !important;
+  filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#008DF2', endColorstr='#006CC9') !important;
+  -x-system-font:none !important;
+  font-family:arial,helvetica,clean,sans-serif;
+  font-size:13px;
+  font-size-adjust:none;
+  font-stretch:normal;
+  font-style:normal;
+  font-variant:normal;
+  font-weight:normal;
+  -moz-border-radius-topright:.435em;
+  -moz-border-radius-topleft:.435em;
+  -webkit-border-top-right-radius:.435em;
+  -webkit-border-top-left-radius:.435em;
+}
+.yui3-skin-sam .yui3-tab-selected .yui3-tab-label {
+  padding:0.4em 0.75em;
+  border-color:#243356;
+}
+.yui3-skin-sam .yui3-tabview-panel {
+  background:#c7d0da;
+  -moz-box-shadow:0 0 5px #888;
+  -webkit-box-shadow:0 0 5px#888;
+  box-shadow:0 0 5px #888;
+  -moz-border-radius-bottomright:.435em;
+  -moz-border-radius-bottomleft:.435em;
+  -webkit-border-bottom-right-radius:.435em;
+  -webkit-border-bottom-left-radius:.435em;
+}
+.yui3-skin-sam .yui3-tabview-removeable .yui3-tab-label, .yui3-skin-sam .yui3-tabview-removeable .yui3-tab-selected .yui3-tab-label {
+  padding-right:1.3em;
+}
+.yui3-skin-sam .yui3-tabview-removeable .yui3-tab-add {
+  padding-right:0.75em;
+}
+.yui3-skin-sam .yui3-tab-add {
+  color:#999999;
+  font:bold 120%/1 verdana;
+  margin-left:0.25em;
+}
+.yui3-tab-remove {
+  color:#999;
+  font:bold 80% verdana;
+  position:absolute;
+  right:0.4em;
+  top:0.4em;
+}
+.yui3-tab-remove:hover {color:#fff;}
+.yui3-skin-sam .yui3-tab-selected .yui3-tab-remove {top:0.82em;}
+.yui3-skin-sam .yui3-tab-selected .yui3-tab-remove:hover {color:#fff;}
+.yui3-tabview .yui3-tab-selected a {color:white;}
+.yui3-widget .yui3-datatable {
+  background:#fff !important;
+  border-style:none !important;
+  -moz-box-shadow:none !important;
+  -webkit-box-shadow:none !important;
+  box-shadow:none !important;
+}
+.yui3-widget .yui3-datatable-content tr {cursor:pointer;}
+.yui3-widget .yui3-datatable-content tr:hover td {background-color:#fef5ca;}
+.yui3-tabview-panel {background-color:#fff;
+}
+/* YUI Widgets - Overides Dialog Box Styles*/
+.yui3-widget > .yui3-widget-stdmod { 
+  display:block;
+  background:rgba(0, 0, 0, 0.5);
+  border-radius:6px;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  padding:10px;
+} 
+.yui3-widget-hd {
+  padding:0.8em 0.4em;
+  min-height:22px;
+  height:22px;
+  color:white;
+  border:#3B5998 1px solid;
+  background:#6D84B4;
+  -moz-border-radius-topright:.435em;
+  -moz-border-radius-topleft:.435em;
+  -webkit-border-top-right-radius:.435em;
+  -webkit-border-top-left-radius:.435em;
+  vertical-align:middle;
+}
+.yui3-widget-hd > .wb-btn-gen, .yui3-widget-hd > .wb-btn {
+  background:none !important;
+  margin:0 3px;
+  padding:none;
+  vertical-align:0;
+  box-shadow:none;
+  height:.87em;
+  width:.87em;
+  border:none;
+}
+.yui3-widget-bd {
+  margin:0;
+  background-color:#fff !important;
+  padding:0.6em;
+  border:#555 1px solid;
+}
+.yui3-widget-ft {
+  background:#f2f2f2;
+  padding:0.875em;
+  text-align:right;
+  height:1.9em;
+  min-height:28px;
+  border:#555 1px solid;
+  -moz-border-radius-bottomright:.435em;
+  -moz-border-radius-bottomleft:.435em;
+  -webkit-border-bottom-right-radius:.435em;
+  -webkit-border-bottom-left-radius:.435em;
+}

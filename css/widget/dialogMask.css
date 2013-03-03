@@ -1,0 +1,13 @@
+/** /css/widget/dialogMask.css
+ *
+ */
+#jak-dialogMask {
+  position:absolute;
+  display:block;
+  top:0;
+  left:0;
+  background-color:#666;
+  filter:alpha(opacity=5);
+  -moz-opacity:0.5;
+  opacity:0.5;
+}

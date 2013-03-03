@@ -1,0 +1,57 @@
+/**
+ *  //css/base.css
+ */
+body {padding:0;margin:0;}
+body article,
+body header {width:99%;height:40px;background-color:#fefefe;margin-bottom:1.2em;}
+body section{padding:0 1.2em;}
+a {text-decoration:none;}
+
+label {display:inline-block; /* ensure label and contents do not wrap */}
+ul {padding:0;margin:0;}
+
+.jak-btn {
+  cursor:pointer;
+  box-shadow:none !important;
+  -moz-box-shadow:none !important;
+  -webkit-box-shadow:none !important;
+  border:none !important;
+}
+.jak-btn.jak-close {float:right;}
+
+.jak-btn em {
+  background-image:url(/css/img/btn-sprite.png);
+  display:inline-block;
+  cursor:pointer;
+  vertical-align:-0.185em;
+  margin-left:0.185em;
+  height:16px;
+  width:16px;
+}
+
+.jak-add    em {background-position: 0px 0px;}
+.jak-remove em {background-position: 0px -20px;}
+.jak-find   em {background-position: 0px -40px;}
+.jak-close  em {background-position: 0px -60px; border: none;}
+.jak-min    em {background-position: 0px -80px;}
+.jak-max    em {background-position: 0px -100px;}
+.jak-right  em {background-position: 0px -120px;}
+.jak-left   em {background-position: 0px -140px;}
+.jak-next   em {background-position: 0px -120px;}
+.jak-prev   em {background-position: 0px -140px;}
+.jak-up     em {background-position: 0px -160px;}
+.jak-down   em {background-position: 0px -180px;}
+.jak-info   em {background-position: 0px -200px;}
+.jak-lock   em {background-position: 0px -220px;}
+.jak-unlock em {background-position: 0px -240px;}
+.jak-vert   em {background-position: 0px -260px;}
+.jak-hort   em {background-position: 0px -280px;}
+.jak-redo   em,
+.jak-reset  em {background-position: 0px -300px;}
+.jak-help   em {background-position: 0px -320px;}
+.jak-save   em {background-position: -20px 0px;}
+.jak-edit   em {background-position: -20px -20px;}
+.jak-stop   em {background-position: -20px -40px;}
+.jak-halt   em {background-position: -20px -60px;}
+.jak-tick   em {background-position: -20px -80px;}
+.jak-person em {background-position: -20px -100px;}

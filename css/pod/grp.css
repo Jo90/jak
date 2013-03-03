@@ -1,0 +1,10 @@
+/** /css/pod/grp.css
+ *
+ */
+.jak-pod-grp .jak-close {float:right;}
+
+.jak-pod-grp .jak-data-name {width:35em;font-weight:bold;}
+.jak-pod-grp .jak-data-contactDetail {width:50em;}
+
+/*not working*/
+.jak-pod-grp .yui3-datatable-col-detail {max-height:50px;overflow:auto;}

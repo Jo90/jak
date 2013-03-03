@@ -1,0 +1,31 @@
+/** /css/pod/userLogon.css
+ *
+ */
+.jak-userLogon {
+  position:absolute;
+  top:3px;
+  right:3px;
+  height:28px;
+  width:140px;
+  margin:0.1em;
+  border-radius:0.435em;
+  -moz-border-radius:0.435em;
+  -webkit-border-radius:0.435em;
+  background:rgb(69,72,77);
+  background:-moz-linear-gradient(top,  rgba(69,72,77,1) 0%, rgba(0,0,0,1) 100%);
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(69,72,77,1)), color-stop(100%,rgba(0,0,0,1)));
+  background:-webkit-linear-gradient(top,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%);
+  background:-o-linear-gradient(top,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%);
+  background:-ms-linear-gradient(top,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%);
+  background:linear-gradient(top,  rgba(69,72,77,1) 0%,rgba(0,0,0,1) 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 );
+  padding:0.4em 0.535em;
+}
+.jak-userLogon .jak-remove {float:right;}
+.jak-userLogon a {color:#fff;text-decoration:none;}
+.jak-userLogon a.userLogon-name {font-weight:bold;margin:0.435em 0.635em;}
+.jak-userLogon a:hover {color:#990A2C;text-decoration:none;cursor:pointer;}
+/* overlay */
+.jak-userLogon .yui3-widget-ft {padding:2px;text-align:right;}
+/* jak-userLogon-info */
+.jak-userLogon-info {color:#111;position:absolute;top:23px;right:3px;}

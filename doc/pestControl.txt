@@ -1,0 +1,162 @@
+Process
+
+1. Request for a job can come via:
+		email
+		fax
+		phone	
+   to Lisa or John
+
+Notes: 
+a. All job requests are printed. Ann uses these to keep track of status of the job. 
+   i.e. calendared, any special requests e.g. client present, job completed, invoice issued, paid.
+b. Invoices can sometimes be paid before issued e.g. paid over the phone at time of booking.
+c. All job requests, once calendared, the date is written on job request sheet.
+d. Date report is sent is also noted job request sheet.
+e. Jos request sheet will be placed online.
+
+Job Request Sheet Required Fields
+Refer to "Pre-Purchase Inspections Request Sheet"
+
+2. Places job on a list and allocates a job # to it. (Job # is for insurance purposes.)
+   Lisa keeps all jobs in a file using google docs.
+	
+	- Log into google account:
+	u: jakdiary
+	p: jonesroad
+	
+	- click on 'Drive', 2013
+
+3. Lisa makes appointment with real estate agent and enters into google calendar.
+   Lisa allocates jobs to a specific worker.
+   Family can edit all calendar entries.
+   Individual employees can only view and edit their own.
+
+4. During appointment, ipad form is completed and photos are taken. 
+For an idea of file size of images, a completed report with photos is usually 1M - 7M. 
+All reports are sent electronically.
+
+5. Report generation: ipad entries are manually entered in word file. Photos are uploaded.
+ 
+6. For Wayne's report, Lisa adds cover sheet and goes over report before sending via email.
+John does his own.
+
+7. An invoice file is completed manually any time during the job life. 
+Status of invoices : paid, unpaid
+Monthly account reminder is sent to solicitors - standard letter groups all invoices for 
+the particular client.
+
+Get a sample.
+
+8a. Report is not given to public until invoice is paid.
+
+8b. Report is given sometimes immediately or when the sale is settled.
+
+9. All invoices are printed and filed.
+
+10. There are standard costs for each client:
+	Solicitors are $430, public is $484
+	
+==========================================================================================
+
+Currently not done:
+	A reminder is generated to send to purchaser 12 months from date of last inspection.
+	Stop sending when 3 notices have been sent with no response. The 3 year cycle starts 
+	again every time the job is booked.
+	Date reminder is sent will be logged.
+	Automatically generate preliminary report but allow user to manually edit.
+	
+  
+General Price List
+	Used to give quotes. Quotes are dependent on property location and size of job.
+	
+==========================================================================================
+
+11. Fee for the job is entered when job is requested.
+
+12. Job search is via address. E.g. checking if invoice has been paid - search via address.
+
+Notes:
+
+Solicitors and addresses are separate entities.
+Addresses may belong to other solicitors at any given time.
+Clients are solicitors, vendor i.e. general public.
+
+13. Employees can only add but not delete a report. All changes are logged.	All files accessed
+by employees are just 'save as' i.e. are not to be overwritten.
+
+14. Businesses will be sold separately i.e. Pest Control and Inspections
+
+
+
+
+
+
+Pest Control Services
+	General Spray
+	Rodent Treatment
+	Termite Treatment
+	Inspections	
+		termite
+		pest
+		
+
+15. Job # are per client. One address can have more than one client. E.g. In auctions, potential
+buyers may request individual inspection report. Fees are per client. E.g. A report was done for client 1;
+same report could be requested by client 2; Client 2 will be charged the same as client 1 for the same report
+which was already done for client 1.
+
+
+1. Property Types? e.g. commercial, residential i.e. highest group category (taxonomy) - YES
+2. Any more reports? - Building Inspection, Pest Inspection, Building Inspection w/ Thermal , Pest Inspection w/ Thermal, Termite Inspection
+3. Description of the Property Inspected - is this standard through all reports?  YES
+4. Description of the Property Inspected - grouping in each line?
+5. Can a job have more than one inspection? E.g. BR PPI check sheet p1  - YES
+6. Are all options under blue headings the same in all reports? YES - Same headings have the same options. 
+   The only exception is Timber Pest Activity.
+
+MEET WITH ANN
+-------------
+
+1. Add lot # in address table.
+
+JAK Domestic
+
+1. db of client which have had houses sprayed or have had personal termite inspection of their own property 
+   (as opposed to inspections of properties to be sold -> Building Inspection (JAK Inspections)).
+
+2. See sample record - 1
+
+3. Ann includes quote amt when inserting the job into google calendar.
+   Note: This amount may be adjusted on job execution. E.g. house was smaller than anticipated.
+   
+4. Historical data reqd. E.g. record of all jobs on the house
+
+5. Default in 'Fee' field is the total amount of the first instance of a job at the property.
+   Note: 
+   1. default can be manually edited.
+   2. defaults are to be set per address
+   
+6. usr table to include 'partner' names and title.
+
+7. There are set jobs - tags? or lov. Price schedule - get from Ann.
+
+8. Data is entered after job is completed. 
+
+9. Invoice is issued at job and is paid within 14 days. Reminders are sent after 14 days via mail.
+
+10. Payment is by cash, cheque or back account details.
+
+11. Add new table: 'usrInfo'.
+
+12. Include new col in job table: 'reminder' - specify number of months from job date.
+
+13. Reminders are only sent to jobs within last 3 years.
+
+14. CRON - Build monthly reminder report and send to Ann.
+
+15. Include a 'paid' column for each job.
+
+16. Include column for 'date paid'.
+
+17. Invoices are per job.
+

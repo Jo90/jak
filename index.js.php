@@ -53,7 +53,8 @@ echo 'JAK.user.SALT="' , $_SESSION[JAK_SALT] , '";' , PHP_EOL;
 ?>
 
 //debug YUI({filter:'raw',
-YUI({<?php require 'jak-modules.inc'; ?>}).use('jak-pod-userLogon',
+YUI({<?php require 'jak-modules.inc'; ?>}).use(
+    'jak-pod-userLogon',
     function(Y){
 
         Y.on('error',function(type,msg){
@@ -63,8 +64,7 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use('jak-pod-userLogon',
 
         Y.JAK.dataSet.fetch(
             [
-                ['dbTable'          ,'name'],
-                ['tgTag'            ,'id'],
+                ['dbTable','name'],
             ]
            ,function(){
                 var d={},h={},my={}
@@ -89,15 +89,8 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use('jak-pod-userLogon',
                                 '<h1>JAK Inspections</h1>'
                                +'<p>Building &amp; Pest Reports</p>'
                                +'<p>Initial Prototype to investigate possible methods for collecting field data from which to generate customer reports.</p>'
-                            },
-                            {label:'Inspections',content:''},
-                            {label:'Pest Control',content:''},
-                            {label:'Reports',content:''},
-                            {label:'roadmap/milestones',content:
-                                '<center>'
-                               +    '<h1>JAK</h1>'
-                               +    '<h3>Development Roadmap and Milestones</h3>'
-                               +'</center>'
+                               +'<center>'
+                               +'<h3>Development Roadmap and Milestones</h3>'
                                +'<div class="jak-topics">'
                                +    '<ul>'
                                +        '<li><h2>Important considerations</h2></li>'
@@ -150,27 +143,23 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use('jak-pod-userLogon',
                                +'    </ul>'
                                +'</div>'
                                +'</center>'
-                            }
+                            },
+                            {label:'Properties',content:''},
+                            {label:'Reports',content:''},
                         ]
                     }).render('.jak-tabs');
 
-                    //shortcuts
-                        h.tv={
-                            abt:JAK.my.tabView.item(0),
-                            ins:JAK.my.tabView.item(1),
-                            pes:JAK.my.tabView.item(2),
-                            rep:JAK.my.tabView.item(3),
-                            map:JAK.my.tabView.item(4),
-                        };
-                        h.tvp={
-                            abt:h.tv.abt.get('panelNode'),
-                            ins:h.tv.ins.get('panelNode'),
-                            pes:h.tv.pes.get('panelNode'),
-                            rep:h.tv.rep.get('panelNode'),
-                            map:h.tv.map.get('panelNode')
-                        };
-
-
+                //shortcuts
+                    h.tv={
+                        abt:JAK.my.tabView.item(0),
+                        prp:JAK.my.tabView.item(1),
+                        rep:JAK.my.tabView.item(2),
+                    };
+                    h.tvp={
+                        abt:h.tv.abt.get('panelNode'),
+                        prp:h.tv.prp.get('panelNode'),
+                        rep:h.tv.rep.get('panelNode'),
+                    };
             }
         );
     }

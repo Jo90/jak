@@ -2,7 +2,6 @@
 /** //index.php
  *
  */
-phpinfo();
 namespace jak;
 ?>
 <!DOCTYPE html>

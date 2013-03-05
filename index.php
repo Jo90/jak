@@ -28,7 +28,7 @@ body > em {display:block;color:#800;font-size:1.4em;margin:0.4em 1em;}
         <div class="jak-userLogon"></div>
         <span class="jak-clock"></span>
     </section>
-    <em>JAK</em>
+    <em>JAK Inspections</em>
     <article>
         <div class="jak-tabs"></div>
     </article>

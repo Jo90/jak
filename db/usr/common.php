@@ -13,13 +13,14 @@ function usr_getUsr($criteria) {
     $r = new \stdClass;
     $r->criteria = $criteria;
     $cnd  = '';
-    $cols = '`id`,`created`,`logon`,`firstName`,`lastName`,`spouse`,`title`';
+    $cols = '';
     if (isset($criteria->usrIds)) {
+        $cols = '`id`,`created`,`logon`,`firstName`,`lastName`,`title`';
         $cnd  = 'id in (' . implode(',', $criteria->usrIds) . ')';
     }
     if (isset($criteria->logon)) {
+        $cols = '*';
         $cnd  = 'logon = "' . $mysqli->real_escape_string($criteria->logon) . '"';
-        $cols .= ',`password`';
     }
     if ($stmt = $mysqli->prepare(
         "select $cols

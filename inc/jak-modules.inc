@@ -67,6 +67,10 @@ modules:{
         fullpath:'/css/pod/usr.css',
         type:'css'
     },
+    'jak-css-pod-usrFind':{
+        fullpath:'/css/pod/usrFind.css',
+        type:'css'
+    },
     'jak-css-pod-userLogon':{
         fullpath:'/css/pod/userLogon.css',
         type:'css'
@@ -133,6 +137,10 @@ modules:{
     'jak-pod-usr':{
         fullpath:'/pod/usr.php',
         requires:['jak-common','jak-css-pod-usr']
+    },
+    'jak-pod-usrFind':{
+        fullpath:'/pod/usrFind.php',
+        requires:['jak-common','jak-css-pod-usrFind']
     },
     /**
      * utilities

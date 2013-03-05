@@ -2,9 +2,7 @@
 # some editors leave backup files file.type~ with a ~ suffix
 *~
 *.bak
-
-# symbolic links
-# link to enable cross domain calls
+.htaccess
 
 # Logs
 *.log

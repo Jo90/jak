@@ -85,9 +85,8 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                 //menu
                     JAK.my.tabView=new Y.TabView({
                         children:[
-                            {label:'about',content:
-                                '<h1>JAK Inspections</h1>'
-                               +'<p>Building &amp; Pest Reports</p>'
+                            {label:'Dashboard',content:
+                                '<p>Building &amp; Pest Reports</p>'
                                +'<p>Initial Prototype to investigate possible methods for collecting field data from which to generate customer reports.</p>'
                                +'<center>'
                                +'<h3>Development Roadmap and Milestones</h3>'
@@ -143,23 +142,44 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                                +'    </ul>'
                                +'</div>'
                                +'</center>'
-                            },
-                            {label:'Properties',content:''},
-                            {label:'Reports',content:''},
+                            }
                         ]
                     }).render('.jak-tabs');
 
                 //shortcuts
-                    h.tv={
-                        abt:JAK.my.tabView.item(0),
-                        prp:JAK.my.tabView.item(1),
-                        rep:JAK.my.tabView.item(2),
+                    h.tv={dab:JAK.my.tabView.item(0)};
+                    h.tvp={dab:h.tv.dab.get('panelNode')};
+
+                //panels
+                    my.panelBuild=function(){
+                        JAK.my.tabView.add({label:'Calendar'    ,content:'',index:1},1);
+                        JAK.my.tabView.add({label:'Property'    ,content:'',index:2},2);
+                        JAK.my.tabView.add({label:'Check sheets',content:'',index:3},3);
+                        JAK.my.tabView.add({label:'Reports'     ,content:'',index:4},4);
+                        h.tv.cal=JAK.my.tabView.item(1);
+                        h.tv.prp=JAK.my.tabView.item(2);
+                        h.tv.chk=JAK.my.tabView.item(3);
+                        h.tv.rep=JAK.my.tabView.item(4);
+                        h.tvp.cal=h.tv.cal.get('panelNode');
+                        h.tvp.prp=h.tv.prp.get('panelNode');
+                        h.tvp.chk=h.tv.chk.get('panelNode');
+                        h.tvp.rep=h.tv.rep.get('panelNode');
                     };
-                    h.tvp={
-                        abt:h.tv.abt.get('panelNode'),
-                        prp:h.tv.prp.get('panelNode'),
-                        rep:h.tv.rep.get('panelNode'),
+                    my.panelDestroy=function(){
+                        JAK.my.tabView.remove(4);
+                        JAK.my.tabView.remove(3);
+                        JAK.my.tabView.remove(2);
+                        JAK.my.tabView.remove(1);
+                        delete h.tv.cal,h.tv.prp,h.tv.chk,h.tv.rep,h.tvp.cal,h.tvp.prp,h.tvp.chk,h.tvp.rep;
                     };
+
+                //listeners
+                    Y.on('jak:logon' ,my.panelBuild);
+                    Y.on('jak:logout',my.panelDestroy);
+
+                //if logged on
+                    if(typeof JAK.user.usr!=='undefined'){my.panelBuild();}
+
             }
         );
     }

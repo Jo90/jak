@@ -152,24 +152,65 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
 
                 //panels
                     my.panelBuild=function(){
-                        JAK.my.tabView.add({label:'Calendar'    ,content:'',index:1},1);
-                        JAK.my.tabView.add({label:'Property'    ,content:'',index:2},2);
-                        JAK.my.tabView.add({label:'Check sheets',content:'',index:3},3);
-                        JAK.my.tabView.add({label:'Reports'     ,content:'',index:4},4);
+                        JAK.my.tabView.add({label:'Calendar'    ,content:'Calendar',index:1},1);
+                        JAK.my.tabView.add({label:'Jobs'        ,content:'Jobs'    ,index:2},2);
+                        JAK.my.tabView.add({label:'Check sheets',content:''        ,index:3},3);
+                        JAK.my.tabView.add({label:'Reports'     ,content:''        ,index:4},4);
                         h.tv.cal=JAK.my.tabView.item(1);
-                        h.tv.prp=JAK.my.tabView.item(2);
+                        h.tv.job=JAK.my.tabView.item(2);
                         h.tv.chk=JAK.my.tabView.item(3);
                         h.tv.rep=JAK.my.tabView.item(4);
                         h.tvp.cal=h.tv.cal.get('panelNode');
-                        h.tvp.prp=h.tv.prp.get('panelNode');
+                        h.tvp.job=h.tv.job.get('panelNode');
                         h.tvp.chk=h.tv.chk.get('panelNode');
                         h.tvp.rep=h.tv.rep.get('panelNode');
+
+                        $(Y.Node.getDOMNode(h.tvp.cal)).fullCalendar({
+                            allowCalEventOverlap:true,
+                            allDayDefault:false,
+                            contentHeight:500,
+                            daysToShow:7,
+                            editable:true,
+/*
+                            events:function(start,end,callback){
+                                Y.io('/taskRange.php',{
+                                    method:'POST',
+                                    headers:{'Content-Type':'application/json'},
+                                    on:{complete:function(id,o){
+                                    }},
+                                    data:Y.JSON.stringify({
+                                        start:new Date(),
+                                        end  :new Date()
+                                    })
+                                });
+                            },
+*/
+                            firstDayOfWeek:1,
+                            firstHour:8,
+                            header:{
+                                left:'prev,next today',
+                                center:'title',
+                                right:'month,agendaWeek,agendaDay'
+                            },
+                            id:0,
+                            minTime:6,
+                            maxTime:21,
+                            overlapEventsSeparate:true,
+                            timeFormat:{
+                                agenda:'h:mmTT{ - h:mm TT}', // 5:00PM - 6:30PM
+                                '':'(h:mm)TT'
+                            },
+                            weekMode:'liquid',
+                            //events
+                            dayClick   :function(){alert('click on day');},
+                            eventClick :function(){alert('click on event');},
+                            eventDrop  :function(){alert('event drop');},
+                            eventResize:function(){alert('event resize');}
+                        });
+
                     };
                     my.panelDestroy=function(){
-                        JAK.my.tabView.remove(4);
-                        JAK.my.tabView.remove(3);
-                        JAK.my.tabView.remove(2);
-                        JAK.my.tabView.remove(1);
+                        JAK.my.tabView.remove(4);JAK.my.tabView.remove(3);JAK.my.tabView.remove(2);JAK.my.tabView.remove(1);
                         delete h.tv.cal,h.tv.prp,h.tv.chk,h.tv.rep,h.tvp.cal,h.tvp.prp,h.tvp.chk,h.tvp.rep;
                     };
 

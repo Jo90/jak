@@ -67,7 +67,7 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                 ['dbTable','name'],
             ]
            ,function(){
-                var d={},h={},my={}
+                var d={},h={tv:{},tp:{}},my={}
                 ;
 
                 Y.JAK.pod.userLogon({
@@ -85,133 +85,50 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                 //menu
                     JAK.my.tabView=new Y.TabView({
                         children:[
-                            {label:'Dashboard',content:
-                                '<p>Building &amp; Pest Reports</p>'
-                               +'<p>Initial Prototype to investigate possible methods for collecting field data from which to generate customer reports.</p>'
-                               +'<center>'
-                               +'<h3>Development Roadmap and Milestones</h3>'
-                               +'<div class="jak-topics">'
-                               +    '<ul>'
-                               +        '<li><h2>Important considerations</h2></li>'
-                               +        '<li>The long term requirements indicate this would be best built as an APPLICATION rather than a series of web pages.  see http://www.tonymarston.net/php-mysql/web-site-vs-web-application.html also http://stackoverflow.com/questions/1959910/web-site-vs-web-application</li>'
-                               +        '<li>Fundamentally what is required is not just a series of pages.  Currently JAK is running at the application level by utilising software such as Google Drive/Docs.</li>'
-                               +    '</ul>'
-                               +    '<ul>'
-                               +        '<li>'
-                               +            '<h1>Phase 1 - Initial Review</h1>'
-                               +            '<ul>'
-                               +                '<li>Stakeholder vision</li>'
-                               +                '<li>Review existing systems - 70%</li>'
-                               +                '<li>Look at existing processes and reports - 90%</li>'
-                               +                '<li>Determine fundamental information - 80%</li>'
-                               +                '<li>Initial database design - 70%</li>'
-                               +                '<li>Check that data matches existing processes - %70</li>'
-                               +                '<li>Determine core concepts - %70</li>'
-                               +                '<li>Determine core technologies i.e. PHP, Javascript, Linux, YUI3, JQuery, Git, etc - 80%</li>'
-                               +                '<li>Start documenting use case processes for use in instruction manual - 25%</li>'
-                               +                '<li>Present findings and determine essentials of prototype - 30%</li>'
-                               +            '</ul>'
-                               +        '</li>'
-                               +        '<li>'
-                               +            '<h1>Phase 2 - Develop Environment</h1>'
-                               +            '<ul>'
-                               +                '<li>Setup developmental framework.</li>'
-                               +                '<li>Setup infrastructure - %20</li>'
-                               +                '<li>Setup internet for customer review of progress - %0</li>'
-                               +                '<li>Design standard user interface - %5</li>'
-                               +                '<li>Mock up basic initial conceptual model for customer review</li>'
-                               +            '</ul>'
-                               +        '</li>'
-                               +        '<li>'
-                               +            '<h1>Phase 3 - Build Prototype</h1>'
-                               +            '<ul>'
-                               +                '<li>Continuously review progress with customer</li>'
-                               +                '<li>Agree on deliverables for production and initial product release</li>'
-                               +                '<li>Test - Test - Test</li>'
-                               +            '</ul>'
-                               +        '</li>'
-                               +        '<li>'
-                               +            '<h1>Phase 4 - </h1>'
-                               +            '<ul>'
-                               +                '<li>Make live</li>'
-                               +                '<li>Determine any requirements for enhancements - Next Phase (if any)</li>'
-                               +            '</ul>'
-                               +        '</li>'
-                               +'        <li><h2>Constraints</h2></li>'
-                               +'        <li></li>'
-                               +'    </ul>'
-                               +'</div>'
-                               +'</center>'
-                            }
+                            {label:'Dashboard',content:''}
                         ]
                     }).render('.jak-tabs');
 
-                //shortcuts
-                    h.tv={dab:JAK.my.tabView.item(0)};
-                    h.tvp={dab:h.tv.dab.get('panelNode')};
+                //dashboard
+                    h.tv.das=JAK.my.tabView.item(0);
+                    h.tp.das=h.tv.das.get('panelNode');
+                    Y.use('jak-mod-dashboard',function(Y){
+                        h.myDashboard=new Y.JAK.mod.dashboard({node:h.tp.das});
+                    });
 
                 //panels
                     my.panelBuild=function(){
-                        JAK.my.tabView.add({label:'Calendar'    ,content:'Calendar',index:1},1);
-                        JAK.my.tabView.add({label:'Jobs'        ,content:'Jobs'    ,index:2},2);
-                        JAK.my.tabView.add({label:'Check sheets',content:''        ,index:3},3);
-                        JAK.my.tabView.add({label:'Reports'     ,content:''        ,index:4},4);
-                        h.tv.cal=JAK.my.tabView.item(1);
-                        h.tv.job=JAK.my.tabView.item(2);
-                        h.tv.chk=JAK.my.tabView.item(3);
-                        h.tv.rep=JAK.my.tabView.item(4);
-                        h.tvp.cal=h.tv.cal.get('panelNode');
-                        h.tvp.job=h.tv.job.get('panelNode');
-                        h.tvp.chk=h.tv.chk.get('panelNode');
-                        h.tvp.rep=h.tv.rep.get('panelNode');
 
-                        $(Y.Node.getDOMNode(h.tvp.cal)).fullCalendar({
-                            allowCalEventOverlap:true,
-                            allDayDefault:false,
-                            contentHeight:500,
-                            daysToShow:7,
-                            editable:true,
-/*
-                            events:function(start,end,callback){
-                                Y.io('/taskRange.php',{
-                                    method:'POST',
-                                    headers:{'Content-Type':'application/json'},
-                                    on:{complete:function(id,o){
-                                    }},
-                                    data:Y.JSON.stringify({
-                                        start:new Date(),
-                                        end  :new Date()
-                                    })
-                                });
-                            },
-*/
-                            firstDayOfWeek:1,
-                            firstHour:8,
-                            header:{
-                                left:'prev,next today',
-                                center:'title',
-                                right:'month,agendaWeek,agendaDay'
-                            },
-                            id:0,
-                            minTime:6,
-                            maxTime:21,
-                            overlapEventsSeparate:true,
-                            timeFormat:{
-                                agenda:'h:mmTT{ - h:mm TT}', // 5:00PM - 6:30PM
-                                '':'(h:mm)TT'
-                            },
-                            weekMode:'liquid',
-                            //events
-                            dayClick   :function(){alert('click on day');},
-                            eventClick :function(){alert('click on event');},
-                            eventDrop  :function(){alert('event drop');},
-                            eventResize:function(){alert('event resize');}
-                        });
+                        //calendar
+                            JAK.my.tabView.add({label:'Calendar',content:'Calendar',index:1},1);
+                            h.tv.cal=JAK.my.tabView.item(1);
+                            h.tp.cal=h.tv.cal.get('panelNode');
+                            Y.use('jak-mod-calendar',function(Y){
+                                h.myCalendar=new Y.JAK.mod.calendar({node:h.tp.cal});
+                            });
+
+                        //job matrix
+                            JAK.my.tabView.add({label:'Jobs',content:'',index:2},2);
+                            h.tv.job=JAK.my.tabView.item(2);
+                            h.tp.job=h.tv.job.get('panelNode');
+                            Y.use('jak-mod-job',function(Y){
+                                h.myJob=new Y.JAK.mod.job({node:h.tp.job});
+                            });
+
+                        //check sheets
+                            JAK.my.tabView.add({label:'Check sheets',content:'',index:3},3);
+                            h.tv.chk=JAK.my.tabView.item(3);
+                            h.tp.chk=h.tv.chk.get('panelNode');
+
+                        //reports
+                            JAK.my.tabView.add({label:'Reports',content:'',index:4},4);
+                            h.tv.rep=JAK.my.tabView.item(4);
+                            h.tp.rep=h.tv.rep.get('panelNode');
 
                     };
                     my.panelDestroy=function(){
                         JAK.my.tabView.remove(4);JAK.my.tabView.remove(3);JAK.my.tabView.remove(2);JAK.my.tabView.remove(1);
-                        delete h.tv.cal,h.tv.prp,h.tv.chk,h.tv.rep,h.tvp.cal,h.tvp.prp,h.tvp.chk,h.tvp.rep;
+                        delete h.tv.cal,h.tv.job,h.tv.chk,h.tv.rep,h.tp.cal,h.tp.job,h.tp.chk,h.tp.rep;
                     };
 
                 //listeners

@@ -39,24 +39,12 @@ modules:{
         fullpath:'/css/widget/dialogMask.css',
         type:'css'
     },
-    'jak-css-mod-about':{
-        fullpath:'/css/mod/about.css',
-        type:'css'
-    },
-    'jak-css-mod-act':{
-        fullpath:'/css/mod/act.css',
-        type:'css'
-    },
-    'jak-css-mod-grp':{
-        fullpath:'/css/mod/grp.css',
+    'jak-css-mod-job':{
+        fullpath:'/css/mod/job.css',
         type:'css'
     },
     'jak-css-pod-info':{
         fullpath:'/css/pod/info.css',
-        type:'css'
-    },
-    'jak-css-pod-grp':{
-        fullpath:'/css/pod/grp.css',
         type:'css'
     },
     'jak-css-pod-report':{
@@ -89,17 +77,17 @@ modules:{
     /**
      * modules
      */
-    'jak-mod-about':{
-        fullpath:'/mod/about.js',
-        requires:['jak-common','jak-css-mod-about']
+    'jak-mod-calendar':{
+        fullpath:'/mod/calendar.js',
+        requires:['jak-common']
     },
-    'jak-mod-act':{
-        fullpath:'/mod/act.js',
-        requires:['jak-common','jak-css-mod-act']
+    'jak-mod-dashboard':{
+        fullpath:'/mod/dashboard.js',
+        requires:['jak-common']
     },
-    'jak-mod-grp':{
-        fullpath:'/mod/grp.js',
-        requires:['jak-common','jak-css-mod-grp','jak-db']
+    'jak-mod-job':{
+        fullpath:'/mod/job.js',
+        requires:['jak-common','jak-css-mod-job']
     },
     /**
      * plugins
@@ -117,10 +105,6 @@ modules:{
     'jak-pod-editor':{
         fullpath:'/pod/editor.js',
         requires:['jak-common','jak-plugin-ckEditor']
-    },
-    'jak-pod-grp':{
-        fullpath:'/pod/grp.js',
-        requires:['jak-common','jak-css-pod-grp','jak-db-grp']
     },
     'jak-pod-info':{
         fullpath:'/pod/info.js',

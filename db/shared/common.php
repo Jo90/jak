@@ -1,36 +1,30 @@
 <?php
-/** /db/info/common.php
+/** /db/shared/common.php
  *
  */
 namespace jak;
 
-function info_getInfo($criteria) {
+function tg_getTag($criteria) {
     global $mysqli;
     $r = new \stdClass;
     $r->criteria = $criteria;
-    $cnd = '';
-    if (isset($criteria->infoIds) && is_array($criteria->infoIds) && count($criteria->infoIds) > 0) {
-        $infoIds = implode(',', $criteria->infoIds);
-        $cnd = "where id in ($infoIds)";
-    }
-    if (isset($criteria->dbTable, $criteria->pks) && is_array($criteria->pks) && count($criteria->pks) > 0) {
-        $pks   = implode(',', $criteria->pks);
-        $dbTab = $criteria->dbTable;
-        $cnd = "where dbTable = $dbTab and pk in ($pks)";
-    }
+    $dbTable = $criteria->dbTable;
+    $pks     = implode(',', $criteria->pks);
     if ($stmt = $mysqli->prepare(
         "select *
-           from `info` $cnd"
+           from `tag`
+           where dbTable = $dbTable
+             and pk in ($pks)"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt);
+        $r->data = \jak\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;
 }
 
-function info_setInfo(&$criteria) {
+function info_setTag(&$criteria) {
     global $mysqli;
     $criteria->result = new \stdClass;
     $r = $criteria->result;
@@ -38,7 +32,7 @@ function info_setInfo(&$criteria) {
 
     if (isset($criteria->remove) && $criteria->remove) {
         if ($stmt = $mysqli->prepare(
-            "delete from `info`
+            "delete from `tag`
               where id = ?"
         )) {
             $stmt->bind_param('i'
@@ -52,18 +46,14 @@ function info_setInfo(&$criteria) {
     }
     if (isset($criteria->data->id)) {
         if ($stmt = $mysqli->prepare(
-            "update `info`
+            "update `tag`
                 set displayOrder = ?,
-                    viewable     = ?,
-                    category     = ?,
-                    detail       = ?
+                    name         = ?
               where id = ?"
         )) {
-            $stmt->bind_param('iissi'
+            $stmt->bind_param('isi'
                 ,$criteria->data->displayOrder
-                ,$criteria->data->viewable
-                ,$criteria->data->category
-                ,$criteria->data->detail
+                ,$criteria->data->name
                 ,$criteria->data->id
             );
             $r->successUpdate = $stmt->execute();
@@ -75,17 +65,15 @@ function info_setInfo(&$criteria) {
     }
     //insert
     if ($stmt = $mysqli->prepare(
-            "insert into `info`
-                    (dbTable,pk,displayOrder,viewable,category,detail)
-             values (?,?,?,?,?,?)"
+            "insert into `tag`
+                    (dbTable,pk,displayOrder,name)
+             values (?,?,?,?)"
     )) {
-        $stmt->bind_param('iiiiss'
+        $stmt->bind_param('iiis'
            ,$criteria->data->dbTable
            ,$criteria->data->pk
            ,$criteria->data->displayOrder
-           ,$criteria->data->viewable
-           ,$criteria->data->category
-           ,$criteria->data->detail
+           ,$criteria->data->name
         );
         $r->successInsert = $stmt->execute();
         $r->rows = $mysqli->affected_rows;

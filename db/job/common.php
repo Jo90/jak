@@ -1,17 +1,17 @@
 <?php
-/** /db/info/common.php
+/** /db/job/common.php
  *
  */
 namespace jak;
 
-function info_getInfo($criteria) {
+function job_getJob($criteria) {
     global $mysqli;
     $r = new \stdClass;
     $r->criteria = $criteria;
     $cnd = '';
-    if (isset($criteria->infoIds) && is_array($criteria->infoIds) && count($criteria->infoIds) > 0) {
-        $infoIds = implode(',', $criteria->infoIds);
-        $cnd = "where id in ($infoIds)";
+    if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0) {
+        $jobIds = implode(',', $criteria->jobIds);
+        $cnd = "where id in ($jobIds)";
     }
     if (isset($criteria->dbTable, $criteria->pks) && is_array($criteria->pks) && count($criteria->pks) > 0) {
         $pks   = implode(',', $criteria->pks);
@@ -20,7 +20,7 @@ function info_getInfo($criteria) {
     }
     if ($stmt = $mysqli->prepare(
         "select *
-           from `info` $cnd"
+           from `job` $cnd"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
@@ -30,7 +30,7 @@ function info_getInfo($criteria) {
     return $r;
 }
 
-function info_setInfo(&$criteria) {
+function job_setJob(&$criteria) {
     global $mysqli;
     $criteria->result = new \stdClass;
     $r = $criteria->result;
@@ -38,7 +38,7 @@ function info_setInfo(&$criteria) {
 
     if (isset($criteria->remove) && $criteria->remove) {
         if ($stmt = $mysqli->prepare(
-            "delete from `info`
+            "delete from `job`
               where id = ?"
         )) {
             $stmt->bind_param('i'
@@ -52,18 +52,19 @@ function info_setInfo(&$criteria) {
     }
     if (isset($criteria->data->id)) {
         if ($stmt = $mysqli->prepare(
-            "update `info`
-                set displayOrder = ?,
-                    viewable     = ?,
-                    category     = ?,
-                    detail       = ?
+            "update `job`
+                set ref      = ?,
+                    property = ?,
+                    reminder = ?,
+                    status   = ?,
+                    weather  = ?
               where id = ?"
         )) {
-            $stmt->bind_param('iissi'
-                ,$criteria->data->displayOrder
-                ,$criteria->data->viewable
-                ,$criteria->data->category
-                ,$criteria->data->detail
+            $stmt->bind_param('iiiss'
+                ,$criteria->data->ref
+                ,$criteria->data->property
+                ,$criteria->data->reminder
+                ,$criteria->data->status
                 ,$criteria->data->id
             );
             $r->successUpdate = $stmt->execute();
@@ -75,17 +76,17 @@ function info_setInfo(&$criteria) {
     }
     //insert
     if ($stmt = $mysqli->prepare(
-            "insert into `info`
-                    (dbTable,pk,displayOrder,viewable,category,detail)
+            "insert into `job`
+                    (ref,created,property,reminder,status,weather)
              values (?,?,?,?,?,?)"
     )) {
         $stmt->bind_param('iiiiss'
-           ,$criteria->data->dbTable
-           ,$criteria->data->pk
-           ,$criteria->data->displayOrder
-           ,$criteria->data->viewable
-           ,$criteria->data->category
-           ,$criteria->data->detail
+           ,$criteria->data->ref
+           ,$criteria->data->created
+           ,$criteria->data->property
+           ,$criteria->data->reminder
+           ,$criteria->data->status
+           ,$criteria->data->weather
         );
         $r->successInsert = $stmt->execute();
         $r->rows = $mysqli->affected_rows;

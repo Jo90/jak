@@ -1,6 +1,7 @@
 <?php
 /** /db/shared/common.php
  *
+ * tables with dbTable and pk
  */
 namespace jak;
 

@@ -1,9 +1,6 @@
 <?php
 /** /db/usr/common.php
  *
- *  JAK
- *
- *  usr functions
  */
 namespace jak;
 
@@ -14,18 +11,30 @@ function usr_getUsr($criteria) {
     $r->criteria = $criteria;
     $cnd  = '';
     $cols = '';
+    $limit = '';
+
     if (isset($criteria->usrIds)) {
         $cols = '`id`,`created`,`logon`,`firstName`,`lastName`,`title`';
         $cnd  = 'id in (' . implode(',', $criteria->usrIds) . ')';
-    }
+    } else
     if (isset($criteria->logon)) {
         $cols = '*';
         $cnd  = 'logon = "' . $mysqli->real_escape_string($criteria->logon) . '"';
+    } else
+    if (isset($criteria->firstName, $criteria->firstName)) {
+        $cols = '*';
+        $cnd  = 'firstName like "' . $mysqli->real_escape_string($criteria->firstName) . '%" and '
+              . 'lastName like "' . $mysqli->real_escape_string($criteria->lastName) . '%"';
     }
+
+    if (isset($criteria->rowLimit)) {
+        $limit = ' limit ' . $criteria->rowLimit;
+    }
+
     if ($stmt = $mysqli->prepare(
         "select $cols
            from `usr`
-          where $cnd"
+          where $cnd $limit"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;

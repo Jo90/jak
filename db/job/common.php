@@ -31,7 +31,7 @@ function job_getJob($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt);
+        $r->data = \jak\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;

@@ -25,24 +25,18 @@ YUI.add('jak-mod-job',function(Y){
 
         var self=this,
             css='jak-mod-job',
-            d={},
-            f={},
-            h={},
+            d={},f={},h={},
             initialise={},
             io={},
             listeners,
             pod={},
             populate={},
-            render={}
+            render={},
+            trigger={}
         ;
 
         this.customEvent={
             selected:self.info.id+(++JAK.env.customEventSequence)+':selected'
-        };
-
-        this.get=function(what){
-        };
-        this.set=function(what,value){
         };
 
         this.my={}; //children
@@ -92,6 +86,7 @@ YUI.add('jak-mod-job',function(Y){
 
         listeners=function(){
             h.bd.delegate('click',io.fetch.job,'.jak-search');
+            h.dt.get('contentBox').delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
         };
 
         pod={
@@ -105,7 +100,22 @@ YUI.add('jak-mod-job',function(Y){
 
         populate={
             job:function(id,o){
-                var rs=Y.JSON.parse(o.responseText)[0].result;
+                var rs       =Y.JSON.parse(o.responseText)[0].result,
+                    addresses=rs.address.data,
+                    jobs     =rs.job.data,
+                    locations=rs.location.data
+                ;
+                h.dt.set('data',null);
+                Y.each(jobs,function(job){
+                    h.dt.addRow({
+                        jobId     :job.id,
+                        streetRef :addresses[job.address].streetRef,
+                        streetName:addresses[job.address].streetName,
+                        location  :locations[addresses[job.address].location].full,
+                        usr       :'coming...'
+                    });
+                });
+
                 Y.JAK.widget.busy.set('message','');
             }
         };
@@ -250,21 +260,31 @@ YUI.add('jak-mod-job',function(Y){
                 });
 
                 h.dt=new Y.DataTable({
+                    caption :'JAK Inspections Job Log',
                     columns:[
                         {key:'jobId'     ,label:'job'       ,abbr:'id'},
                         {key:'streetRef' ,label:'#'         ,abbr:'ref'},
                         {key:'streetName',label:'street'    ,abbr:'st'},
                         {key:'location'  ,label:'location'  ,abbr:'suburb/city'},
-                        {key:'firstName' ,label:'first name',abbr:'first'},
-                        {key:'lastName'  ,label:'last name' ,abbr:'last'}
+                        {key:'usr'       ,label:'clients'   ,abbr:'usr'},
                     ],
-                    data   :[],
-                    summary:'jobs',
-                    caption:'JAK Inspections'
+                    data    :[],
+                    sortable:true,
+                    summary :'jobs'
                 }).render(cfg.node);
             }
         };
 
+        trigger={
+            selectGridCell:function(e){
+                if(this.hasClass('yui3-datatable-col-jobId')){
+                    alert('job');
+                }
+                if(this.hasClass('yui3-datatable-col-streetRef')||this.hasClass('yui3-datatable-col-streetName')||this.hasClass('yui3-datatable-col-location')){
+                    alert('address');
+                }
+            }
+        };
         /**
          *  load & initialise
          */

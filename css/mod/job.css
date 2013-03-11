@@ -6,9 +6,10 @@
 .jak-mod-job .yui3-tab-panel {overflow:auto;width:100% !important; /* ensure containment */ }
 
 .jak-mod-job .jak-data-streetRef,
-.jak-mod-job .jak-data-job {width:3em;}
+.jak-mod-job .jak-data-job,
+.jak-mod-job .jak-data-last-jobs {width:3em;}
+.jak-mod-job .jak-data-locationName {width:12em;}
 .jak-mod-job .jak-data-streetName   {width:10em;}
-.jak-mod-job .jak-data-locationName,
 .jak-mod-job .jak-data-firstName,
 .jak-mod-job .jak-data-lastName {width:7em;}
-
+.jak-mod-job .jak-data-row-limit {width:2em;}

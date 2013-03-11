@@ -8,23 +8,30 @@ function job_getJob($criteria) {
     global $mysqli;
     $r = new \stdClass;
     $r->criteria = $criteria;
-    $cnd = '';
+    $cnd   = '';
+    $limit = '';
+
+    //jobs
     if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0) {
         $jobIds = implode(',', $criteria->jobIds);
         $cnd = "where id in ($jobIds)";
     }
-    if (isset($criteria->dbTable, $criteria->pks) && is_array($criteria->pks) && count($criteria->pks) > 0) {
-        $pks   = implode(',', $criteria->pks);
-        $dbTab = $criteria->dbTable;
-        $cnd = "where dbTable = $dbTab and pk in ($pks)";
+    //last jobs
+    if (isset($criteria->last) && $criteria->last) {
+        $cnd = 'order by id desc';
     }
+
+    if (isset($criteria->rowLimit)) {
+        $limit = ' limit ' . $criteria->rowLimit;
+    }
+
     if ($stmt = $mysqli->prepare(
         "select *
-           from `job` $cnd"
+           from `job` $cnd $limit"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt);
+        $r->data = \jak\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;

@@ -25,23 +25,18 @@ YUI.add('jak-mod-job',function(Y){
 
         var self=this,
             css='jak-mod-job',
-            d={},
-            h={},
+            d={},f={},h={},
             initialise={},
             io={},
             listeners,
             pod={},
             populate={},
-            render={}
+            render={},
+            trigger={}
         ;
 
         this.customEvent={
             selected:self.info.id+(++JAK.env.customEventSequence)+':selected'
-        };
-
-        this.get=function(what){
-        };
-        this.set=function(what,value){
         };
 
         this.my={}; //children
@@ -56,47 +51,71 @@ YUI.add('jak-mod-job',function(Y){
 
         io={
             fetch:{
-                job:function(){
+                job:function(e){
+                    var criteria={rowLimit:f.rowLimit.get('value')}
+                    ;
                     Y.JAK.widget.busy.set('message','getting job(s)...');
+                    if(this.hasClass('jak-search-address')){
+                        criteria.streetRef =f.streetRef .get('value');
+                        criteria.streetName=f.streetName.get('value');
+                        criteria.location  =f.location  .get('value');
+                    }else
+                    if(this.hasClass('jak-search-name')){
+                        criteria.firstName=f.firstName.get('value');
+                        criteria.lastName =f.lastName .get('value');
+                    }else
+                    if(this.hasClass('jak-search-job')){
+                        if(f.job.get('value')===''){alert('requires job number');return false;}
+                        criteria.job=f.job.get('value');
+                    }else
+                    if(this.hasClass('jak-search-last-jobs')){
+                        criteria.lastJob=true;
+                    }
                     Y.io('/db/job/s.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
-                            criteria:{
-                                streetRef :h.bd.one('.jak-data-streetRef' ).get('value'),
-                                streetName:h.bd.one('.jak-data-streetName').get('value'),
-                                location  :h.bd.one('.jak-data-location'  ).get('value'),
-                                firstName :h.bd.one('.jak-data-firstName' ).get('value'),
-                                lastName  :h.bd.one('.jak-data-lastName'  ).get('value'),
-                                job       :h.bd.one('.jak-data-job'       ).get('value')
-                            },
-                            member:JAK.user.usr
+                            criteria:criteria,
+                            member  :JAK.user.usr
                         }])
                     });
                 }
             }
-           ,insert:{
-            }
         };
 
         listeners=function(){
-            h.search.on('click',io.fetch.job);
+            h.bd.delegate('click',io.fetch.job,'.jak-search');
+            h.dt.get('contentBox').delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
         };
 
         pod={
             display:{
-            }
-           ,load:{
-            }
-           ,result:{
+            },
+            load:{
+            },
+            result:{
             }
         };
 
         populate={
             job:function(id,o){
-                var rs=Y.JSON.parse(o.responseText)[0].result;
-                debugger;
+                var rs       =Y.JSON.parse(o.responseText)[0].result,
+                    addresses=rs.address.data,
+                    jobs     =rs.job.data,
+                    locations=rs.location.data
+                ;
+                h.dt.set('data',null);
+                Y.each(jobs,function(job){
+                    h.dt.addRow({
+                        jobId     :job.id,
+                        streetRef :addresses[job.address].streetRef,
+                        streetName:addresses[job.address].streetName,
+                        location  :locations[addresses[job.address].location].full,
+                        usr       :'coming...'
+                    });
+                });
+
                 Y.JAK.widget.busy.set('message','');
             }
         };
@@ -107,23 +126,165 @@ YUI.add('jak-mod-job',function(Y){
                     '<fieldset>'
                    +  '<legend>search</legend>'
                    +  'Address:'
+                   +  '<select class="jak-data-state">'
+                   +    '<option>NSW</option>'
+                   +    '<option>VIC</option>'
+                   +    '<option>QLD</option>'
+                   +    '<option>ACT</option>'
+                   +    '<option>NT</option>'
+                   +    '<option>TAS</option>'
+                   +    '<option>WA</option>'
+                   +  '</select>'
                    +  '<input type="hidden" class="jak-data-location" />'
                    +  '<input type="text"   class="jak-data-locationName" title="suburb/city" placeholder="suburb" />'
                    +  '<input type="text"   class="jak-data-streetName"   title="street" placeholder="street" />'
                    +  '<input type="text"   class="jak-data-streetRef"    title="unit/street number" placeholder="#" />'
+                   +  Y.JAK.html('btn',{action:'find',title:'search for address',classes:'jak-search jak-search-address'})
                    +  '&nbsp; Name:'
-                   +  '<input type="text"   class="jak-data-firstName" title="first name" placeholder="first name" />'
-                   +  '<input type="text"   class="jak-data-lastName"  title="last name"  placeholder="last name" />'
+                   +  '<input type="text"   class="jak-data-firstName" title="first name" placeholder="first" />'
+                   +  '<input type="text"   class="jak-data-lastName"  title="last name"  placeholder="last" />'
+                   +  Y.JAK.html('btn',{action:'find',title:'search for name',classes:'jak-search jak-search-name'})
                    +  '&nbsp; Job:'
-                   +  '<input type="text"   class="jak-data-job" title="job number" placeholder="job" />'
-                   +  '<button>search</button>'
+                   +  '#<input type="text"   class="jak-data-job" title="job number" placeholder="job" />'
+                   +  Y.JAK.html('btn',{action:'find',title:'search for specific job',classes:'jak-search jak-search-job'})
+                   +  '&nbsp; last'
+                   +  Y.JAK.html('btn',{action:'find',title:'search for last jobs',classes:'jak-search jak-search-last-jobs'})
+                   +  '&nbsp; row limit<input type="text" class="jak-data-row-limit"  title="maximum number of records to fetch"  placeholder="rows" value="20" />'
                    +'</fieldset>'
                 );
-                h.bd    =cfg.node.one('fieldset');
-                h.search=cfg.node.one('button');
+                h.bd            =cfg.node.one('fieldset');
+                f.state         =h.bd.one('.jak-data-state'       );
+                f.streetRef     =h.bd.one('.jak-data-streetRef'   );
+                f.streetName    =h.bd.one('.jak-data-streetName'  );
+                f.location      =h.bd.one('.jak-data-location'    );
+                f.locationName  =h.bd.one('.jak-data-locationName');
+                f.firstName     =h.bd.one('.jak-data-firstName'   );
+                f.lastName      =h.bd.one('.jak-data-lastName'    );
+                f.job           =h.bd.one('.jak-data-job'         );
+                f.rowLimit      =h.bd.one('.jak-data-row-limit'   );
+
+            //auto complete
+                f.locationName.plug(Y.Plugin.AutoComplete,{
+                    activateFirstItem:true,
+                    minQueryLength:2,
+                    queryDelay:300,
+                    resultFilters:'startsWith',
+                    resultHighlighter:'wordMatch',
+                    resultTextLocator:function(result){return result[4];},
+                    after:{
+                        results:function(e){
+                            if(e.data.length===1){this.selectItem();}
+                            if(e.data.length===0){f.location.set('value',0);}
+                        }
+                    },
+                    on:{
+                        query:function(e){
+                            this.set('source','/db/address/acState.php?location={query}&state='+f.state.get('value'));
+                        },
+                        select:function(e){
+                            f.location.set('value',e.result.raw[0]);
+                        }
+                    }
+                });
+                f.streetName.plug(Y.Plugin.AutoComplete,{
+                    activateFirstItem:true,
+                    minQueryLength:2,
+                    queryDelay:300,
+                    resultFilters:'startsWith',
+                    resultHighlighter:'wordMatch',
+                    resultTextLocator:function(result){return result[0];},
+                    after:{
+                        results:function(e){
+                            if(e.data.length===1){this.selectItem();}
+                        }
+                    },
+                    on:{
+                        query:function(e){
+                            this.set('source','/db/address/acStreetName.php?streetRef='+encodeURI(f.streetRef.get('value'))+'&streetName={query}&location='+f.location.get('value'));
+                        }
+                    }
+                });
+                f.streetRef.plug(Y.Plugin.AutoComplete,{
+                    activateFirstItem:true,
+                    minQueryLength:1,
+                    queryDelay:300,
+                    resultFilters:'startsWith',
+                    resultHighlighter:'wordMatch',
+                    resultTextLocator:function(result){return result[0];},
+                    after:{
+                        results:function(e){
+                            if(e.data.length===1){this.selectItem();}
+                        }
+                    },
+                    on:{
+                        query:function(e){
+                            this.set('source','/db/address/acStreetRef.php?streetRef={query}&streetName='+encodeURI(f.streetName.get('value'))+'&location='+f.location.get('value'));
+                        }
+                    }
+                });
+                f.firstName.plug(Y.Plugin.AutoComplete,{
+                    activateFirstItem:true,
+                    minQueryLength:2,
+                    queryDelay:300,
+                    resultFilters:'startsWith',
+                    resultHighlighter:'wordMatch',
+                    resultTextLocator:function(result){return result[0];},
+                    after:{
+                        results:function(e){
+                            if(e.data.length===1){this.selectItem();}
+                        }
+                    },
+                    on:{
+                        query:function(e){
+                            this.set('source','/db/usr/ac.php?firstName='+f.firstName.get('value')+'&lastName='+f.lastName.get('value'));
+                        }
+                    }
+                });
+                f.lastName.plug(Y.Plugin.AutoComplete,{
+                    activateFirstItem:true,
+                    minQueryLength:2,
+                    queryDelay:300,
+                    resultFilters:'startsWith',
+                    resultHighlighter:'wordMatch',
+                    resultTextLocator:function(result){return result[1];},
+                    after:{
+                        results:function(e){
+                            if(e.data.length===1){this.selectItem();}
+                        }
+                    },
+                    on:{
+                        query:function(e){
+                            this.set('source','/db/usr/ac.php?firstName='+f.firstName.get('value')+'&lastName='+f.lastName.get('value'));
+                        }
+                    }
+                });
+
+                h.dt=new Y.DataTable({
+                    caption :'JAK Inspections Job Log',
+                    columns:[
+                        {key:'jobId'     ,label:'job'       ,abbr:'id'},
+                        {key:'streetRef' ,label:'#'         ,abbr:'ref'},
+                        {key:'streetName',label:'street'    ,abbr:'st'},
+                        {key:'location'  ,label:'location'  ,abbr:'suburb/city'},
+                        {key:'usr'       ,label:'clients'   ,abbr:'usr'},
+                    ],
+                    data    :[],
+                    sortable:true,
+                    summary :'jobs'
+                }).render(cfg.node);
             }
         };
 
+        trigger={
+            selectGridCell:function(e){
+                if(this.hasClass('yui3-datatable-col-jobId')){
+                    alert('job');
+                }
+                if(this.hasClass('yui3-datatable-col-streetRef')||this.hasClass('yui3-datatable-col-streetName')||this.hasClass('yui3-datatable-col-location')){
+                    alert('address');
+                }
+            }
+        };
         /**
          *  load & initialise
          */

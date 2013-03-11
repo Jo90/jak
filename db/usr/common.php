@@ -1,9 +1,6 @@
 <?php
 /** /db/usr/common.php
  *
- *  JAK
- *
- *  usr functions
  */
 namespace jak;
 
@@ -14,18 +11,30 @@ function usr_getUsr($criteria) {
     $r->criteria = $criteria;
     $cnd  = '';
     $cols = '';
+    $limit = '';
+
     if (isset($criteria->usrIds)) {
         $cols = '`id`,`created`,`logon`,`firstName`,`lastName`,`title`';
         $cnd  = 'id in (' . implode(',', $criteria->usrIds) . ')';
-    }
+    } else
     if (isset($criteria->logon)) {
         $cols = '*';
         $cnd  = 'logon = "' . $mysqli->real_escape_string($criteria->logon) . '"';
+    } else
+    if (isset($criteria->firstName, $criteria->firstName)) {
+        $cols = '*';
+        $cnd  = 'firstName like "' . $mysqli->real_escape_string($criteria->firstName) . '%" and '
+              . 'lastName like "' . $mysqli->real_escape_string($criteria->lastName) . '%"';
     }
+
+    if (isset($criteria->rowLimit)) {
+        $limit = ' limit ' . $criteria->rowLimit;
+    }
+
     if ($stmt = $mysqli->prepare(
         "select $cols
            from `usr`
-          where $cnd"
+          where $cnd $limit"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
@@ -45,6 +54,44 @@ function usr_getUsrInfo($criteria) {
         "select *
            from `usrInfo`
           where usr in ($usrIds)"
+    )) {
+        $r->success = $stmt->execute();
+        $r->rows = $mysqli->affected_rows;
+        $r->data = \jak\fetch_result($stmt,'id');
+        $stmt->close();
+    }
+    return $r;
+}
+
+function usr_getUsrJob($criteria) {
+    global $mysqli;
+    $r = new \stdClass;
+    $r->criteria = $criteria;
+    $cnd   = '';
+    $limit = '';
+
+    //conditions
+    if (isset($criteria->usrJobIds) && is_array($criteria->usrJobIds) && count($criteria->usrJobIds) > 0) {
+        $usrJobIds = implode(',', $criteria->usrJobIds);
+        $cnd = "where id in ($usrJobIds)";
+    } else
+    if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0) {
+        $jobIds = implode(',', $criteria->jobIds);
+        $cnd = "where job in ($jobIds)";
+    } else
+    //usrs
+    if (isset($criteria->usrIds) && is_array($criteria->usrIds) && count($criteria->usrIds) > 0) {
+        $usrIds = implode(',', $criteria->usrIds);
+        $cnd = "where usr in ($usrIds)";
+    }
+
+    if (isset($criteria->rowLimit)) {
+        $limit = ' limit ' . $criteria->rowLimit;
+    }
+
+    if ($stmt = $mysqli->prepare(
+        "select *
+           from `usrJob` $cnd $limit"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;

@@ -3,6 +3,14 @@
  */
 YUI.add('jak-mod-calendar',function(Y){
 
+    /**
+     *  create reuseable job pods
+     */
+    WB.my.jobNew=new Y.WB.pod.jobNew({
+        title:'new task'
+       ,visible:false
+    });
+
     Y.namespace('JAK.mod').calendar=function(cfg){
 
         if(typeof cfg=='undefined' ||
@@ -101,7 +109,7 @@ YUI.add('jak-mod-calendar',function(Y){
                                 },
                                 weekMode:'liquid',
                                 //events
-                                dayClick   :function(){alert('click on day');},
+                                dayClick   :WB.my.jobNew.display,
                                 eventClick :function(){alert('click on event');},
                                 eventDrop  :function(){alert('event drop');},
                                 eventResize:function(){alert('event resize');}

@@ -12,9 +12,9 @@ function addr_getAddress($criteria) {
     $limit = '';
 
     //criteria
-    if (isset($criteria->locationIds) && is_array($criteria->locationIds) && count($criteria->locationIds) > 0) {
-        $locationIds = implode(',', $criteria->locationIds);
-        $cnd = "where id in ($locationIds)";
+    if (isset($criteria->addressIds) && is_array($criteria->addressIds) && count($criteria->addressIds) > 0) {
+        $addressIds = implode(',', $criteria->addressIds);
+        $cnd = "where id in ($addressIds)";
     } else
     if (isset($criteria->location, $criteria->streetName, $criteria->streetRef)) {
         $cnd = 'where location = ' . $criteria->location
@@ -49,7 +49,7 @@ function addr_getLocation($criteria) {
     if (isset($criteria->locationIds) && is_array($criteria->locationIds) && count($criteria->locationIds) > 0) {
         $locationIds = implode(',', $criteria->locationIds);
         $cnd = "where id in ($locationIds)";
-    } else
+    }
 
     if (isset($criteria->rowLimit)) {
         $limit = ' limit ' . $criteria->rowLimit;

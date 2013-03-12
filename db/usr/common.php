@@ -10,11 +10,10 @@ function usr_getUsr($criteria) {
     $r = new \stdClass;
     $r->criteria = $criteria;
     $cnd  = '';
-    $cols = '';
+    $cols = '`id`,`created`,`logon`,`firstName`,`lastName`,`title`';
     $limit = '';
 
     if (isset($criteria->usrIds)) {
-        $cols = '`id`,`created`,`logon`,`firstName`,`lastName`,`title`';
         $cnd  = 'id in (' . implode(',', $criteria->usrIds) . ')';
     } else
     if (isset($criteria->logon)) {
@@ -22,7 +21,6 @@ function usr_getUsr($criteria) {
         $cnd  = 'logon = "' . $mysqli->real_escape_string($criteria->logon) . '"';
     } else
     if (isset($criteria->firstName, $criteria->firstName)) {
-        $cols = '*';
         $cnd  = 'firstName like "' . $mysqli->real_escape_string($criteria->firstName) . '%" and '
               . 'lastName like "' . $mysqli->real_escape_string($criteria->lastName) . '%"';
     }

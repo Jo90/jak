@@ -25,42 +25,43 @@ foreach ($post as $i) {
     $i->result = new \stdClass;
     $r         = $i->result;
 
-    //address
+    //find criteria
     if (isset($i->criteria->location, $i->criteria->streetName, $i->criteria->streetRef)) {
-        $r->address = addr_getAddress($i->criteria);
+        $temp = addr_getAddress($i->criteria);
         $i->criteria->addressIds  = array();
-        $i->criteria->locationIds = array();
-        foreach ($r->address->data as $d) {
-            $i->criteria->addressIds[]  = $d->id;
-            $i->criteria->locationIds[] = $d->location;
+        foreach ($temp->data as $d) {
+            $i->criteria->addressIds[] = $d->id;
         }
-        $r->location = addr_getLocation($i->criteria);
-        $r->job      = job_getJob($i->criteria);
     } else
-    //usr
+
     if (isset($i->criteria->firstName, $i->criteria->lastName)) {
-        $r->usr = usr_getUsr($i->criteria);
-        foreach ($r->usr->data as $d) {
-            $i->criteria->usrIds[]  = $d->id;
+        $temp = usr_getUsr($i->criteria);
+        foreach ($temp->data as $d) {
+            $i->criteria->usrIds[] = $d->id;
         }
-        $r->jobUsr = usr_getUsrJob($i->criteria);
-        foreach ($r->jobUsr->data as $d) {
-            $i->criteria->jobIds[]  = $d->job;
+        $temp = usr_getUsrJob($i->criteria);
+        foreach ($temp->data as $d) {
+            $i->criteria->jobIds[] = $d->job;
         }
-        $r->job = job_getJob($i->criteria);
-        foreach ($r->job->data as $d) {
-            $i->criteria->addressIds[]  = $d->address;
-        }
-        $r->address = addr_getAddress($i->criteria);
-        $i->criteria->addressIds  = array();
-        $i->criteria->locationIds = array();
-        foreach ($r->address->data as $d) {
-            $i->criteria->addressIds[]  = $d->id;
-            $i->criteria->locationIds[] = $d->location;
-        }
-        $r->location = addr_getLocation($i->criteria);
-        $r->job      = job_getJob($i->criteria);
     }
+
+    $r->job = job_getJob($i->criteria);
+
+    foreach ($r->job->data as $d) {
+        $i->criteria->addressIds[] = $d->address;
+    }
+    $r->address = addr_getAddress($i->criteria);
+    $i->criteria->locationIds = array();
+    foreach ($r->address->data as $d) {
+        $i->criteria->locationIds[] = $d->location;
+    }
+    $r->location = addr_getLocation($i->criteria);
+
+    $r->usrJob = usr_getUsrJob($i->criteria);
+    foreach ($r->usrJob->data as $d) {
+        $i->criteria->usrIds[] = $d->usr;
+    }
+    $r->usr = usr_getUsr($i->criteria);
     
 }
 header('Content-type: text/plain');

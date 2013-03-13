@@ -21,7 +21,7 @@ function job_getJob($criteria) {
         $cnd = "where address in ($addressIds)";
     } else
     //last jobs
-    if (isset($criteria->last) && $criteria->last) {
+    if (isset($criteria->lastJob) && $criteria->lastJob) {
         $cnd = 'order by id desc';
     }
 

@@ -11,30 +11,6 @@ YUI.add('jak-common',function(Y){
         return filter.test(email);
     };
 
-    //tag collections for a dbTable
-    Y.JAK.collection=function(dbTable){
-        var collection={dbTable:dbTable}
-        ;
-        Y.each(JAK.data.tgCollectionTable,function(collectionTable){
-            var col=collectionTable.collection
-            ;
-            if(collectionTable.dbTable===dbTable){
-                if(typeof collection[col]==='undefined'){collection[col]={};}
-                collection[col].tgCollectionTable=collectionTable;
-                collection[col].tgCollection=JAK.data.tgCollection[col];
-                //
-                collection[col].tgCollectionTag=[];
-                Y.each(JAK.data.tgCollectionTag,function(collectionTag){
-                    if(collectionTag.collection===col){
-                        collectionTag.tgName=JAK.data.tgTag[collectionTag.tag].name;
-                        collection[col].tgCollectionTag.push(collectionTag);
-                    }
-                });
-            }
-        });
-        return collection;
-    };
-
     Y.JAK.dataSet={ //table, pk field, field
         fetch:function(dataSets,callback){
             var i=dataSets.length
@@ -190,6 +166,19 @@ YUI.add('jak-common',function(Y){
     ];
     Y.JAK.html['TAG']={action:'',checked:'',classes:'',flag:'',label:'',prefix:'',show:'',showOnFocus:'',suffix:'',title:'',value:''};
 
+    Y.JAK.matchSelect=function(node,value){
+        var isNumber=Y.Lang.isNumber(value),
+            val,
+            fn=function(n){
+                val=isNumber
+                    ?parseFloat(n.get('value'))
+                    :n.get('value');
+                if(val===value){node.set('selectedIndex',n.get('index'));}
+            }
+        ;
+        node.all('option').each(fn);
+    };
+
     Y.JAK.removeOption=function(node){
         node.one('.jak-remove').remove();
         node.append(Y.JAK.html('removeCheckbox'));
@@ -257,4 +246,4 @@ YUI.add('jak-common',function(Y){
         }
     };
 
-},'1.0 Aug 2012',{requires:['base','node']});
+},'1.0 March 2013',{requires:['base','node']});

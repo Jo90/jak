@@ -155,7 +155,8 @@ YUI.add('jak-mod-job',function(Y){
                 cfg.node.append(
                     '<fieldset>'
                    +  '<legend>search</legend>'
-                   +  'Address:'
+                   +  '<button class="jak-search jak-search-last-jobs">last jobs</button>'
+                   +  '&nbsp; Address:'
                    +  '<select class="jak-data-state">'
                    +    '<option>NSW</option>'
                    +    '<option>VIC</option>'
@@ -177,8 +178,6 @@ YUI.add('jak-mod-job',function(Y){
                    +  '&nbsp; Job:'
                    +  '#<input type="text"   class="jak-data-job" title="job number" placeholder="job" />'
                    +  Y.JAK.html('btn',{action:'find',title:'search for specific job',classes:'jak-search jak-search-job'})
-                   +  '&nbsp; last'
-                   +  Y.JAK.html('btn',{action:'find',title:'search for last jobs',classes:'jak-search jak-search-last-jobs'})
                    +  '&nbsp; row limit<input type="text" class="jak-data-row-limit"  title="maximum number of records to fetch"  placeholder="rows" value="20" />'
                    +'</fieldset>'
                 );

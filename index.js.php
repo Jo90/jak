@@ -103,9 +103,11 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                             JAK.my.tabView.add({label:'Calendar',content:'Calendar',index:1},1);
                             h.tv.cal=JAK.my.tabView.item(1);
                             h.tp.cal=h.tv.cal.get('panelNode');
+/*
                             Y.use('jak-mod-calendar',function(Y){
                                 h.myCalendar=new Y.JAK.mod.calendar({node:h.tp.cal});
                             });
+*/
 
                         //job matrix
                             JAK.my.tabView.add({label:'Jobs',content:'',index:2},2);

@@ -70,14 +70,21 @@ YUI.add('jak-pod-job',function(Y){
         io={
             fetch:{
                 job:function(p){
-
-                    
-
+                    Y.JAK.widget.busy.set('message','getting job(s)...');
+                    Y.io('/db/job/s.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:populate.job},
+                        data:Y.JSON.stringify([{
+                            criteria:{jobIds:[p.job]},
+                            member  :JAK.user.usr
+                        }])
+                    });
                 }
             },
             save:{
                 job:function(){
-                    alert('save'); //>>>>>>>>>>>>DO
+                    debugger;
                 }
             }
         };
@@ -102,7 +109,34 @@ YUI.add('jak-pod-job',function(Y){
         };
 
         populate={
-            job:function(rs){
+            job:function(id,o){
+                var rs       =Y.JSON.parse(o.responseText)[0].result,
+                    addresses=rs.address.data,
+                    jobs     =rs.job.data,
+                    locations=rs.location.data,
+                    usrJobs  =rs.usrJob.data,
+                    usrs     =rs.usr.data
+                ;
+                h.bd.setContent('');
+                Y.each(jobs,function(job){
+                    var nn=render.job();
+                    //bug: nn.one not working if appended, why???
+                    nn.one('.jak-data-id'      ).set('value',job.id);
+                    nn.one('.jak-data-ref'     ).set('value',job.ref);
+                    nn.one('.jak-data-created' ).set('value',Y.Date.format(Y.Date.parse(job.created *1000),{format:"%a %d %b %Y"}));
+                    if(job.reminder!==null){
+                        nn.one('.jak-data-reminder').set('value',Y.Date.format(Y.Date.parse(job.reminder*1000),{format:"%a %d %b %Y"}));
+                    }
+                    Y.JAK.matchSelect(nn.one('.jak-data-status' ),job.status);
+                    Y.JAK.matchSelect(nn.one('.jak-data-weather'),job.weather);
+                    h.bd.append(nn);
+
+
+                    //>>>>>>>>>>>Address & users
+
+
+                });
+                Y.JAK.widget.busy.set('message','');
             }
         };
 
@@ -116,7 +150,6 @@ YUI.add('jak-pod-job',function(Y){
                        +Y.JAK.html('btn',{action:'close',title:'close pod'})
                    ,bodyContent:''
                    ,footerContent:Y.JAK.html('btn',{action:'save',title:'save',label:'save'})
-                   ,visible:cfg.visible
                    ,width  :cfg.width
                    ,xy     :cfg.xy
                    ,zIndex :cfg.zIndex
@@ -130,6 +163,30 @@ YUI.add('jak-pod-job',function(Y){
                     h.dup    =h.hd.one('.jak-job-dup');
                     h.close  =h.hd.one('.jak-close');
                     h.save   =h.ft.one('.jak-save');
+            },
+            job:function(){
+                var nn=Y.Node.create(
+                        '<input type="text" class="jak-data jak-data-id"                title="job number"           disabled="disabled" />'
+                       +'<input type="text" class="jak-data jak-data-ref"               title="old system reference" placeholder="ref#" />'
+                       +'<input type="text" class="jak-data jak-data-created  jak-date" title="date created"         placeholder="created" />'
+                       +'<input type="text" class="jak-data jak-data-reminder jak-date" title="remind date"          placeholder="remind" />'
+                       +'<select class="jak-data jak-data-status">'
+                       +  '<option>pending</option>'
+                       +  '<option>open</option>'
+                       +  '<option>closed</option>'
+                       +  '<option>cancelled</option>'
+                       +'</select>'
+                       +'<select class="jak-data jak-data-weather">'
+                       +  '<option>fine</option>'
+                       +  '<option>cloudy</option>'
+                       +  '<option>wet</option>'
+                       +  '<option>dark</option>'
+                       +'</select>'
+                       +'<div class="jak-ds-address"></div>'
+                    )
+                ;
+                //h.bd.append(nn); //bug:nn.one('.jak-data-id') returning null
+                return nn;
             }
         };
 

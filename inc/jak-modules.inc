@@ -17,6 +17,7 @@ modules:{
             'datatable',
             'datatable-sort',
             'dd',
+            'event-outside',
             'jak-utl-date',
             'jak-widget',
             'jak-yui3-sugar',

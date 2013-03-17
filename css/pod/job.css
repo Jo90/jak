@@ -3,5 +3,9 @@
  */
 .jak-pod-job .jak-close {float:right;}
 
-.jak-pod-job .jak-data-id      {width:3em;}
-.jak-pod-job .jak-data-ref     {width:4em;}
+.jak-pod-job .yui3-widget-bd {overflow:hidden;}
+
+.jak-pod-job .jak-address {display:inline-block;width:20em;float:left;height:3em;}
+.jak-pod-job .jak-data-id  {width:3em;}
+.jak-pod-job .jak-data-ref {width:4em;}
+

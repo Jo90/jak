@@ -46,6 +46,10 @@ modules:{
         fullpath:'/css/mod/job.css',
         type:'css'
     },
+    'jak-css-pod-address':{
+        fullpath:'/css/pod/address.css',
+        type:'css'
+    },
     'jak-css-pod-info':{
         fullpath:'/css/pod/info.css',
         type:'css'
@@ -105,6 +109,10 @@ modules:{
     /**
      * pods (independent overlays)
      */
+    'jak-pod-address':{
+        fullpath:'/pod/address.js',
+        requires:['jak-common','jak-css-pod-address']
+    },
     'jak-pod-job':{
         fullpath:'/pod/job.js',
         requires:['jak-common','jak-css-pod-job']

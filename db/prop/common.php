@@ -74,7 +74,7 @@ function prop_getPropTemplateItem($criteria) {
 
     if (isset($criteria->propTemplateIds) && is_array($criteria->propTemplateIds) && count($criteria->propTemplateIds) > 0) {
         $propIds = implode(',', $criteria->propTemplateIds);
-        $cnd = "where propTemplateIds in (propTemplateIds)";
+        $cnd = "where propTemplate in (propTemplateIds)";
     } else
 
     if (isset($criteria->propItemTypeIds) && is_array($criteria->propItemTypeIds) && count($criteria->propItemTypeIds) > 0) {

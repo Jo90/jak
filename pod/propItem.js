@@ -133,6 +133,13 @@ YUI.add('jak-pod-propItem',function(Y){
                     h.close      =h.hd.one('.jak-close');
                     h.selectLists=h.bd.one('.jak-select-lists');
                     h.save       =h.ft.one('.jak-save');
+
+
+                Y.each(JAK.data.propTemplate,function(propTemplate){
+                    h.selectLists.append('<option value="'+propTemplate.id+'">'+propTemplate.name+'</option>');
+                });
+
+                    
             }
         };
 
@@ -143,6 +150,9 @@ YUI.add('jak-pod-propItem',function(Y){
          *  load & initialise
          */
         Y.JAK.dataSet.fetch([
+            ['propTemplate','id'],
+            ['propTemplateItem','id'],
+            ['propItemType','id']
         ],function(){
 
             render.base();

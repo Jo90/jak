@@ -1,5 +1,5 @@
 <?php
-/** /db/job/s.php
+/** /db/prop/s.php
  *
  */
 namespace jak;
@@ -26,13 +26,13 @@ foreach ($post as $i) {
         }
         $temp = usr_getUsrJob($i->criteria);
         foreach ($temp->data as $d) {
-            $i->criteria->jobIds[] = $d->job;
+            $i->criteria->propIds[] = $d->prop;
         }
     }
 
-    $r->job = job_getJob($i->criteria);
+    $r->prop = prop_getJob($i->criteria);
 
-    foreach ($r->job->data as $d) {
+    foreach ($r->prop->data as $d) {
         $i->criteria->addressIds[] = $d->address;
     }
     $r->address = addr_getAddress($i->criteria);

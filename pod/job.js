@@ -286,6 +286,7 @@ YUI.add('jak-pod-job',function(Y){
          *  load & initialise
          */
         Y.JAK.dataSet.fetch([
+            ['propItemType','id']
         ],function(){
 
             render.base();

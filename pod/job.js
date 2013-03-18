@@ -167,8 +167,6 @@ YUI.add('jak-pod-job',function(Y){
                 h.ol=new Y.Overlay({
                     headerContent:
                         '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAKPS">'+self.info.title+'</span> '
-                       +Y.JAK.html('btn',{action:'add',label:'new',title:'add new job',classes:'jak-job-add'})
-                       +Y.JAK.html('btn',{action:'add',label:'duplicate',title:'duplicate job',classes:'jak-job-dup'})
                        +Y.JAK.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:
                         '<fieldset class="jak-address">'
@@ -199,8 +197,6 @@ YUI.add('jak-pod-job',function(Y){
                     h.bd              =h.ol.bodyNode;
                     h.ft              =h.ol.footerNode;
                     h.bb              =h.ol.get('boundingBox');
-                    h.add             =h.hd.one('.jak-job-add');
-                    h.dup             =h.hd.one('.jak-job-dup');
                     f.jobId           =h.bd.one('.jak-data-id');
                     f.jobAddress      =h.bd.one('.jak-data-address');
                     f.jobAddressDetail=h.bd.one('.jak-address span');

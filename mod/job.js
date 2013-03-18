@@ -81,6 +81,33 @@ YUI.add('jak-mod-job',function(Y){
                         }])
                     });
                 }
+            },
+            insert:{
+                job:function(e,action){
+                    alert(action+' '+this.get('value'));
+                }
+            },
+            remove:{
+                job:function(e){
+                    var jobId=this.get('value')
+                    ;
+                    if(!confirm('remove job '+jobId+'?')){return;}
+                    Y.io('/db/job/d.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(){
+                            
+                            alert('update display to remove jobId');
+                            //find the row identifer
+                            //h.dt.removeRow(123)
+
+                        }},
+                        data:Y.JSON.stringify([{
+                            criteria:{job:jobId},
+                            member  :JAK.user.usr
+                        }])
+                    });
+                }
             }
         };
 
@@ -88,6 +115,8 @@ YUI.add('jak-mod-job',function(Y){
             h.bd.delegate('click',io.fetch.job,'.jak-search');
             h.addJob.on('click',pod.display.job);
             h.dt.get('contentBox').delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
+            h.dt.get('contentBox').delegate('click',io.insert.job,'.jak-action-duplicate',null,'dup');
+            h.dt.get('contentBox').delegate('click',io.remove.job,'.jak-action-delete');
         };
 
         pod={
@@ -151,7 +180,9 @@ YUI.add('jak-mod-job',function(Y){
                                         ?''
                                         :Y.Date.format(Y.Date.parse(job.reminder*1000),{format:"%a %d %b %Y"}),
                         usr        :usrInfo.join(','),
-                        address    :job.address
+                        address    :job.address,
+                        dup        :'<button class="jak-action-duplicate" value="'+job.id+'">Duplicate</button>',
+                        del        :'<button class="jak-action-delete" value="'+job.id+'">Delete</button>'
                     });
                 });
                 Y.JAK.widget.busy.set('message','');
@@ -245,7 +276,6 @@ YUI.add('jak-mod-job',function(Y){
                 });
                 f.streetRef.plug(Y.Plugin.AutoComplete,{
                     activateFirstItem:true,
-                    minQueryLength:1,
                     queryDelay:300,
                     resultFilters:'startsWith',
                     resultHighlighter:'wordMatch',
@@ -301,15 +331,17 @@ YUI.add('jak-mod-job',function(Y){
                 h.dt=new Y.DataTable({
                     caption :'JAK Inspections Job Log',
                     columns:[
-                        {key:'job'        ,label:'job'        ,abbr:'jobId'},
-                        {key:'ref'        ,label:'ref'        ,abbr:'jobRef'},
+                        {key:'job'        ,label:'Job'        ,abbr:'jobId'},
+                        {key:'ref'        ,label:'Ref'        ,abbr:'jobRef'},
                         {key:'streetRef'  ,label:'#'          ,abbr:'ref'},
-                        {key:'streetName' ,label:'street'     ,abbr:'st'},
-                        {key:'location'   ,label:'location'   ,abbr:'suburb/city'},
-                        {key:'appointment',label:'appointment',abbr:'appt'},
-                        {key:'confirmed'  ,label:'confirmed'  ,abbr:'confirmed'},
-                        {key:'reminder'   ,label:'remind'     ,abbr:'reminder'},
-                        {key:'usr'        ,label:'clients'    ,abbr:'usr'},
+                        {key:'streetName' ,label:'Street'     ,abbr:'st'},
+                        {key:'location'   ,label:'Location'   ,abbr:'suburb/city'},
+                        {key:'appointment',label:'Appointment',abbr:'appt'},
+                        {key:'confirmed'  ,label:'Confirmed'  ,abbr:'confirmed'},
+                        {key:'reminder'   ,label:'Remind'     ,abbr:'reminder'},
+                        {key:'usr'        ,label:'Clients'    ,abbr:'usr'},
+                        {key:'dup'        ,label:''           ,abbr:'dup',allowHTML:true},
+                        {key:'del'        ,label:''           ,abbr:'del',allowHTML:true}
                     ],
                     data    :[],
                     sortable:true,

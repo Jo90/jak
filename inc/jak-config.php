@@ -44,6 +44,8 @@ ini_set('display_errors','On'); //production change to Off
 
 if ($_SERVER['SERVER_ADMIN'] == 'joe@dargaville.net') {
     $mysqli = new \mysqli('localhost', 'root', 'joe123', 'jak');
+} else {
+    $mysqli = new \mysqli('localhost', 'root', 'root', 'jak');
 }
 
 /**

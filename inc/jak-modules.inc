@@ -58,6 +58,10 @@ modules:{
         fullpath:'/css/pod/job.css',
         type:'css'
     },
+    'jak-css-pod-propItem':{
+        fullpath:'/css/pod/propItem.css',
+        type:'css'
+    },
     'jak-css-pod-usr':{
         fullpath:'/css/pod/usr.css',
         type:'css'
@@ -116,6 +120,10 @@ modules:{
     'jak-pod-job':{
         fullpath:'/pod/job.js',
         requires:['jak-common','jak-css-pod-job']
+    },
+    'jak-pod-propItem':{
+        fullpath:'/pod/propItem.js',
+        requires:['jak-common','jak-css-pod-propItem']
     },
     'jak-pod-userLogon':{
         fullpath:'/pod/userLogon.php',

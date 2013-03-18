@@ -29,7 +29,7 @@ if (isset($criteria->rowLimit)) {
 }
 
 if ($stmt = $mysqli->prepare(
-    "select distinct streetRef
+    "select id,streetRef
        from `address`
       where streetRef like ? $cnd $limit"
 )) {

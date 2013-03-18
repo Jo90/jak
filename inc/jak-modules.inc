@@ -17,7 +17,7 @@ modules:{
             'datatable',
             'datatable-sort',
             'dd',
-            'jak-pod-editor',
+            'event-outside',
             'jak-utl-date',
             'jak-widget',
             'jak-yui3-sugar',
@@ -46,12 +46,16 @@ modules:{
         fullpath:'/css/mod/job.css',
         type:'css'
     },
+    'jak-css-pod-address':{
+        fullpath:'/css/pod/address.css',
+        type:'css'
+    },
     'jak-css-pod-info':{
         fullpath:'/css/pod/info.css',
         type:'css'
     },
-    'jak-css-pod-report':{
-        fullpath:'/css/pod/report.css',
+    'jak-css-pod-job':{
+        fullpath:'/css/pod/job.css',
         type:'css'
     },
     'jak-css-pod-usr':{
@@ -103,19 +107,15 @@ modules:{
         requires:['tabview']
     },
     /**
-     * pods (independant overlays)
+     * pods (independent overlays)
      */
-    'jak-pod-editor':{
-        fullpath:'/pod/editor.js',
-        requires:['jak-common','jak-plugin-ckEditor']
+    'jak-pod-address':{
+        fullpath:'/pod/address.js',
+        requires:['jak-common','jak-css-pod-address']
     },
-    'jak-pod-info':{
-        fullpath:'/pod/info.js',
-        requires:['jak-common','jak-css-pod-info','jak-pod-editor','sortable']
-    },
-    'jak-pod-report':{
-        fullpath:'/pod/report.js',
-        requires:['jak-common','jak-css-pod-report']
+    'jak-pod-job':{
+        fullpath:'/pod/job.js',
+        requires:['jak-common','jak-css-pod-job']
     },
     'jak-pod-userLogon':{
         fullpath:'/pod/userLogon.php',

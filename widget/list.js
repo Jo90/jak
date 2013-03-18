@@ -11,11 +11,11 @@ YUI().add('jak-widget-list',function(Y){
 
     List.ATTRS={
         current:{
-            value:[]
-           ,getter:function(){
-                var arr=[]
-                   ,cnt=0
-                   ,els=this.get('elements')
+            value:[],
+            getter:function(){
+                var arr=[],
+                    cnt=0,
+                    els=this.get('elements')
                 ;
                 this.get('nodeElements').all('input').each(function(node){
                     if(node.getStyle('display')!=='none'){
@@ -25,35 +25,35 @@ YUI().add('jak-widget-list',function(Y){
                 });
                 return arr;
             }
-        }
-       ,elements:{value:[]}
-       ,hide:{value:[]}
-       ,noDelete:{value:[]}
-       ,nodeElements:{value:null}
-       ,nodeSelect:{value:null}
-       ,nodeSelectBeforeElements:{value:true}
-       ,displayDirection:{value:'beside' /*or 'below'*/}
-       ,selected:{value:[]}
-       ,selectorPrompt:{value:'+tag...'}
-       ,title:{value:'Select tags from the dropdown - x removes tag'}
+        },
+        elements:{value:[]},
+        hide:{value:[]},
+        noDelete:{value:[]},
+        nodeElements:{value:null},
+        nodeSelect:{value:null},
+        nodeSelectBeforeElements:{value:true},
+        displayDirection:{value:'beside' /*or 'below'*/},
+        selected:{value:[]},
+        selectorPrompt:{value:'+tag...'},
+        title:{value:'Select tags from the dropdown - x removes tag'}
     };
 
     Y.extend(List,Y.Widget,{
         initializer:function(config){
             this.get('boundingBox').setStyle('display','inline-block');
             this.get('contentBox').setStyle('display','inline-block');
-        }
-       ,renderUI:function(){
-            var cb         =this.get('contentBox')
-               ,elementsArr=[]
-               ,nodeElements
-               ,nodeSelect
-               ,nodeSelectBeforeElements=this.get('nodeSelectBeforeElements')
-               ,selectArr       =[]
-               ,selected        =this.get('selected')
-               ,displayDirection=this.get('displayDirection')
-               ,noDelete        =this.get('noDelete')
-               ,title           =this.get('title')
+        },
+        renderUI:function(){
+            var cb         =this.get('contentBox'),
+                elementsArr=[],
+                nodeElements,
+                nodeSelect,
+                nodeSelectBeforeElements=this.get('nodeSelectBeforeElements'),
+                selectArr       =[],
+                selected        =this.get('selected'),
+                displayDirection=this.get('displayDirection'),
+                noDelete        =this.get('noDelete'),
+                title           =this.get('title')
             ;
             Y.each(this.get('elements'),function(el){
                 elementsArr.push(
@@ -88,13 +88,13 @@ YUI().add('jak-widget-list',function(Y){
             }
             this.set('nodeElements',nodeElements);
             this.set('nodeSelect',nodeSelect);
-        }
-       ,bindUI:function(){
+        },
+        bindUI:function(){
             this.after('selectedChange',this._el.selectedHasChanged);
             this.get('nodeElements').on('click',Y.bind(this._el.remove,this));
             this.get('nodeSelect').on('change',Y.bind(this._el.add,this));
-        }
-       ,_el:{
+        },
+        _el:{
             add:function(){
                 var nodeSelect=this.get('nodeSelect')
                    ,selected  =this.get('selected')
@@ -102,8 +102,8 @@ YUI().add('jak-widget-list',function(Y){
                 if(nodeSelect.get('selectedIndex')===0){return;}
                 selected.push(parseInt(nodeSelect.get('value'),10));
                 this.set('selected',selected);
-            }
-           ,remove:function(e){
+            },
+            remove:function(e){
                 var id      =parseInt(e.target.get('value'),10)
                    ,selected=this.get('selected')
                    ,noDelete=this.get('noDelete')
@@ -111,12 +111,12 @@ YUI().add('jak-widget-list',function(Y){
                 if(Y.Array.indexOf(noDelete,id)!==-1){return;}
                 selected.splice(Y.Array.indexOf(selected,id),1);
                 this.set('selected',selected);
-            }
-           ,selectedHasChanged:function(e){
-                var nodeElements    =this.get('nodeElements')
-                   ,nodeSelect      =this.get('nodeSelect')
-                   ,selected        =this.get('selected')
-                   ,displayedOptions=false;
+            },
+            selectedHasChanged:function(e){
+                var nodeElements    =this.get('nodeElements'),
+                    nodeSelect      =this.get('nodeSelect'),
+                    selected        =this.get('selected'),
+                    displayedOptions=false
                 ;
                 nodeSelect.all('option').each(function(option,idx){
                     //sentry - exclude prompt

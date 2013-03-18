@@ -15,9 +15,13 @@ function job_getJob($criteria) {
     if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0) {
         $jobIds = implode(',', $criteria->jobIds);
         $cnd = "where id in ($jobIds)";
-    }
+    } else
+    if (isset($criteria->addressIds) && is_array($criteria->addressIds) && count($criteria->addressIds) > 0) {
+        $addressIds = implode(',', $criteria->addressIds);
+        $cnd = "where address in ($addressIds)";
+    } else
     //last jobs
-    if (isset($criteria->last) && $criteria->last) {
+    if (isset($criteria->lastJob) && $criteria->lastJob) {
         $cnd = 'order by id desc';
     }
 

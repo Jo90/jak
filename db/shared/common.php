@@ -5,6 +5,20 @@
  */
 namespace jak;
 
+function initStep(&$i) {
+    $i->log = array();
+    $i->result = new \stdClass;
+    return $i->result;
+}
+
+function selectIds($dataSet, $field) {
+    $ids = array();
+    foreach ($dataSet as $d) {
+        $ids[] = $d->{$field};
+    }
+    return $ids;
+}
+
 function tg_getTag($criteria) {
     global $mysqli;
     $r = new \stdClass;

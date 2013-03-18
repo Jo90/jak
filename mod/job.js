@@ -52,13 +52,13 @@ YUI.add('jak-mod-job',function(Y){
         io={
             fetch:{
                 job:function(e){
-                    var criteria={rowLimit:f.rowLimit.get('value')}
+                    var criteria={rowLimit:parseInt(f.rowLimit.get('value'),10)}
                     ;
                     Y.JAK.widget.busy.set('message','getting job(s)...');
                     if(this.hasClass('jak-search-address')){
                         criteria.streetRef =f.streetRef .get('value');
                         criteria.streetName=f.streetName.get('value');
-                        criteria.location  =f.location  .get('value');
+                        criteria.location  =parseInt(f.location.get('value'),10);
                     }else
                     if(this.hasClass('jak-search-name')){
                         criteria.firstName=f.firstName.get('value');
@@ -66,7 +66,7 @@ YUI.add('jak-mod-job',function(Y){
                     }else
                     if(this.hasClass('jak-search-job')){
                         if(f.job.get('value')===''){alert('requires job number');return false;}
-                        criteria.job=f.job.get('value');
+                        criteria.jobIds=[parseInt(f.job.get('value'),10)];
                     }else
                     if(this.hasClass('jak-search-last-jobs')){
                         criteria.lastJob=true;
@@ -81,20 +81,67 @@ YUI.add('jak-mod-job',function(Y){
                         }])
                     });
                 }
+            },
+            insert:{
+                job:function(e,action){
+                    alert(action+' '+this.get('value'));
+                }
+            },
+            remove:{
+                job:function(e){
+                    var jobId=this.get('value')
+                    ;
+                    if(!confirm('remove job '+jobId+'?')){return;}
+                    Y.io('/db/job/d.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(){
+                            
+                            alert('update display to remove jobId');
+                            //find the row identifer
+                            //h.dt.removeRow(123)
+
+                        }},
+                        data:Y.JSON.stringify([{
+                            criteria:{job:jobId},
+                            member  :JAK.user.usr
+                        }])
+                    });
+                }
             }
         };
 
         listeners=function(){
             h.bd.delegate('click',io.fetch.job,'.jak-search');
+            h.addJob.on('click',pod.display.job);
             h.dt.get('contentBox').delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
+            h.dt.get('contentBox').delegate('click',io.insert.job,'.jak-action-duplicate',null,'dup');
+            h.dt.get('contentBox').delegate('click',io.remove.job,'.jak-action-delete');
         };
 
         pod={
             display:{
+                job:function(p){
+                    if(!self.my.podJob){pod.load.job(p);return false;}
+                    self.my.podJob.display(p);
+                }
             },
             load:{
+                job:function(p){
+                    Y.use('jak-pod-job',function(Y){
+                        self.my.podJob=new Y.JAK.pod.job(p);
+                        Y.JAK.whenAvailable.inDOM(self,'my.podJob',function(){
+                            self.my.podJob.set('zIndex',cfg.zIndex+10);
+                            pod.display.job(p);
+                        });
+                        Y.on(self.my.podJob.customEvent.save,pod.result.job);
+                    });
+                }
             },
             result:{
+                job:function(rs){
+                    debugger;
+                }
             }
         };
 
@@ -103,19 +150,41 @@ YUI.add('jak-mod-job',function(Y){
                 var rs       =Y.JSON.parse(o.responseText)[0].result,
                     addresses=rs.address.data,
                     jobs     =rs.job.data,
-                    locations=rs.location.data
+                    locations=rs.location.data,
+                    usrJobs  =rs.usrJob.data,
+                    usrs     =rs.usr.data
                 ;
                 h.dt.set('data',null);
                 Y.each(jobs,function(job){
+                    var usrInfo=[]
+                    ;
+                    //usr
+                    Y.each(usrJobs,function(usrJob){
+                        if(usrJob.job!==job.id){return;}
+                        Y.each(usrs,function(usr){
+                            if(usr.id!==usrJob.usr){return;}
+                            usrInfo.push(usr.firstName+'('+usrJob.purpose+')');
+                        });
+                    });
                     h.dt.addRow({
-                        jobId     :job.id,
-                        streetRef :addresses[job.address].streetRef,
-                        streetName:addresses[job.address].streetName,
-                        location  :locations[addresses[job.address].location].full,
-                        usr       :'coming...'
+                        job        :job.id,
+                        ref        :job.ref,
+                        streetRef  :addresses[job.address].streetRef,
+                        streetName :addresses[job.address].streetName,
+                        location   :locations[addresses[job.address].location].full,
+                        appointment:Y.Date.format(Y.Date.parse(job.appointment*1000),{format:"%a %d %b %Y"}),
+                        confirmed  :job.confirmed===null
+                                       ?''
+                                       :Y.Date.format(Y.Date.parse(job.confirmed*1000),{format:"%a %d %b %Y"}),
+                        reminder:job.reminder===null
+                                        ?''
+                                        :Y.Date.format(Y.Date.parse(job.reminder*1000),{format:"%a %d %b %Y"}),
+                        usr        :usrInfo.join(','),
+                        address    :job.address,
+                        dup        :'<button class="jak-action-duplicate" value="'+job.id+'">Duplicate</button>',
+                        del        :'<button class="jak-action-delete" value="'+job.id+'">Delete</button>'
                     });
                 });
-
                 Y.JAK.widget.busy.set('message','');
             }
         };
@@ -124,8 +193,11 @@ YUI.add('jak-mod-job',function(Y){
             base:function(){
                 cfg.node.append(
                     '<fieldset>'
-                   +  '<legend>search</legend>'
-                   +  'Address:'
+                   +  '<legend>search &nbsp; '
+                   +  Y.JAK.html('btn',{action:'add',label:'add job',title:'new job',classes:'jak-add-job'})
+                   +  '</legend>'
+                   +  '<button class="jak-search jak-search-last-jobs">last jobs</button>'
+                   +  '&nbsp; Address:'
                    +  '<select class="jak-data-state">'
                    +    '<option>NSW</option>'
                    +    '<option>VIC</option>'
@@ -145,24 +217,22 @@ YUI.add('jak-mod-job',function(Y){
                    +  '<input type="text"   class="jak-data-lastName"  title="last name"  placeholder="last" />'
                    +  Y.JAK.html('btn',{action:'find',title:'search for name',classes:'jak-search jak-search-name'})
                    +  '&nbsp; Job:'
-                   +  '#<input type="text"   class="jak-data-job" title="job number" placeholder="job" />'
+                   +  '<input type="text"   class="jak-data-job" title="job number" placeholder="#" />'
                    +  Y.JAK.html('btn',{action:'find',title:'search for specific job',classes:'jak-search jak-search-job'})
-                   +  '&nbsp; last'
-                   +  Y.JAK.html('btn',{action:'find',title:'search for last jobs',classes:'jak-search jak-search-last-jobs'})
                    +  '&nbsp; row limit<input type="text" class="jak-data-row-limit"  title="maximum number of records to fetch"  placeholder="rows" value="20" />'
                    +'</fieldset>'
                 );
-                h.bd            =cfg.node.one('fieldset');
-                f.state         =h.bd.one('.jak-data-state'       );
-                f.streetRef     =h.bd.one('.jak-data-streetRef'   );
-                f.streetName    =h.bd.one('.jak-data-streetName'  );
-                f.location      =h.bd.one('.jak-data-location'    );
-                f.locationName  =h.bd.one('.jak-data-locationName');
-                f.firstName     =h.bd.one('.jak-data-firstName'   );
-                f.lastName      =h.bd.one('.jak-data-lastName'    );
-                f.job           =h.bd.one('.jak-data-job'         );
-                f.rowLimit      =h.bd.one('.jak-data-row-limit'   );
-
+                h.bd          =cfg.node.one('fieldset');
+                f.state       =h.bd.one('.jak-data-state'       );
+                f.streetRef   =h.bd.one('.jak-data-streetRef'   );
+                f.streetName  =h.bd.one('.jak-data-streetName'  );
+                f.location    =h.bd.one('.jak-data-location'    );
+                f.locationName=h.bd.one('.jak-data-locationName');
+                f.firstName   =h.bd.one('.jak-data-firstName'   );
+                f.lastName    =h.bd.one('.jak-data-lastName'    );
+                f.job         =h.bd.one('.jak-data-job'         );
+                f.rowLimit    =h.bd.one('.jak-data-row-limit'   );
+                h.addJob      =h.bd.one('.jak-add-job'          );
             //auto complete
                 f.locationName.plug(Y.Plugin.AutoComplete,{
                     activateFirstItem:true,
@@ -206,11 +276,10 @@ YUI.add('jak-mod-job',function(Y){
                 });
                 f.streetRef.plug(Y.Plugin.AutoComplete,{
                     activateFirstItem:true,
-                    minQueryLength:1,
                     queryDelay:300,
                     resultFilters:'startsWith',
                     resultHighlighter:'wordMatch',
-                    resultTextLocator:function(result){return result[0];},
+                    resultTextLocator:function(result){return result[1];},
                     after:{
                         results:function(e){
                             if(e.data.length===1){this.selectItem();}
@@ -262,11 +331,17 @@ YUI.add('jak-mod-job',function(Y){
                 h.dt=new Y.DataTable({
                     caption :'JAK Inspections Job Log',
                     columns:[
-                        {key:'jobId'     ,label:'job'       ,abbr:'id'},
-                        {key:'streetRef' ,label:'#'         ,abbr:'ref'},
-                        {key:'streetName',label:'street'    ,abbr:'st'},
-                        {key:'location'  ,label:'location'  ,abbr:'suburb/city'},
-                        {key:'usr'       ,label:'clients'   ,abbr:'usr'},
+                        {key:'job'        ,label:'Job'        ,abbr:'jobId'},
+                        {key:'ref'        ,label:'Ref'        ,abbr:'jobRef'},
+                        {key:'streetRef'  ,label:'#'          ,abbr:'ref'},
+                        {key:'streetName' ,label:'Street'     ,abbr:'st'},
+                        {key:'location'   ,label:'Location'   ,abbr:'suburb/city'},
+                        {key:'appointment',label:'Appointment',abbr:'appt'},
+                        {key:'confirmed'  ,label:'Confirmed'  ,abbr:'confirmed'},
+                        {key:'reminder'   ,label:'Remind'     ,abbr:'reminder'},
+                        {key:'usr'        ,label:'Clients'    ,abbr:'usr'},
+                        {key:'dup'        ,label:''           ,abbr:'dup',allowHTML:true},
+                        {key:'del'        ,label:''           ,abbr:'del',allowHTML:true}
                     ],
                     data    :[],
                     sortable:true,
@@ -277,8 +352,8 @@ YUI.add('jak-mod-job',function(Y){
 
         trigger={
             selectGridCell:function(e){
-                if(this.hasClass('yui3-datatable-col-jobId')){
-                    alert('job');
+                if(this.hasClass('yui3-datatable-col-job')){
+                    pod.display.job({job:parseInt(this.get('innerHTML'),10)});
                 }
                 if(this.hasClass('yui3-datatable-col-streetRef')||this.hasClass('yui3-datatable-col-streetName')||this.hasClass('yui3-datatable-col-location')){
                     alert('address');

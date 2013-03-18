@@ -7,7 +7,7 @@ body {background-color:#669CE8;}
 img.jak-bg-bl {position:fixed;z-index:-1;bottom:0;left:0}
 img.jak-bg-br {position:fixed;z-index:-1;bottom:0;right:0}
 
-.jak-date, .jak-time {width:6em;}
+.jak-date, .jak-time {width:8em;}
 
 .yui3-tabview-panel {
   overflow:auto;width:98%; /* ensure containment */

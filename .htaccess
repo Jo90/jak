@@ -11,8 +11,10 @@ IndexIgnore *
 ErrorDocument 404 /error404.php
 
 #php local
-php_value include_path "/Applications/MAMP/htdocs/jak/inc"
-php_value auto_prepend_file "/Applications/MAMP/htdocs/jak/inc/jak-config.php"
+#php_value include_path "/Applications/MAMP/htdocs/jak/inc"
+php_value include_path "/home/joe/jak/inc"
+#php_value auto_prepend_file "/Applications/MAMP/htdocs/jak/inc/jak-config.php"
+php-value auto_prepend_file "/home/joe/jak/inc/jak-config.php"
 #php server
 #php_value include_path "???/inc"
 #php_value auto_prepend_file "???/inc/kc-config.php"

@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 18, 2013 at 03:30 PM
+-- Generation Time: Mar 19, 2013 at 12:29 PM
 -- Server version: 5.5.29-0ubuntu0.12.04.2
 -- PHP Version: 5.4.12-2~precise+1
 
@@ -16619,6 +16619,59 @@ CREATE TABLE IF NOT EXISTS `propItemValType` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `propTemplate`
+--
+
+CREATE TABLE IF NOT EXISTS `propTemplate` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
+--
+-- Dumping data for table `propTemplate`
+--
+
+INSERT INTO `propTemplate` (`id`, `name`) VALUES
+(1, 'Standard House'),
+(2, 'Large House');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `propTemplateItem`
+--
+
+CREATE TABLE IF NOT EXISTS `propTemplateItem` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `propTemplate` int(10) unsigned NOT NULL,
+  `propItemType` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_propTemplateItem_1_idx` (`propTemplate`),
+  KEY `fk_propTemplateItem_2_idx` (`propItemType`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=13 ;
+
+--
+-- Dumping data for table `propTemplateItem`
+--
+
+INSERT INTO `propTemplateItem` (`id`, `propTemplate`, `propItemType`) VALUES
+(1, 1, 1),
+(2, 1, 2),
+(3, 1, 3),
+(4, 1, 4),
+(5, 2, 1),
+(6, 2, 2),
+(7, 2, 4),
+(8, 2, 4),
+(9, 2, 4),
+(10, 2, 4),
+(11, 2, 5),
+(12, 2, 6);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tag`
 --
 
@@ -16837,8 +16890,8 @@ ALTER TABLE `orgUsr`
 -- Constraints for table `propItem`
 --
 ALTER TABLE `propItem`
-  ADD CONSTRAINT `fk_propItem_2` FOREIGN KEY (`propItemType`) REFERENCES `propItemType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_propItem_1` FOREIGN KEY (`job`) REFERENCES `job` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_propItem_1` FOREIGN KEY (`job`) REFERENCES `job` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_propItem_2` FOREIGN KEY (`propItemType`) REFERENCES `propItemType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `propItemType`
@@ -16850,8 +16903,15 @@ ALTER TABLE `propItemType`
 -- Constraints for table `propItemVal`
 --
 ALTER TABLE `propItemVal`
-  ADD CONSTRAINT `fk_propItemVal_2` FOREIGN KEY (`propItemValType`) REFERENCES `propItemValType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_propItemVal_1` FOREIGN KEY (`propItem`) REFERENCES `propItem` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_propItemVal_1` FOREIGN KEY (`propItem`) REFERENCES `propItem` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_propItemVal_2` FOREIGN KEY (`propItemValType`) REFERENCES `propItemValType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `propTemplateItem`
+--
+ALTER TABLE `propTemplateItem`
+  ADD CONSTRAINT `fk_propTemplateItem_1` FOREIGN KEY (`propTemplate`) REFERENCES `propTemplate` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_propTemplateItem_2` FOREIGN KEY (`propItemType`) REFERENCES `propItemType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `tag`

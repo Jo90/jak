@@ -15,7 +15,15 @@ foreach ($post as $i) {
     $r = initStep($i);
 
     if (!isset($i->criteria) &&
-        !isset($i->criteria->addressIds)) {$r->log[] = 'parameter error'; continue;}
+        !isset($i->criteria->addressIds)) {
+        $r->log[] = 'parameter error'; 
+        continue;
+    }
+	if (count($i->criteria->addressIds) > 0 &&
+	    $i->criteria->addressIds[0] == ""){
+        $r->log[] = 'parameter error'; 
+        continue;
+	}
 
     $r->address = addr_getAddress($i->criteria);
 

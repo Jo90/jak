@@ -16,11 +16,11 @@ function dataSets($arr, $echo=false) {
         $stmt->close();
     }
     /**
-     *  propItemType
+     *  propPartType
      */
-    if (in_array('propItemType',$arr) && $stmt = $mysqli->prepare("select * from `propItemType` order by name")) {
+    if (in_array('propPartType',$arr) && $stmt = $mysqli->prepare("select * from `propPartType` order by name")) {
         $stmt->execute();
-        $rs->propItemType = fetch_info($stmt);
+        $rs->propPartType = fetch_info($stmt);
         $stmt->close();
     }
 

@@ -4,16 +4,16 @@
  */
 namespace jak;
 
-function prop_getPropItemType($criteria) {
+function prop_getPropPartType($criteria) {
     global $mysqli;
     $r = new \stdClass;
     $r->criteria = $criteria;
     $cnd   = '';
     $limit = '';
 
-    if (isset($criteria->propItemTypeIds) && is_array($criteria->propItemTypeIds) && count($criteria->propItemTypeIds) > 0) {
-        $propIds = implode(',', $criteria->propItemTypeIds);
-        $cnd = "where id in (propItemTypeIds)";
+    if (isset($criteria->propPartTypeIds) && is_array($criteria->propPartTypeIds) && count($criteria->propPartTypeIds) > 0) {
+        $propIds = implode(',', $criteria->propPartTypeIds);
+        $cnd = "where id in (propPartTypeIds)";
     }
 
     if (isset($criteria->rowLimit)) {
@@ -22,7 +22,7 @@ function prop_getPropItemType($criteria) {
 
     if ($stmt = $mysqli->prepare(
         "select *
-           from `propItemType` $cnd $limit"
+           from `propPartType` $cnd $limit"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
@@ -40,8 +40,8 @@ function prop_getPropTemplate($criteria) {
     $limit = '';
 
     if (isset($criteria->propTemplateIds) && is_array($criteria->propTemplateIds) && count($criteria->propTemplateIds) > 0) {
-        $propIds = implode(',', $criteria->propTemplateIds);
-        $cnd = "where id in (propTemplateIds)";
+        $propTemplateIds = implode(',', $criteria->propTemplateIds);
+        $cnd = "where id in ($propTemplateIds)";
     }
 
     if (isset($criteria->rowLimit)) {
@@ -60,26 +60,26 @@ function prop_getPropTemplate($criteria) {
     return $r;
 }
 
-function prop_getPropTemplateItem($criteria) {
+function prop_getPropTemplatePart($criteria) {
     global $mysqli;
     $r = new \stdClass;
     $r->criteria = $criteria;
     $cnd   = '';
     $limit = '';
 
-    if (isset($criteria->propTemplateItemIds) && is_array($criteria->propTemplateItemIds) && count($criteria->propTemplateItemIds) > 0) {
-        $propIds = implode(',', $criteria->propTemplateItemIds);
-        $cnd = "where id in (propTemplateItemIds)";
+    if (isset($criteria->propTemplatePartIds) && is_array($criteria->propTemplatePartIds) && count($criteria->propTemplatePartIds) > 0) {
+        $propIds = implode(',', $criteria->propTemplatePartIds);
+        $cnd = "where id in ($propTemplatePartIds)";
     } else
 
     if (isset($criteria->propTemplateIds) && is_array($criteria->propTemplateIds) && count($criteria->propTemplateIds) > 0) {
         $propIds = implode(',', $criteria->propTemplateIds);
-        $cnd = "where propTemplate in (propTemplateIds)";
+        $cnd = "where propTemplate in ($propTemplateIds)";
     } else
 
-    if (isset($criteria->propItemTypeIds) && is_array($criteria->propItemTypeIds) && count($criteria->propItemTypeIds) > 0) {
-        $propIds = implode(',', $criteria->propItemTypeIds);
-        $cnd = "where propItemType in (propItemTypeIds)";
+    if (isset($criteria->propPartTypeIds) && is_array($criteria->propPartTypeIds) && count($criteria->propPartTypeIds) > 0) {
+        $propIds = implode(',', $criteria->propPartTypeIds);
+        $cnd = "where propPartType in ($propPartTypeIds)";
     }
 
     if (isset($criteria->rowLimit)) {
@@ -88,7 +88,7 @@ function prop_getPropTemplateItem($criteria) {
 
     if ($stmt = $mysqli->prepare(
         "select *
-           from `propTemplateItem` $cnd $limit"
+           from `propTemplatePart` $cnd $limit"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;

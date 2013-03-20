@@ -95,11 +95,14 @@ YUI.add('jak-pod-job',function(Y){
                 Y.JAK.widget.dialogMask.hide();
             });
             h.bd.one('.jak-address').on('click',pod.display.address);
-            h.propItemSection.delegate('click',pod.display.propItem,'.jak-add');
-            h.propItemSection.one('.jak-remove').on('click',function(){h.propItemList.setContent('');});
-            h.propItemList.delegate('click',function(){this.ancestor('li').remove();},'.jak-remove');
-            h.propItemList.delegate('focus',function(){this.addClass('jak-focus');},'li');
-            h.propItemList.delegate('blur',function(){this.removeClass('jak-focus');},'li');
+            h.propPartSection.delegate('click',pod.display.propPart,'.jak-add');
+            h.propPartSection.one('.jak-remove').on('click',function(){h.propPartList.setContent('');});
+            h.propPartList.delegate('click',function(){this.ancestor('li').remove();},'.jak-remove');
+            h.propPartList.delegate('focus',function(){this.addClass('jak-focus');},'li');
+            h.propPartList.delegate('blur',function(){this.removeClass('jak-focus');},'li');
+
+            h.questionSelect.on('change',trigger.questions);
+
             h.save.on('click',io.save.job);
         };
 
@@ -110,10 +113,10 @@ YUI.add('jak-pod-job',function(Y){
                     if(!self.my.podAddress){pod.load.address();return false;}
                     self.my.podAddress.display({address:f.jobAddress.get('value')});
                 },
-                propItem:function(){
+                propPart:function(){
                     h.podInvoke=this;
-                    if(!self.my.podPropItem){pod.load.propItem();return false;}
-                    self.my.podPropItem.display();
+                    if(!self.my.podPropPart){pod.load.propPart();return false;}
+                    self.my.podPropPart.display();
                 }
             },
             load:{
@@ -127,14 +130,14 @@ YUI.add('jak-pod-job',function(Y){
                         Y.on(self.my.podAddress.customEvent.newAddress,pod.result.address);
                     });
                 },
-                propItem:function(){
-                    Y.use('jak-pod-propItem',function(Y){
-                        self.my.podPropItem=new Y.JAK.pod.propItem({});
-                        Y.JAK.whenAvailable.inDOM(self,'my.podPropItem',function(){
-                            self.my.podPropItem.set('zIndex',cfg.zIndex+10);
+                propPart:function(){
+                    Y.use('jak-pod-propPart',function(Y){
+                        self.my.podPropPart=new Y.JAK.pod.propPart({});
+                        Y.JAK.whenAvailable.inDOM(self,'my.podPropPart',function(){
+                            self.my.podPropPart.set('zIndex',cfg.zIndex+10);
                             h.podInvoke.simulate('click');
                         });
-                        Y.on(self.my.podPropItem.customEvent.select,pod.result.propItem);
+                        Y.on(self.my.podPropPart.customEvent.select,pod.result.propPart);
                     });
                 }
             },
@@ -142,19 +145,19 @@ YUI.add('jak-pod-job',function(Y){
                 address:function(rs){
                     debugger;
                 },
-                propItem:function(rs){
+                propPart:function(rs){
                     var li=h.podInvoke.ancestor('li'),
                         html=''
                     ;
                     Y.each(rs,function(r){
                         for(var i=0;i<r.qty;i++){
                             html='<li>'
-                                +  '<span class="jak-data-propItemType-name">'+JAK.data.propItemType[r.propItemType].name+'</span>'
-                                + '<input type="text" placeholder="extra detail" class="jak-data jak-data-name"/>'
+                                +  '<span class="jak-data-propPartType-name">'+JAK.data.propPartType[r.propPartType].name+'</span>'
+                                + '<input type="text" placeholder="detail" class="jak-data jak-data-name"/>'
                                 +  Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
                                 +  Y.JAK.html('btn',{action:'add',title:'add property item'})
                                 +'</li>';
-                            if(li===null){h.propItemList.prepend(html);}
+                            if(li===null){h.propPartList.prepend(html);}
                             else{li.insert(html,'after');}
                         };
                     });
@@ -226,15 +229,15 @@ YUI.add('jak-pod-job',function(Y){
                        +'</select>'
                        +'<fieldset>'
                        +  '<legend>job</legend>'
-                       +  '<fieldset class="jak-section-propItem">'
-                       +    '<legend>property items'
+                       +  '<fieldset class="jak-section-propPart">'
+                       +    '<legend>property'
                        +      Y.JAK.html('btn',{action:'add',title:'add property item'})
                        +      Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
                        +    '</legend>'
-                       +    '<ul class="jak-list-propItem"></ul>'
+                       +    '<ul class="jak-list-propPart"></ul>'
                        +  '</fieldset>'
-                       +  '<fieldset>'
-                       +    '<legend>lots of questions'
+                       +  '<fieldset class="jak-section-question">'
+                       +    '<legend>'
                        +    '<select>'
                        +      '<option>General</option>'
                        +      '<option>AS3660</option>'
@@ -264,8 +267,11 @@ YUI.add('jak-pod-job',function(Y){
                     f.jobReminder     =h.bd.one('.jak-data-reminder');
                     f.jobWeather      =h.bd.one('.jak-data-weather');
 
-                    h.propItemSection =h.bd.one('.jak-section-propItem');
-                    h.propItemList    =h.propItemSection.one('ul');
+                    h.propPartSection =h.bd.one('.jak-section-propPart');
+                    h.propPartList    =h.propPartSection.one('ul');
+
+                    h.questionSection =h.bd.one('.jak-section-question');
+                    h.questionSelect  =h.questionSection.one('> legend > select');
 
                     h.close           =h.hd.one('.jak-close');
                     h.save            =h.ft.one('.jak-save');
@@ -282,6 +288,9 @@ YUI.add('jak-pod-job',function(Y){
                 f.jobConfirmed    .set('value','');
                 f.jobReminder     .set('value','');
                 f.jobWeather      .set('value','');
+            },
+            questions:function(){
+                alert('questions');
             }
         };
 
@@ -289,7 +298,7 @@ YUI.add('jak-pod-job',function(Y){
          *  load & initialise
          */
         Y.JAK.dataSet.fetch([
-            ['propItemType','id']
+            ['propPartType','id']
         ],function(){
 
             render.base();

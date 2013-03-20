@@ -13,7 +13,7 @@ foreach ($post as $i) {
     $i->log = array();
 
     if (!isset($i->criteria) &&
-        !isset($i->criteria->propItemTypeIds)) {$r->log[] = 'parameter error'; continue;}
+        !isset($i->criteria->propPartTypeIds)) {$r->log[] = 'parameter error'; continue;}
 
     $i->result = new \stdClass;
     $r         = $i->result;

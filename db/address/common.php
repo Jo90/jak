@@ -75,27 +75,60 @@ function addr_setAddress($criteria) {
     $limit = '';
 
     //criteria
-    if (isset($criteria->addressIds) && is_array($criteria->addressIds) && count($criteria->addressIds) > 0) {
-        $addressIds = implode(',', $criteria->addressIds);
-        $cnd = "where id in ($addressIds)";
-    } else
-    if (isset($criteria->location, $criteria->streetName, $criteria->streetRef)) {
-        $cnd = 'where location = ' . $criteria->location
-             . ' and streetName like "' . $criteria->streetName . '%"'
-             . ' and streetRef like "' . $criteria->streetRef . '%"';
+    if (isset($criteria->remove) && $criteria->remove) {
+        if ($stmt = $mysqli->prepare(
+            "delete from `address`
+              where id = ?"
+        )) {
+            $stmt->bind_param('i'
+                ,$criteria->data->id
+            );
+            $r->successDelete = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $r->successDelete OR $r->errorDelete = $mysqli->error;
+            $stmt->close();
+        }
+        return $r;
     }
-
-    if (isset($criteria->rowLimit)) {
-        $limit = ' limit ' . $criteria->rowLimit;
+    if (isset($criteria->data->id)) {
+        if ($stmt = $mysqli->prepare(
+            "update `address`
+                set location = ?,
+                    streetName = ?,
+                    streetRef = ?,
+                    postcode = ?
+            where id = ?"
+        )) {
+            $stmt->bind_param('ssssi'
+                ,$criteria->data->location
+                ,$criteria->data->streetName
+                ,$criteria->data->streetRef
+                ,$criteria->data->postcode
+                ,$criteria->data->id
+            );
+            $r->successUpdate = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $r->successUpdate OR $r->errorUpdate = $mysqli->error;
+            $stmt->close();
+        }
+        return $r;
     }
-
     if ($stmt = $mysqli->prepare(
-        "select *
-           from `address` $cnd $limit"
+        "insert into `address`
+                (location,streetName,streetRef,postcode)
+        values (?,?,?,?)"
     )) {
-        $r->success = $stmt->execute();
+        $stmt->bind_param('ssss'
+            ,$criteria->data->location
+            ,$criteria->data->streetName
+            ,$criteria->data->streetRef
+            ,$criteria->data->postcode
+        );
+        $r->successInsert = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->successInsert
+            ?$criteria->data->id = $stmt->insert_id
+            :$r->errorInsert = $mysqli->error;
         $stmt->close();
     }
     return $r;

@@ -84,12 +84,14 @@ YUI.add('jak-pod-address',function(Y){
             insert:{
                 address:function(){
                     Y.JAK.widget.busy.set('message','creating address');
-                    Y.io('/db/address/i.php',{
+                    Y.io('/db/address/u.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            debugger;
-                            populate.address();
+		                    Y.JAK.widget.busy.set('message','');
+                            alert('new address inserted');
+							trigger.displayOptions();
+	    		            h.addressSelect.show();
                         }},
                         data:Y.JSON.stringify([{
                             criteria:{
@@ -106,12 +108,18 @@ YUI.add('jak-pod-address',function(Y){
             remove:{
                 address:function(){
                     Y.JAK.widget.busy.set('message','removing');
-                    Y.io('/db/address/d.php',{
+                    Y.io('/db/address/u.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
-                        on:{complete:populate.address},
+                        on:{complete:function(id,o){
+		                    Y.JAK.widget.busy.set('message','');
+                            alert('address removed');
+                        }},
                         data:Y.JSON.stringify([{
-                            criteria:{id:f.id.get('value')},
+                            criteria:{
+                            	remove:true,
+                            	id	  :f.id.get('value')
+                            },
                             member:JAK.user.usr
                         }])
                     });

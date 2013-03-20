@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 19, 2013 at 12:29 PM
+-- Generation Time: Mar 20, 2013 at 05:26 PM
 -- Server version: 5.5.29-0ubuntu0.12.04.2
 -- PHP Version: 5.4.12-2~precise+1
 
@@ -16549,7 +16549,7 @@ CREATE TABLE IF NOT EXISTS `propItem` (
   `propItemType` int(10) unsigned DEFAULT NULL,
   `seq` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `indent` tinyint(4) NOT NULL DEFAULT '0',
-  `name` varchar(255) NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_propItem_2_idx` (`propItemType`),
   KEY `fk_propItem_1_idx` (`job`)
@@ -16567,7 +16567,7 @@ CREATE TABLE IF NOT EXISTS `propItemType` (
   `def` tinyint(1) NOT NULL DEFAULT '1',
   `seq` tinyint(4) NOT NULL,
   `indent` tinyint(4) NOT NULL DEFAULT '0',
-  `name` varchar(255) NOT NULL,
+  `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_propertyComponent_1_idx` (`parent`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
@@ -16646,6 +16646,8 @@ CREATE TABLE IF NOT EXISTS `propTemplateItem` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `propTemplate` int(10) unsigned NOT NULL,
   `propItemType` int(10) unsigned NOT NULL,
+  `seq` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `defaultRecs` tinyint(4) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `fk_propTemplateItem_1_idx` (`propTemplate`),
   KEY `fk_propTemplateItem_2_idx` (`propItemType`)
@@ -16655,19 +16657,17 @@ CREATE TABLE IF NOT EXISTS `propTemplateItem` (
 -- Dumping data for table `propTemplateItem`
 --
 
-INSERT INTO `propTemplateItem` (`id`, `propTemplate`, `propItemType`) VALUES
-(1, 1, 1),
-(2, 1, 2),
-(3, 1, 3),
-(4, 1, 4),
-(5, 2, 1),
-(6, 2, 2),
-(7, 2, 4),
-(8, 2, 4),
-(9, 2, 4),
-(10, 2, 4),
-(11, 2, 5),
-(12, 2, 6);
+INSERT INTO `propTemplateItem` (`id`, `propTemplate`, `propItemType`, `seq`, `defaultRecs`) VALUES
+(1, 1, 1, 1, 1),
+(2, 1, 2, 1, 1),
+(3, 1, 3, 2, 1),
+(4, 1, 4, 1, 2),
+(5, 2, 1, 1, 1),
+(6, 2, 2, 1, 1),
+(7, 2, 3, 2, 1),
+(8, 2, 4, 1, 4),
+(11, 2, 5, 1, 1),
+(12, 2, 6, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -16910,8 +16910,7 @@ ALTER TABLE `propItemVal`
 -- Constraints for table `propTemplateItem`
 --
 ALTER TABLE `propTemplateItem`
-  ADD CONSTRAINT `fk_propTemplateItem_1` FOREIGN KEY (`propTemplate`) REFERENCES `propTemplate` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_propTemplateItem_2` FOREIGN KEY (`propItemType`) REFERENCES `propItemType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_propTemplateItem_1` FOREIGN KEY (`propTemplate`) REFERENCES `propTemplate` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `tag`

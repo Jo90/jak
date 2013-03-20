@@ -1,24 +1,24 @@
-/** //pod/propItem.js
+/** //pod/propPart.js
  *
  */
-YUI.add('jak-pod-propItem',function(Y){
+YUI.add('jak-pod-propPart',function(Y){
 
-    Y.namespace('JAK.pod').propItem=function(cfg){
+    Y.namespace('JAK.pod').propPart=function(cfg){
 
         if(typeof cfg==='undefined'
         ){cfg={};}
 
         cfg=Y.merge({
-            title :'Property Items',
+            title :'Property Parts',
             width :400,
             xy    :[150,40],
             zIndex:99999
         },cfg);
 
         this.info={
-            id         :'propItem',
+            id         :'propPart',
             title      :cfg.title,
-            description:'propItem details',
+            description:'propPart details',
             version    :'v1.0 March 2013'
         };
 
@@ -62,14 +62,14 @@ YUI.add('jak-pod-propItem',function(Y){
 
         io={
             fetch:{
-                propItem:function(){
+                propPart:function(){
                     Y.JAK.widget.busy.set('message','getting property item(s)...');
-                    Y.io('/db/propItem/s.php',{
+                    Y.io('/db/propPart/s.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
-                        on:{complete:populate.propItem},
+                        on:{complete:populate.propPart},
                         data:Y.JSON.stringify([{
-                            criteria:{propItemIds:[d.params.propItem]},
+                            criteria:{propPartIds:[d.params.propPart]},
                             member  :JAK.user.usr
                         }])
                     });
@@ -87,19 +87,19 @@ YUI.add('jak-pod-propItem',function(Y){
             });
             h.selectLists.on('change',function(){
                 var propTemplateId   =parseInt(this.get('value'),10),
-                    propItemTypes    =JAK.data.propItemType,
+                    propPartTypes    =JAK.data.propPartType,
                     propTemplateItems=JAK.data.propTemplateItem
                 ;
                 h.list.setContent('');
                 h.checkAll.set('checked',true);
                 if(propTemplateId===0){
-                    Y.each(propItemTypes,function(propItemType){
-                        h.list.append('<li><input type="checkbox" checked="checked" value="'+propItemType.id+'" /><input type="text" value="1" />'+propItemType.name+'</li>');
+                    Y.each(propPartTypes,function(propPartType){
+                        h.list.append('<li><input type="checkbox" checked="checked" value="'+propPartType.id+'" /><input type="text" value="1" />'+propPartType.name+'</li>');
                     });
                 }else{
                     Y.each(propTemplateItems,function(propTemplateItem){
                         if(propTemplateItem.propTemplate!==propTemplateId){return;}
-                        h.list.append('<li><input type="checkbox" value="'+propTemplateItem.propItemType+'" checked="checked" /><input type="text" value="'+propTemplateItem.defaultRecs+'" />'+propItemTypes[propTemplateItem.propItemType].name+'</li>');
+                        h.list.append('<li><input type="checkbox" value="'+propTemplateItem.propPartType+'" checked="checked" /><input type="text" value="'+propTemplateItem.defaultRecs+'" />'+propPartTypes[propTemplateItem.propPartType].name+'</li>');
                     });
                 }
             });
@@ -108,7 +108,7 @@ YUI.add('jak-pod-propItem',function(Y){
                 ;
                 h.list.all('li > input:checked').each(function(n){
                     recs.push({
-                        propItemType:parseInt(n.get('value'),10),
+                        propPartType:parseInt(n.get('value'),10),
                         qty         :parseInt(n.next().get('value'),10)
                     });
                 });
@@ -164,7 +164,7 @@ YUI.add('jak-pod-propItem',function(Y){
         Y.JAK.dataSet.fetch([
             ['propTemplate','id'],
             ['propTemplateItem','id'],
-            ['propItemType','id']
+            ['propPartType','id']
         ],function(){
 
             render.base();

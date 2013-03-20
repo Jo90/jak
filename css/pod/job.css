@@ -9,12 +9,12 @@
 .jak-pod-job .jak-data-id  {width:3em;}
 .jak-pod-job .jak-data-ref {width:4em;}
 
-.jak-pod-job .jak-section-propItem {clear:both;width:27em;float:left;}
-.jak-pod-job .jak-section-question {width:25em;float:right;}
+.jak-pod-job .jak-section-propPart {clear:both;width:27em;float:left;}
+.jak-pod-job .jak-section-question {}
 
 .jak-pod-job li {line-height:1.6em;}
 .jak-pod-job li.jak-focus {line-height:1.8em;font-weight:bold;color:#08088A;}
-.jak-pod-job li .jak-data-propItemType-name {width:12em;display:inline-block;}
+.jak-pod-job li .jak-data-propPartType-name {width:12em;display:inline-block;}
 .jak-pod-job li .jak-data-name {width:9em;}
 .jak-pod-job li .jak-add, .jak-pod-job li .jak-remove {float:right;}
 .jak-pod-job li .jak-remove {clear:both;}

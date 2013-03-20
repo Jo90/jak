@@ -37,11 +37,9 @@ YUI.add('jak-pod-address',function(Y){
             Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
             trigger.displayOptions();
             h.ol.show();
-            if(typeof p.address!=='undefined'){
+            trigger.reset();
+            if(typeof p.address!=='undefined' && p.address!==''){
                 io.fetch.address();
-            }else{
-                debugger;
-                //blank form
             }
         };
 
@@ -128,8 +126,8 @@ YUI.add('jak-pod-address',function(Y){
             });
             f.state       .on('change',trigger.onChange,null,'state');
             f.locationName.on('change',trigger.onChange,null,'locationName');
-            f.streetName  .on('change',trigger.onChange,null,'steetName');
-            f.streetRef   .on('change',trigger.onChange,null,'steetRef');
+            f.streetName  .on('change',trigger.onChange,null,'streetName');
+            f.streetRef   .on('change',trigger.onChange,null,'streetRef');
 
             h.addressSelect.on('click',function(){
                 alert('select');
@@ -154,6 +152,8 @@ YUI.add('jak-pod-address',function(Y){
                     var _jobs =Object.keys(jobs).length,
                         _users=Object.keys(users).length
                     ;
+					trigger.displayOptions();
+	                h.addressSelect.show();
                     cnt++;
                     f.id          .set('value',address.id);
                     f.location    .set('value',address.location);
@@ -162,7 +162,6 @@ YUI.add('jak-pod-address',function(Y){
                     f.streetRef   .set('value',address.streetRef);
                     f.jobs        .setContent(_jobs);
                     f.users       .setContent(_users);
-                    h.addressSelect.show();
                     if(_jobs===0&&_users===0){
                         h.addressDelete.show();
                     }
@@ -264,8 +263,15 @@ YUI.add('jak-pod-address',function(Y){
                         resultTextLocator:function(result){return result[1];},
                         after:{
                             results:function(e){
+			            		h.addressCreate.setStyle('display','none');
+                                if(e.data.length===0 &&
+                                   f.location!=='' &&
+				                   f.streetName!=='' &&
+				                   f.streetRef!==''){
+				                   	trigger.displayOptions();
+				                	h.addressCreate.show();
+                                }
                                 if(e.data.length===1){
-                                    this.selectItem();
                                     d.params.address=e.results[0].raw[0];
                                     io.fetch.address();
                                 }
@@ -287,28 +293,30 @@ YUI.add('jak-pod-address',function(Y){
                 h.addressSelect.hide();
                 h.addressCreate.hide();
                 h.addressDelete.hide();
-                //
-
-
+                f.jobs .setContent('');
+			    f.users.setContent('');
+				//
 
             },
             onChange:function(e,field){
                 if(field==='state'){
-                    f.location    .set('value','');
-                    f.locationName.set('value','');
-                    f.streetName  .set('value','');
-                    f.streetRef   .set('value','');
-                }
+					trigger.reset();
+                }else
                 if(field==='locationName'){
-                    f.streetName  .set('value','');
-                    f.streetRef   .set('value','');
+                    f.streetName.set('value','');
+                    f.streetRef .set('value','');
+                }else
+                if(field==='streetName' &&
+                   f.streetName.get('value')===''){
+	                f.streetRef.set('value','');
+	                trigger.displayOptions();
                 }
-                if(field==='streetName'){
-                }
-                    f.streetRef   .set('value','');
-                if(field==='streetRef'){
-                    //?????
-                }
+            },
+            reset:function(){
+                f.location    .set('value','');
+                f.locationName.set('value','');
+                f.streetName  .set('value','');
+                f.streetRef   .set('value','');
                 f.jobs .setContent('');
                 f.users.setContent('');
             }

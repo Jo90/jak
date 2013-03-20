@@ -352,8 +352,12 @@ YUI.add('jak-mod-job',function(Y){
 
         trigger={
             selectGridCell:function(e){
-                if(this.hasClass('yui3-datatable-col-job')){
-                    pod.display.job({job:parseInt(this.get('innerHTML'),10)});
+                if(this.hasClass('yui3-datatable-col-job')||
+                   this.hasClass('yui3-datatable-col-appointment')||
+                   this.hasClass('yui3-datatable-col-confirmed')||
+                   this.hasClass('yui3-datatable-col-reminder')
+                ){
+                    pod.display.job({job:parseInt(this.ancestor('tr').one('.yui3-datatable-col-job').get('innerHTML'),10)});
                 }
                 if(this.hasClass('yui3-datatable-col-streetRef')||this.hasClass('yui3-datatable-col-streetName')||this.hasClass('yui3-datatable-col-location')){
                     alert('address');

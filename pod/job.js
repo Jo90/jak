@@ -9,17 +9,17 @@ YUI.add('jak-pod-job',function(Y){
         ){cfg={};}
 
         cfg=Y.merge({
-            title      :'job'
-           ,width      :1000
-           ,xy         :[10,20]
-           ,zIndex     :99999
+            title      :'job',
+            width      :1000,
+            xy         :[10,20],
+            zIndex     :99999
         },cfg);
 
         this.info={
-            id         :'job'
-           ,title      :cfg.title
-           ,description:'job details'
-           ,version    :'v1.0 March 2013'
+            id         :'job',
+            title      :cfg.title,
+            description:'job details',
+            version    :'v1.0 March 2013'
         };
 
         var self=this,
@@ -84,7 +84,7 @@ YUI.add('jak-pod-job',function(Y){
             },
             save:{
                 job:function(){
-                    debugger;
+                    alert('save - to be implemented');
                 }
             }
         };
@@ -98,6 +98,8 @@ YUI.add('jak-pod-job',function(Y){
             h.propItemSection.delegate('click',pod.display.propItem,'.jak-add');
             h.propItemSection.one('.jak-remove').on('click',function(){h.propItemList.setContent('');});
             h.propItemList.delegate('click',function(){this.ancestor('li').remove();},'.jak-remove');
+            h.propItemList.delegate('focus',function(){this.addClass('jak-focus');},'li');
+            h.propItemList.delegate('blur',function(){this.removeClass('jak-focus');},'li');
             h.save.on('click',io.save.job);
         };
 
@@ -147,7 +149,8 @@ YUI.add('jak-pod-job',function(Y){
                     Y.each(rs,function(r){
                         for(var i=0;i<r.qty;i++){
                             html='<li>'
-                                +  JAK.data.propItemType[r.propItemType].name
+                                +  '<span class="jak-data-propItemType-name">'+JAK.data.propItemType[r.propItemType].name+'</span>'
+                                + '<input type="text" placeholder="extra detail" class="jak-data jak-data-name"/>'
                                 +  Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
                                 +  Y.JAK.html('btn',{action:'add',title:'add property item'})
                                 +'</li>';

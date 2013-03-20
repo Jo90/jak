@@ -36,7 +36,7 @@ function dataSets($arr, $echo=false) {
     /**
      *  propTemplateItem
      */
-    if (in_array('propTemplateItem',$arr) && $stmt = $mysqli->prepare("select * from `propTemplateItem`")) {
+    if (in_array('propTemplateItem',$arr) && $stmt = $mysqli->prepare("select * from `propTemplateItem` order by propTemplate,seq")) {
         $stmt->execute();
         $rs->propTemplateItem = fetch_info($stmt);
         $stmt->close();

@@ -95,7 +95,9 @@ YUI.add('jak-pod-job',function(Y){
                 Y.JAK.widget.dialogMask.hide();
             });
             h.bd.one('.jak-address').on('click',pod.display.address);
-            h.displayPropItem.on('click',pod.display.propItem);
+            h.propItemSection.delegate('click',pod.display.propItem,'.jak-add');
+            h.propItemSection.one('.jak-remove').on('click',function(){h.propItemList.setContent('');});
+            h.propItemList.delegate('click',function(){this.ancestor('li').remove();},'.jak-remove');
             h.save.on('click',io.save.job);
         };
 
@@ -139,7 +141,20 @@ YUI.add('jak-pod-job',function(Y){
                     debugger;
                 },
                 propItem:function(rs){
-                    debugger;
+                    var li=h.podInvoke.ancestor('li'),
+                        html=''
+                    ;
+                    Y.each(rs,function(r){
+                        for(var i=0;i<r.qty;i++){
+                            html='<li>'
+                                +  JAK.data.propItemType[r.propItemType].name
+                                +  Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
+                                +  Y.JAK.html('btn',{action:'add',title:'add property item'})
+                                +'</li>';
+                            if(li===null){h.propItemList.prepend(html);}
+                            else{li.insert(html,'after');}
+                        };
+                    });
                 }
             }
         };
@@ -207,41 +222,25 @@ YUI.add('jak-pod-job',function(Y){
                        +  '<option>dark</option>'
                        +'</select>'
                        +'<fieldset>'
-                       +'<legend>job</legend>'
-                       +'<fieldset class="jak-dataSet-propItem">'
-                       +  '<legend>property items'
-                       +    Y.JAK.html('btn',{action:'add',title:'add property item',classes:'jak-display-propItem'})
-                       +  '</legend>'
-                       +  '<ul class="jak-list-propItem">'
-                       +    '<li>Property'
-                       +    Y.JAK.html('btn',{action:'add',title:'add property item',classes:'jak-propItem-add'})
-                       +    Y.JAK.html('btn',{action:'remove',title:'remove property item',classes:'jak-propItem-remove'})
-                       +    '</li>'
-                       +    '<li>Garage'
-                       +    Y.JAK.html('btn',{action:'add',title:'add property item',classes:'jak-propItem-add'})
-                       +    Y.JAK.html('btn',{action:'remove',title:'remove property item',classes:'jak-propItem-remove'})
-                       +    '</li>'
-                       +    '<li>Substrate'
-                       +    Y.JAK.html('btn',{action:'add',title:'add property item',classes:'jak-propItem-add'})
-                       +    Y.JAK.html('btn',{action:'remove',title:'remove property item',classes:'jak-propItem-remove'})
-                       +    '</li>'
-                       +    '<li>Roof'
-                       +    Y.JAK.html('btn',{action:'add',title:'add property item',classes:'jak-propItem-add'})
-                       +    Y.JAK.html('btn',{action:'remove',title:'remove property item',classes:'jak-propItem-remove'})
-                       +    '</li>'
-                       +  '</ul>'
-                       +'</fieldset>'
-                       +'<fieldset>'
-                       +  '<legend>lots of questions'
-                       +  '<select>'
-                       +    '<option>General</option>'
-                       +    '<option>AS3660</option>'
-                       +    '<option>AS4349.3</option>'
-                       +    '<option>AS4349.1</option>'
-                       +    '<option>Technical Building Report</option>'
-                       +  '</select>'
-                       +  '</legend>'
-                       +'</fieldset>'
+                       +  '<legend>job</legend>'
+                       +  '<fieldset class="jak-section-propItem">'
+                       +    '<legend>property items'
+                       +      Y.JAK.html('btn',{action:'add',title:'add property item'})
+                       +      Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
+                       +    '</legend>'
+                       +    '<ul class="jak-list-propItem"></ul>'
+                       +  '</fieldset>'
+                       +  '<fieldset>'
+                       +    '<legend>lots of questions'
+                       +    '<select>'
+                       +      '<option>General</option>'
+                       +      '<option>AS3660</option>'
+                       +      '<option>AS4349.3</option>'
+                       +      '<option>AS4349.1</option>'
+                       +      '<option>Technical Building Report</option>'
+                       +    '</select>'
+                       +    '</legend>'
+                       +  '</fieldset>'
                        +'</fieldset>',
                     footerContent:Y.JAK.html('btn',{action:'save',title:'save',label:'save'}),
                     width  :cfg.width,
@@ -262,7 +261,8 @@ YUI.add('jak-pod-job',function(Y){
                     f.jobReminder     =h.bd.one('.jak-data-reminder');
                     f.jobWeather      =h.bd.one('.jak-data-weather');
 
-                    h.displayPropItem =h.bd.one('.jak-display-propItem');
+                    h.propItemSection =h.bd.one('.jak-section-propItem');
+                    h.propItemList    =h.propItemSection.one('ul');
 
                     h.close           =h.hd.one('.jak-close');
                     h.save            =h.ft.one('.jak-save');
@@ -286,6 +286,7 @@ YUI.add('jak-pod-job',function(Y){
          *  load & initialise
          */
         Y.JAK.dataSet.fetch([
+            ['propItemType','id']
         ],function(){
 
             render.base();

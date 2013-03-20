@@ -9,6 +9,9 @@
 .jak-pod-job .jak-data-id  {width:3em;}
 .jak-pod-job .jak-data-ref {width:4em;}
 
-.jak-pod-job .jak-dataSet-propItem {clear:both;width:25em;float:left;}
+.jak-pod-job .jak-section-propItem {clear:both;width:15em;float:left;}
 .jak-pod-job .jak-section-question {width:25em;float:right;}
 
+.jak-pod-job li {line-height:1.6em;}
+.jak-pod-job li .jak-add, .jak-pod-job li .jak-remove {float:right;}
+.jak-pod-job li .jak-remove {clear:both;}

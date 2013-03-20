@@ -3,9 +3,5 @@
  */
 .jak-pod-propItem .jak-close {float:right;}
 
-.jak-pod-propItem .yui3-widget-bd {overflow:hidden;}
-
-.jak-pod-propItem .jak-address {display:inline-block;width:20em;float:left;height:3em;}
-.jak-pod-propItem .jak-data-id  {width:3em;}
-.jak-pod-propItem .jak-data-ref {width:4em;}
+.jak-pod-propItem li input {width:2em;}
 

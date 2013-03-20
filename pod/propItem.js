@@ -9,9 +9,9 @@ YUI.add('jak-pod-propItem',function(Y){
         ){cfg={};}
 
         cfg=Y.merge({
-            title :'propItem',
-            width :720,
-            xy    :[10,20],
+            title :'Property Items',
+            width :400,
+            xy    :[150,40],
             zIndex:99999
         },cfg);
 
@@ -27,7 +27,6 @@ YUI.add('jak-pod-propItem',function(Y){
             initialise={},
             io={},
             listeners,
-            populate={},
             render={},
             trigger={}
         ;
@@ -83,30 +82,39 @@ YUI.add('jak-pod-propItem',function(Y){
                 h.ol.hide();
                 Y.JAK.widget.dialogMask.hide();
             });
-            h.save.on('click',function(){
-                var rs={}
-                ;
-                //compile selection
-
-
-
-                
-                Y.fire(self.customEvent.select,rs);
+            h.checkAll.on('click',function(){
+                h.list.all('input[type="checkbox"]').set('checked',this.get('checked'));
             });
-        };
-
-        populate={
-            propItem:function(id,o){
-                var rs       =Y.JSON.parse(o.responseText)[0].result
+            h.selectLists.on('change',function(){
+                var propTemplateId   =parseInt(this.get('value'),10),
+                    propItemTypes    =JAK.data.propItemType,
+                    propTemplateItems=JAK.data.propTemplateItem
                 ;
-
-
-
-
-
-
-                Y.JAK.widget.busy.set('message','');
-            }
+                h.list.setContent('');
+                h.checkAll.set('checked',true);
+                if(propTemplateId===0){
+                    Y.each(propItemTypes,function(propItemType){
+                        h.list.append('<li><input type="checkbox" checked="checked" value="'+propItemType.id+'" /><input type="text" value="1" />'+propItemType.name+'</li>');
+                    });
+                }else{
+                    Y.each(propTemplateItems,function(propTemplateItem){
+                        if(propTemplateItem.propTemplate!==propTemplateId){return;}
+                        h.list.append('<li><input type="checkbox" value="'+propTemplateItem.propItemType+'" checked="checked" /><input type="text" value="'+propTemplateItem.defaultRecs+'" />'+propItemTypes[propTemplateItem.propItemType].name+'</li>');
+                    });
+                }
+            });
+            h.save.on('click',function(){
+                var recs=[]
+                ;
+                h.list.all('li > input:checked').each(function(n){
+                    recs.push({
+                        propItemType:parseInt(n.get('value'),10),
+                        qty         :parseInt(n.next().get('value'),10)
+                    });
+                });
+                Y.fire(self.customEvent.select,recs);
+                h.close.simulate('click');
+            });
         };
 
         render={
@@ -116,9 +124,12 @@ YUI.add('jak-pod-propItem',function(Y){
                         '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAKPS">'+self.info.title+'</span> '
                        +Y.JAK.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:
-                        '<select class="jak-select-lists">'
-                       +  '<option>Specific Property Items</option>'
-                       +'</select>',
+                        '<input type="checkbox" class="jak-checkall" checked="checked" />'
+                       +'<select class="jak-select-lists">'
+                       +  '<option value="0">Specific Property Items</option>'
+                       +  '<optgroup label="Templates"></optgroup>'
+                       +'</select>'
+                       +'<ul></ul>',
                     footerContent:
                         Y.JAK.html('btn',{action:'save',title:'return property items',label:'return selection'}),
                     width  :cfg.width,
@@ -131,23 +142,35 @@ YUI.add('jak-pod-propItem',function(Y){
                     h.ft         =h.ol.footerNode;
                     h.bb         =h.ol.get('boundingBox');
                     h.close      =h.hd.one('.jak-close');
+                    h.checkAll   =h.bd.one('.jak-checkall');
                     h.selectLists=h.bd.one('.jak-select-lists');
+                    h.list       =h.bd.one('ul');
                     h.save       =h.ft.one('.jak-save');
+                Y.each(JAK.data.propTemplate,function(propTemplate){
+                    h.selectLists.one('optgroup').append('<option value="'+propTemplate.id+'">'+propTemplate.name+'</option>');
+                });
             }
         };
 
         trigger={
+            reset:function(){
+                
+            }
         };
 
         /**
          *  load & initialise
          */
         Y.JAK.dataSet.fetch([
+            ['propTemplate','id'],
+            ['propTemplateItem','id'],
+            ['propItemType','id']
         ],function(){
 
             render.base();
             initialise();
             listeners();
+            h.selectLists.simulate('change');
 
         });
     };

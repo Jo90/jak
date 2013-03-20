@@ -16,11 +16,29 @@ function dataSets($arr, $echo=false) {
         $stmt->close();
     }
     /**
-     *  grp
+     *  propItemType
      */
-    if (in_array('grp',$arr) && $stmt = $mysqli->prepare("select * from `grp` order by name")) {
+    if (in_array('propItemType',$arr) && $stmt = $mysqli->prepare("select * from `propItemType` order by name")) {
         $stmt->execute();
-        $rs->grp = fetch_info($stmt);
+        $rs->propItemType = fetch_info($stmt);
+        $stmt->close();
+    }
+
+    /**
+     *  propTemplate
+     */
+    if (in_array('propTemplate',$arr) && $stmt = $mysqli->prepare("select * from `propTemplate` order by name")) {
+        $stmt->execute();
+        $rs->propTemplate = fetch_info($stmt);
+        $stmt->close();
+    }
+
+    /**
+     *  propTemplateItem
+     */
+    if (in_array('propTemplateItem',$arr) && $stmt = $mysqli->prepare("select * from `propTemplateItem` order by propTemplate,seq")) {
+        $stmt->execute();
+        $rs->propTemplateItem = fetch_info($stmt);
         $stmt->close();
     }
 

@@ -34,11 +34,20 @@ function dataSets($arr, $echo=false) {
     }
 
     /**
-     *  propTemplateItem
+     *  propTemplatePart
      */
-    if (in_array('propTemplateItem',$arr) && $stmt = $mysqli->prepare("select * from `propTemplateItem` order by propTemplate,seq")) {
+    if (in_array('propTemplatePart',$arr) && $stmt = $mysqli->prepare("select * from `propTemplatePart` order by seq")) {
         $stmt->execute();
-        $rs->propTemplateItem = fetch_info($stmt);
+        $rs->propTemplatePart = fetch_info($stmt);
+        $stmt->close();
+    }
+
+    /**
+     *  service
+     */
+    if (in_array('service',$arr) && $stmt = $mysqli->prepare("select * from `service` order by seq,name")) {
+        $stmt->execute();
+        $rs->service = fetch_info($stmt);
         $stmt->close();
     }
 

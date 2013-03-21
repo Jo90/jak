@@ -37,10 +37,9 @@ YUI.add('jak-pod-job',function(Y){
             d.pod=Y.merge(d.pod,p);
             Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
             h.ol.show();
+            trigger.blankForm();
             if(typeof p.job!='undefined'){
                 io.fetch.job(p);
-            }else{
-                trigger.blankForm();
             }
         };
 
@@ -96,7 +95,9 @@ YUI.add('jak-pod-job',function(Y){
             });
             h.bd.one('.jak-address').on('click',pod.display.address);
             h.propPartSection.delegate('click',pod.display.propPart,'.jak-add');
-            h.propPartSection.one('.jak-remove').on('click',function(){h.propPartList.setContent('');});
+            h.propPartSection.one('> legend > .jak-remove').on('click',function(){
+                h.propPartList.all('> li').slice(1).remove();
+            });
             h.propPartList.delegate('click',function(){this.ancestor('li').remove();},'.jak-remove');
             h.propPartList.delegate('focus',function(){this.addClass('jak-focus');},'li');
             h.propPartList.delegate('blur',function(){this.removeClass('jak-focus');},'li');
@@ -146,19 +147,17 @@ YUI.add('jak-pod-job',function(Y){
                     debugger;
                 },
                 propPart:function(rs){
-                    var li=h.podInvoke.ancestor('li'),
-                        html=''
-                    ;
                     Y.each(rs,function(r){
                         for(var i=0;i<r.qty;i++){
-                            html='<li>'
-                                +  '<span class="jak-data-propPartType-name">'+JAK.data.propPartType[r.propPartType].name+'</span>'
-                                + '<input type="text" placeholder="detail" class="jak-data jak-data-name"/>'
-                                +  Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
-                                +  Y.JAK.html('btn',{action:'add',title:'add property item'})
-                                +'</li>';
-                            if(li===null){h.propPartList.prepend(html);}
-                            else{li.insert(html,'after');}
+                            h.podInvoke.ancestor('li').insert(
+                                '<li>'
+                               + '<span class="jak-data-propPartType-name">'+JAK.data.propPartType[r.propPartType].name+'</span>'
+                               + '<input type="text" placeholder="detail" class="jak-data jak-data-name"/>'
+                               +  Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
+                               +  Y.JAK.html('btn',{action:'add',title:'add property parts'})
+                               +'</li>',
+                               'after'
+                            );
                         };
                     });
                 }
@@ -228,23 +227,25 @@ YUI.add('jak-pod-job',function(Y){
                        +  '<option>dark</option>'
                        +'</select>'
                        +'<fieldset>'
+                       +  '<legend>services</legend>'
+                       +  '<ul class="jak-list-service"></ul>'
+                       +'</fieldset>'
+                       +'<fieldset>'
                        +  '<legend>job</legend>'
                        +  '<fieldset class="jak-section-propPart">'
                        +    '<legend>property'
-                       +      Y.JAK.html('btn',{action:'add',title:'add property item'})
                        +      Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
                        +    '</legend>'
-                       +    '<ul class="jak-list-propPart"></ul>'
+                       +    '<ul class="jak-list-propPart">'
+                       +      '<li>'
+                       +        '<span class="jak-data-propPartType-name">Property</span>'
+                       +        Y.JAK.html('btn',{action:'add',title:'add property parts'})
+                       +      '</li>'
+                       +    '</ul>'
                        +  '</fieldset>'
                        +  '<fieldset class="jak-section-question">'
                        +    '<legend>'
-                       +    '<select>'
-                       +      '<option>General</option>'
-                       +      '<option>AS3660</option>'
-                       +      '<option>AS4349.3</option>'
-                       +      '<option>AS4349.1</option>'
-                       +      '<option>Technical Building Report</option>'
-                       +    '</select>'
+                       +    '<select></select>'
                        +    '</legend>'
                        +  '</fieldset>'
                        +'</fieldset>',
@@ -267,6 +268,8 @@ YUI.add('jak-pod-job',function(Y){
                     f.jobReminder     =h.bd.one('.jak-data-reminder');
                     f.jobWeather      =h.bd.one('.jak-data-weather');
 
+                    h.serviceList     =h.bd.one('.jak-list-service');
+
                     h.propPartSection =h.bd.one('.jak-section-propPart');
                     h.propPartList    =h.propPartSection.one('ul');
 
@@ -275,6 +278,13 @@ YUI.add('jak-pod-job',function(Y){
 
                     h.close           =h.hd.one('.jak-close');
                     h.save            =h.ft.one('.jak-save');
+
+                    Y.each(JAK.data.service,function(service){
+debugger;
+                        h.serviceList.append('<li><label><input type="checkbox" value="'+service.id+'">'+service.name+'</label></li>');
+                        h.questionSelect.append('<option value="'+service.id+'">'+service.name+'</option>');
+                    });
+                    
             }
         };
 
@@ -288,6 +298,7 @@ YUI.add('jak-pod-job',function(Y){
                 f.jobConfirmed    .set('value','');
                 f.jobReminder     .set('value','');
                 f.jobWeather      .set('value','');
+                h.propPartList.all('> li').slice(1).remove();
             },
             questions:function(){
                 alert('questions');
@@ -298,7 +309,8 @@ YUI.add('jak-pod-job',function(Y){
          *  load & initialise
          */
         Y.JAK.dataSet.fetch([
-            ['propPartType','id']
+            ['propPartType','id'],
+            ['service','id']
         ],function(){
 
             render.base();

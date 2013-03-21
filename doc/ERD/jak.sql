@@ -3,9 +3,9 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 20, 2013 at 05:26 PM
+-- Generation Time: Mar 21, 2013 at 11:06 AM
 -- Server version: 5.5.29-0ubuntu0.12.04.2
--- PHP Version: 5.4.12-2~precise+1
+-- PHP Version: 5.4.13-1~precise+1
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -268,27 +268,11 @@ CREATE TABLE IF NOT EXISTS `jobCost` (
 CREATE TABLE IF NOT EXISTS `jobService` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `job` int(10) unsigned NOT NULL,
-  `jobServiceType` int(10) unsigned NOT NULL,
+  `service` int(10) unsigned NOT NULL,
   `fee` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `fk_jobService_1_idx` (`job`),
-  KEY `fk_jobService_2_idx` (`jobServiceType`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `jobServiceType`
---
-
-CREATE TABLE IF NOT EXISTS `jobServiceType` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `org` int(10) unsigned NOT NULL,
-  `fee` float NOT NULL DEFAULT '0',
-  `seq` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `name` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_jobServiceType_1_idx` (`org`)
+  KEY `fk_jobService_2_idx` (`service`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -16540,10 +16524,25 @@ CREATE TABLE IF NOT EXISTS `orgUsr` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `propItem`
+-- Table structure for table `propItemValType`
 --
 
-CREATE TABLE IF NOT EXISTS `propItem` (
+CREATE TABLE IF NOT EXISTS `propItemValType` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `parent` int(10) unsigned NOT NULL,
+  `seq` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `indent` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `propPart`
+--
+
+CREATE TABLE IF NOT EXISTS `propPart` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `job` int(10) unsigned NOT NULL,
   `propItemType` int(10) unsigned DEFAULT NULL,
@@ -16551,17 +16550,17 @@ CREATE TABLE IF NOT EXISTS `propItem` (
   `indent` tinyint(4) NOT NULL DEFAULT '0',
   `name` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_propItem_2_idx` (`propItemType`),
-  KEY `fk_propItem_1_idx` (`job`)
+  KEY `idx_propPart_2` (`propItemType`),
+  KEY `idx_propPart_1` (`job`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `propItemType`
+-- Table structure for table `propPartType`
 --
 
-CREATE TABLE IF NOT EXISTS `propItemType` (
+CREATE TABLE IF NOT EXISTS `propPartType` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `parent` int(10) unsigned DEFAULT NULL COMMENT 'parent component',
   `def` tinyint(1) NOT NULL DEFAULT '1',
@@ -16569,14 +16568,14 @@ CREATE TABLE IF NOT EXISTS `propItemType` (
   `indent` tinyint(4) NOT NULL DEFAULT '0',
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_propertyComponent_1_idx` (`parent`)
+  KEY `idx_propPartType_1` (`parent`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
 
 --
--- Dumping data for table `propItemType`
+-- Dumping data for table `propPartType`
 --
 
-INSERT INTO `propItemType` (`id`, `parent`, `def`, `seq`, `indent`, `name`) VALUES
+INSERT INTO `propPartType` (`id`, `parent`, `def`, `seq`, `indent`, `name`) VALUES
 (1, NULL, 1, 1, 0, 'Property'),
 (2, 1, 1, 0, 0, 'Building'),
 (3, 1, 1, 0, 0, 'Land'),
@@ -16588,32 +16587,17 @@ INSERT INTO `propItemType` (`id`, `parent`, `def`, `seq`, `indent`, `name`) VALU
 -- --------------------------------------------------------
 
 --
--- Table structure for table `propItemVal`
+-- Table structure for table `propPartVal`
 --
 
-CREATE TABLE IF NOT EXISTS `propItemVal` (
+CREATE TABLE IF NOT EXISTS `propPartVal` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `propItem` int(10) unsigned NOT NULL,
-  `propItemValType` int(10) unsigned NOT NULL,
+  `propPart` int(10) unsigned NOT NULL,
+  `propIPartValType` int(10) unsigned NOT NULL,
   `detail` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_propItemVal_2_idx` (`propItemValType`),
-  KEY `fk_propItemVal_1_idx` (`propItem`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `propItemValType`
---
-
-CREATE TABLE IF NOT EXISTS `propItemValType` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `parent` int(10) unsigned NOT NULL,
-  `seq` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `indent` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `name` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  KEY `idx_propPartVal_2` (`propIPartValType`),
+  KEY `idx_propPartVal_1` (`propPart`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -16639,25 +16623,26 @@ INSERT INTO `propTemplate` (`id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `propTemplateItem`
+-- Table structure for table `propTemplatePart`
 --
 
-CREATE TABLE IF NOT EXISTS `propTemplateItem` (
+CREATE TABLE IF NOT EXISTS `propTemplatePart` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `propTemplate` int(10) unsigned NOT NULL,
-  `propItemType` int(10) unsigned NOT NULL,
+  `propPartType` int(10) unsigned NOT NULL,
   `seq` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `defaultRecs` tinyint(4) unsigned NOT NULL DEFAULT '1',
+  `defaultRecs` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
-  KEY `fk_propTemplateItem_1_idx` (`propTemplate`),
-  KEY `fk_propTemplateItem_2_idx` (`propItemType`)
+  UNIQUE KEY `uk_propTemplatePart_1` (`propTemplate`,`propPartType`),
+  KEY `idx_propTemplatePart_1` (`propTemplate`),
+  KEY `idx_propTemplatePart_2` (`propPartType`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=13 ;
 
 --
--- Dumping data for table `propTemplateItem`
+-- Dumping data for table `propTemplatePart`
 --
 
-INSERT INTO `propTemplateItem` (`id`, `propTemplate`, `propItemType`, `seq`, `defaultRecs`) VALUES
+INSERT INTO `propTemplatePart` (`id`, `propTemplate`, `propPartType`, `seq`, `defaultRecs`) VALUES
 (1, 1, 1, 1, 1),
 (2, 1, 2, 1, 1),
 (3, 1, 3, 2, 1),
@@ -16668,6 +16653,53 @@ INSERT INTO `propTemplateItem` (`id`, `propTemplate`, `propItemType`, `seq`, `de
 (8, 2, 4, 1, 4),
 (11, 2, 5, 1, 1),
 (12, 2, 6, 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `question`
+--
+
+CREATE TABLE IF NOT EXISTS `question` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `codeType` char(1) NOT NULL COMMENT '(S)cript/(H)tml',
+  `code` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `questionMatrix`
+--
+
+CREATE TABLE IF NOT EXISTS `questionMatrix` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `question` int(10) unsigned NOT NULL,
+  `service` int(10) unsigned NOT NULL,
+  `propPart` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_questionMatrix_2_idx` (`service`),
+  KEY `fk_questionMatrix_1_idx` (`question`),
+  KEY `fk_questionMatrix_3_idx` (`propPart`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `service`
+--
+
+CREATE TABLE IF NOT EXISTS `service` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `org` int(10) unsigned NOT NULL,
+  `fee` float NOT NULL DEFAULT '0',
+  `seq` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_service_1_idx` (`org`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -16759,16 +16791,7 @@ CREATE TABLE IF NOT EXISTS `usrJob` (
   PRIMARY KEY (`id`),
   KEY `fk_usrJob_1_idx` (`usr`),
   KEY `fk_usrJob_2_idx` (`job`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
-
---
--- Dumping data for table `usrJob`
---
-
-INSERT INTO `usrJob` (`id`, `usr`, `job`, `purpose`) VALUES
-(1, 2, 1, 'Client'),
-(2, 1, 2, 'Client'),
-(3, 2, 3, 'Client');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -16853,13 +16876,7 @@ ALTER TABLE `jobCost`
 --
 ALTER TABLE `jobService`
   ADD CONSTRAINT `fk_jobService_1` FOREIGN KEY (`job`) REFERENCES `job` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_jobService_2` FOREIGN KEY (`jobServiceType`) REFERENCES `jobServiceType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `jobServiceType`
---
-ALTER TABLE `jobServiceType`
-  ADD CONSTRAINT `fk_jobServiceType_1` FOREIGN KEY (`org`) REFERENCES `org` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_jobService_2` FOREIGN KEY (`service`) REFERENCES `service` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `lib`
@@ -16887,30 +16904,45 @@ ALTER TABLE `orgUsr`
   ADD CONSTRAINT `orgUsr_fk2` FOREIGN KEY (`usr`) REFERENCES `usr` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `propItem`
+-- Constraints for table `propPart`
 --
-ALTER TABLE `propItem`
-  ADD CONSTRAINT `fk_propItem_1` FOREIGN KEY (`job`) REFERENCES `job` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_propItem_2` FOREIGN KEY (`propItemType`) REFERENCES `propItemType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `propPart`
+  ADD CONSTRAINT `fk_propPart_2` FOREIGN KEY (`propItemType`) REFERENCES `propPartType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_propPart_1` FOREIGN KEY (`job`) REFERENCES `job` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `propItemType`
+-- Constraints for table `propPartType`
 --
-ALTER TABLE `propItemType`
-  ADD CONSTRAINT `fk_propItemType_1` FOREIGN KEY (`parent`) REFERENCES `propItemType` (`id`) ON UPDATE CASCADE;
+ALTER TABLE `propPartType`
+  ADD CONSTRAINT `fk_propPartType_1` FOREIGN KEY (`parent`) REFERENCES `propPartType` (`id`) ON UPDATE CASCADE;
 
 --
--- Constraints for table `propItemVal`
+-- Constraints for table `propPartVal`
 --
-ALTER TABLE `propItemVal`
-  ADD CONSTRAINT `fk_propItemVal_1` FOREIGN KEY (`propItem`) REFERENCES `propItem` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_propItemVal_2` FOREIGN KEY (`propItemValType`) REFERENCES `propItemValType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `propPartVal`
+  ADD CONSTRAINT `fk_propPartVal_2` FOREIGN KEY (`propIPartValType`) REFERENCES `propItemValType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_propPartVal_1` FOREIGN KEY (`propPart`) REFERENCES `propPart` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `propTemplateItem`
+-- Constraints for table `propTemplatePart`
 --
-ALTER TABLE `propTemplateItem`
-  ADD CONSTRAINT `fk_propTemplateItem_1` FOREIGN KEY (`propTemplate`) REFERENCES `propTemplate` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `propTemplatePart`
+  ADD CONSTRAINT `fk_propTemplatePart_1` FOREIGN KEY (`propTemplate`) REFERENCES `propTemplate` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_propTemplatePart_2` FOREIGN KEY (`propPartType`) REFERENCES `propPartType` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `questionMatrix`
+--
+ALTER TABLE `questionMatrix`
+  ADD CONSTRAINT `fk_questionMatrix_1` FOREIGN KEY (`question`) REFERENCES `question` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_questionMatrix_2` FOREIGN KEY (`service`) REFERENCES `service` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_questionMatrix_3` FOREIGN KEY (`propPart`) REFERENCES `propPart` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `service`
+--
+ALTER TABLE `service`
+  ADD CONSTRAINT `fk_service_1` FOREIGN KEY (`org`) REFERENCES `org` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `tag`

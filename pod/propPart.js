@@ -63,7 +63,7 @@ YUI.add('jak-pod-propPart',function(Y){
         io={
             fetch:{
                 propPart:function(){
-                    Y.JAK.widget.busy.set('message','getting property item(s)...');
+                    Y.JAK.widget.busy.set('message','getting property parts(s)...');
                     Y.io('/db/propPart/s.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
@@ -88,7 +88,7 @@ YUI.add('jak-pod-propPart',function(Y){
             h.selectLists.on('change',function(){
                 var propTemplateId   =parseInt(this.get('value'),10),
                     propPartTypes    =JAK.data.propPartType,
-                    propTemplateItems=JAK.data.propTemplateItem
+                    propTemplateParts=JAK.data.propTemplatePart
                 ;
                 h.list.setContent('');
                 h.checkAll.set('checked',true);
@@ -97,9 +97,9 @@ YUI.add('jak-pod-propPart',function(Y){
                         h.list.append('<li><input type="checkbox" checked="checked" value="'+propPartType.id+'" /><input type="text" value="1" />'+propPartType.name+'</li>');
                     });
                 }else{
-                    Y.each(propTemplateItems,function(propTemplateItem){
-                        if(propTemplateItem.propTemplate!==propTemplateId){return;}
-                        h.list.append('<li><input type="checkbox" value="'+propTemplateItem.propPartType+'" checked="checked" /><input type="text" value="'+propTemplateItem.defaultRecs+'" />'+propPartTypes[propTemplateItem.propPartType].name+'</li>');
+                    Y.each(propTemplateParts,function(propTemplatePart){
+                        if(propTemplatePart.propTemplate!==propTemplateId){return;}
+                        h.list.append('<li><input type="checkbox" value="'+propTemplatePart.propPartType+'" checked="checked" /><input type="text" value="'+propTemplatePart.defaultRecs+'" />'+propPartTypes[propTemplatePart.propPartType].name+'</li>');
                     });
                 }
             });
@@ -126,7 +126,7 @@ YUI.add('jak-pod-propPart',function(Y){
                     bodyContent:
                         '<input type="checkbox" class="jak-checkall" checked="checked" />'
                        +'<select class="jak-select-lists">'
-                       +  '<option value="0">Specific Property Items</option>'
+                       +  '<option value="0">Specific Property Parts</option>'
                        +  '<optgroup label="Templates"></optgroup>'
                        +'</select>'
                        +'<ul></ul>',
@@ -163,7 +163,7 @@ YUI.add('jak-pod-propPart',function(Y){
          */
         Y.JAK.dataSet.fetch([
             ['propTemplate','id'],
-            ['propTemplateItem','id'],
+            ['propTemplatePart','id'],
             ['propPartType','id']
         ],function(){
 

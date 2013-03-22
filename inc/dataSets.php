@@ -43,6 +43,24 @@ function dataSets($arr, $echo=false) {
     }
 
     /**
+     *  question
+     */
+    if (in_array('question',$arr) && $stmt = $mysqli->prepare("select * from `question`")) {
+        $stmt->execute();
+        $rs->question = fetch_info($stmt);
+        $stmt->close();
+    }
+
+    /**
+     *  questionMatrix
+     */
+    if (in_array('questionMatrix',$arr) && $stmt = $mysqli->prepare("select * from `questionMatrix` order by service,seq")) {
+        $stmt->execute();
+        $rs->questionMatrix = fetch_info($stmt);
+        $stmt->close();
+    }
+
+    /**
      *  service
      */
     if (in_array('service',$arr) && $stmt = $mysqli->prepare("select * from `service` order by seq,name")) {

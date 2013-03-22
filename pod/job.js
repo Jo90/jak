@@ -102,7 +102,13 @@ YUI.add('jak-pod-job',function(Y){
             h.propPartList.delegate('focus',function(){this.addClass('jak-focus');},'li');
             h.propPartList.delegate('blur',function(){this.removeClass('jak-focus');},'li');
 
-            h.questionSelect.on('change',trigger.questions);
+            h.serviceList.delegate('change',trigger.buildServiceSelect,'input[type="checkbox"]');
+            h.serviceSelect.on('change',trigger.questions);
+
+            h.questionList.delegate('click',function(){
+                h.questionList.all('.jak-focus').removeClass('jak-focus');
+                this.addClass('jak-focus');
+            },'> li');
 
             h.save.on('click',io.save.job);
         };
@@ -151,8 +157,9 @@ YUI.add('jak-pod-job',function(Y){
                         for(var i=0;i<r.qty;i++){
                             h.podInvoke.ancestor('li').insert(
                                 '<li>'
-                               + '<span class="jak-data-propPartType-name">'+JAK.data.propPartType[r.propPartType].name+'</span>'
-                               + '<input type="text" placeholder="detail" class="jak-data jak-data-name"/>'
+                               +  '<input type="checkbox" class="jak-propPartType-check" />'
+                               +  '<span class="jak-data-propPartType-name">'+JAK.data.propPartType[r.propPartType].name+'</span>'
+                               +  '<input type="text" placeholder="detail" class="jak-data jak-data-name"/>'
                                +  Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
                                +  Y.JAK.html('btn',{action:'add',title:'add property parts'})
                                +'</li>',
@@ -226,9 +233,8 @@ YUI.add('jak-pod-job',function(Y){
                        +  '<option>wet</option>'
                        +  '<option>dark</option>'
                        +'</select>'
-                       +'<fieldset>'
+                       +'<fieldset class="jak-list-service">'
                        +  '<legend>services</legend>'
-                       +  '<ul class="jak-list-service"></ul>'
                        +'</fieldset>'
                        +'<fieldset>'
                        +  '<legend>job</legend>'
@@ -238,15 +244,15 @@ YUI.add('jak-pod-job',function(Y){
                        +    '</legend>'
                        +    '<ul class="jak-list-propPart">'
                        +      '<li>'
+                       +        '<input type="checkbox" class="jak-propPartType-check" />'
                        +        '<span class="jak-data-propPartType-name">Property</span>'
                        +        Y.JAK.html('btn',{action:'add',title:'add property parts'})
                        +      '</li>'
                        +    '</ul>'
                        +  '</fieldset>'
                        +  '<fieldset class="jak-section-question">'
-                       +    '<legend>'
-                       +    '<select></select>'
-                       +    '</legend>'
+                       +    '<legend><select class="jak-select-service"></select></legend>'
+                       +    '<ul></ul>'
                        +  '</fieldset>'
                        +'</fieldset>',
                     footerContent:Y.JAK.html('btn',{action:'save',title:'save',label:'save'}),
@@ -269,22 +275,21 @@ YUI.add('jak-pod-job',function(Y){
                     f.jobWeather      =h.bd.one('.jak-data-weather');
 
                     h.serviceList     =h.bd.one('.jak-list-service');
+                    h.serviceSelect   =h.bd.one('.jak-select-service');
+                    h.questionSection =h.bd.one('.jak-section-question');
+                    h.questionList    =h.questionSection.one('ul');
 
                     h.propPartSection =h.bd.one('.jak-section-propPart');
                     h.propPartList    =h.propPartSection.one('ul');
-
-                    h.questionSection =h.bd.one('.jak-section-question');
-                    h.questionSelect  =h.questionSection.one('> legend > select');
 
                     h.close           =h.hd.one('.jak-close');
                     h.save            =h.ft.one('.jak-save');
 
                     Y.each(JAK.data.service,function(service){
-debugger;
-                        h.serviceList.append('<li><label><input type="checkbox" value="'+service.id+'">'+service.name+'</label></li>');
-                        h.questionSelect.append('<option value="'+service.id+'">'+service.name+'</option>');
+                        h.serviceList.append('<label><input type="checkbox" '+(service.checked===1?'checked="checked"':'')+' value="'+service.id+'"><em>'+service.name+'</em></label>');
                     });
-                    
+                    trigger.buildServiceSelect();
+
             }
         };
 
@@ -300,8 +305,29 @@ debugger;
                 f.jobWeather      .set('value','');
                 h.propPartList.all('> li').slice(1).remove();
             },
+            buildServiceSelect:function(){
+                h.serviceSelect.setContent('<option value="0">select service...</option>');
+                h.serviceList.all('input:checked').each(function(n){
+                    h.serviceSelect.append('<option value="'+n.get('value')+'">'+n.next().get('innerHTML')+'</option>');
+                });
+            },
             questions:function(){
-                alert('questions');
+                var serviceId=parseInt(this.get('value'),10),
+                    q
+                ;
+                h.questionList.setContent('');
+                Y.each(JAK.data.questionMatrix,function(questionMatrix){
+                    if(questionMatrix.service!==serviceId){return;}
+                    q=JAK.data.question[questionMatrix.question];
+                    h.questionList.append(
+                        '<li>'
+                       +  '<em>'+q.name+'</em>'
+                       +  (q.codeType==='H'?q.code:'')
+                       +  Y.JAK.html('btn',{action:'remove',title:'remove'})
+                       +  Y.JAK.html('btn',{action:'dup',title:'duplicate'})
+                       +'</li>'
+                    );
+                });
             }
         };
 
@@ -310,6 +336,8 @@ debugger;
          */
         Y.JAK.dataSet.fetch([
             ['propPartType','id'],
+            ['question','id'],
+            ['questionMatrix','id'],
             ['service','id']
         ],function(){
 

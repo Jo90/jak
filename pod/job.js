@@ -102,8 +102,9 @@ YUI.add('jak-pod-job',function(Y){
             h.propPartList.delegate('focus',function(){this.addClass('jak-focus');},'li');
             h.propPartList.delegate('blur',function(){this.removeClass('jak-focus');},'li');
 
-            h.serviceList.delegate('change',trigger.buildServiceSelect,'input[type="checkbox"]');
             h.serviceSelect.on('change',trigger.questions);
+
+            h.propPartSave.on('click',function(){alert('save property parts');})
 
             h.questionList.delegate('click',function(){
                 h.questionList.all('.jak-focus').removeClass('jak-focus');
@@ -210,6 +211,9 @@ YUI.add('jak-pod-job',function(Y){
 
         render={
             base:function(){
+                var jobServiceArr=[],
+                    serviceArr=[]
+                ;
                 h.ol=new Y.Overlay({
                     headerContent:
                         '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAKPS">'+self.info.title+'</span> '
@@ -249,9 +253,13 @@ YUI.add('jak-pod-job',function(Y){
                        +        Y.JAK.html('btn',{action:'add',title:'add property parts'})
                        +      '</li>'
                        +    '</ul>'
+                       +    Y.JAK.html('btn',{action:'save',label:'save property parts'})
                        +  '</fieldset>'
                        +  '<fieldset class="jak-section-question">'
-                       +    '<legend><select class="jak-select-service"></select></legend>'
+                       +    '<legend>'
+                       +      '<select class="jak-select-service"></select>'
+                       +      Y.JAK.html('btn',{action:'find',label:'generate/reset'})
+                       +    '</legend>'
                        +    '<ul></ul>'
                        +  '</fieldset>'
                        +'</fieldset>',
@@ -281,15 +289,17 @@ YUI.add('jak-pod-job',function(Y){
 
                     h.propPartSection =h.bd.one('.jak-section-propPart');
                     h.propPartList    =h.propPartSection.one('ul');
+                    h.propPartSave    =h.propPartSection.one('.jak-save');
 
                     h.close           =h.hd.one('.jak-close');
                     h.save            =h.ft.one('.jak-save');
 
                     Y.each(JAK.data.service,function(service){
-                        h.serviceList.append('<label><input type="checkbox" '+(service.checked===1?'checked="checked"':'')+' value="'+service.id+'"><em>'+service.name+'</em></label>');
+                        h.serviceSelect.append('<option value="'+service.id+'">'+service.name+'</option>');
+                        if(service.id===1){return;}//exclude general
+                        jobServiceArr.push('<label><input type="checkbox" value="'+service.id+'"><em>'+service.name+'</em></label> $<input type="text" class="jak-data jak-data-jobService-fee" value="'+service.fee+'" placeholder="service fee" title="service fee" />');
                     });
-                    trigger.buildServiceSelect();
-
+                    h.serviceList.append(jobServiceArr.join(','));
             }
         };
 
@@ -304,12 +314,6 @@ YUI.add('jak-pod-job',function(Y){
                 f.jobReminder     .set('value','');
                 f.jobWeather      .set('value','');
                 h.propPartList.all('> li').slice(1).remove();
-            },
-            buildServiceSelect:function(){
-                h.serviceSelect.setContent('<option value="0">select service...</option>');
-                h.serviceList.all('input:checked').each(function(n){
-                    h.serviceSelect.append('<option value="'+n.get('value')+'">'+n.next().get('innerHTML')+'</option>');
-                });
             },
             questions:function(){
                 var serviceId=parseInt(this.get('value'),10),

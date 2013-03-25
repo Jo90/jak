@@ -1,7 +1,8 @@
 /** /css/pod/job.css
  *
  */
-.jak-pod-job .jak-close {float:right;}
+.jak-pod-job .jak-close,
+.jak-pod-job .jak-save {float:right;}
 
 .jak-pod-job .yui3-widget-bd {overflow:hidden;}
 
@@ -14,6 +15,8 @@
 .jak-pod-job .jak-section-question ul {list-style-type:none;}
 
 .jak-pod-job .jak-section-question .jak-focus {font-weight:bold;color:#08088A;}
+
+.jak-pod-job .jak-data-jobService-fee {width:4em;}
 
 .jak-pod-job li {line-height:1.6em;}
 .jak-pod-job li.jak-focus {line-height:1.8em;font-weight:bold;color:#08088A;}

@@ -4,6 +4,8 @@
  */
 namespace jak;
 
+require_once '../prop/common.php';
+
 function job_getJob($criteria) {
     global $mysqli;
     $r = new \stdClass;
@@ -125,8 +127,50 @@ function job_setJob(&$i) {
 
     //finish duplication
     if(isset($i->criteria->duplicate)){
-
-
-    }
-    
+    	$jobId = $i->criteria->data->id;
+		// jobService
+	    if ($stmt = $mysqli->prepare(
+    	    "insert into jobService
+    	    	   (job, service)
+    	     select job, service	   
+        	   from `jobService` 
+        	  where job = $jobId"
+    	)) {
+        	$r->success = $stmt->execute();
+        	$r->rows = $mysqli->affected_rows;
+        	$stmt->close();
+    	}
+    	
+    	// propPart
+	    if ($stmt = $mysqli->prepare(
+    	    "insert into propPart
+    	    	   (job, propPartType, seq, indent, name)
+    	     select job, propPartType, seq, indent, name	   
+        	   from `propPart` 
+        	  where job = $jobId"
+    	)) {
+        	$r->success = $stmt->execute();
+        	$r->rows = $mysqli->affected_rows;
+        	$stmt->close();
+    	}
+		$criteriaPropPart = new \stdClass;
+		$criteriaPropPart->jobIds = array($jobId);
+		$propPart = prop_getPropPart($criteriaPropPart);
+/*		
+		// answerMatrix	    
+		$propPartIds = array();
+		$propPartIds = selectIds($propPart, 'id');	
+	    if ($stmt = $mysqli->prepare(
+    	    "insert into answerMatrix
+    	    	   (answer, propPart, service)
+    	     select answer, propPart, service	   
+        	   from `answerMatrix` 
+        	  where propPart in ($propPartIds)"
+    	)) {
+        	$r->success = $stmt->execute();
+        	$r->rows = $mysqli->affected_rows;
+        	$stmt->close();
+    	}
+*/
+    }    
 }

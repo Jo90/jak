@@ -16,7 +16,7 @@ foreach ($post as $i) {
 
     if (!isset($i->criteria) &&
         !isset($i->criteria->jobIds) &&
-        !isset($i->criteria->last) &&
+        !isset($i->criteria->lastJob) &&
         !isset($i->criteria->firstName) &&
         !isset($i->criteria->lastName) &&
         !isset($i->criteria->streetName) &&
@@ -48,7 +48,7 @@ foreach ($post as $i) {
     $r->job = job_getJob($i->criteria);
 
     foreach ($r->job->data as $d) {
-        $i->criteria->addressIds[] = $d->address;
+        if ($d->address != '') {$i->criteria->addressIds[] = $d->address;}
     }
     $r->address = addr_getAddress($i->criteria);
     $i->criteria->locationIds = array();

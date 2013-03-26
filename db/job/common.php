@@ -11,7 +11,7 @@ function job_getJob($criteria) {
     $cnd   = '';
     $limit = '';
 
-    //jobs
+    //criteria
     if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0) {
         $jobIds = implode(',', $criteria->jobIds);
         $cnd = "where id in ($jobIds)";
@@ -41,42 +41,48 @@ function job_getJob($criteria) {
     return $r;
 }
 
-function job_setJob(&$criteria) {
+function job_setJob(&$i) {
     global $mysqli;
-    $criteria->result = new \stdClass;
-    $r = $criteria->result;
-    if (!isset($criteria, $criteria->data, $criteria->data->dbTable, $criteria->data->pk)) {return null;}
+    $i->result = new \stdClass;
+    $r = $i->result;
 
-    if (isset($criteria->remove) && $criteria->remove) {
+    if (!isset($i->criteria) &&
+        !isset($i->remove) &&
+        !isset($i->criteria->duplicate)) {return null;}
+
+    if (isset($i->remove) && is_array($i->remove)) {
+        $jobIds = implode(',', $i->remove);
         if ($stmt = $mysqli->prepare(
             "delete from `job`
-              where id = ?"
+              where id in ($jobIds)"
         )) {
-            $stmt->bind_param('i'
-                ,$criteria->data->id
-            );
             $r->successDelete = $stmt->execute();
             $r->rows = $mysqli->affected_rows;
             $r->successDelete OR $r->errorDelete = $mysqli->error;
             $stmt->close();
         }
+        return $r;
     }
-    if (isset($criteria->data->id)) {
+
+    if (isset($i->criteria->data->id)) {
         if ($stmt = $mysqli->prepare(
             "update `job`
-                set ref      = ?,
-                    property = ?,
-                    reminder = ?,
-                    status   = ?,
-                    weather  = ?
+                set ref         = ?,
+                    appointment = ?,
+                    address     = ?,
+                    confirmed   = ?,
+                    reminder    = ?,
+                    weather     = ?
               where id = ?"
         )) {
-            $stmt->bind_param('iiiss'
-                ,$criteria->data->ref
-                ,$criteria->data->property
-                ,$criteria->data->reminder
-                ,$criteria->data->status
-                ,$criteria->data->id
+            $stmt->bind_param('iiiiisi'
+                ,$i->criteria->data->ref
+                ,$i->criteria->data->appointment
+                ,$i->criteria->data->address
+                ,$i->criteria->data->confirmed
+                ,$i->criteria->data->reminder
+                ,$i->criteria->data->weather
+                ,$i->criteria->data->id
             );
             $r->successUpdate = $stmt->execute();
             $r->rows = $mysqli->affected_rows;
@@ -86,24 +92,41 @@ function job_setJob(&$criteria) {
         return $r;
     }
     //insert
+
+    if(isset($i->criteria->duplicate)){
+
+        $i->criteria->jobIds = array($i->criteria->duplicate);
+        if (!isset($i->criteria->data)) {$i->criteria->data = new \stdClass;}
+        $temp = job_getJob($i->criteria);
+        $i->criteria->data->ref     = $temp->data->{$i->criteria->duplicate}->ref;
+        $i->criteria->data->address = $temp->data->{$i->criteria->duplicate}->address;
+    }
+
     if ($stmt = $mysqli->prepare(
             "insert into `job`
-                    (ref,created,property,reminder,status,weather)
-             values (?,?,?,?,?,?)"
+                    (ref,created,appointment,address,confirmed,reminder,weather)
+             values (?,UNIX_TIMESTAMP(NOW()),?,?,?,?,?)"
     )) {
-        $stmt->bind_param('iiiiss'
-           ,$criteria->data->ref
-           ,$criteria->data->created
-           ,$criteria->data->property
-           ,$criteria->data->reminder
-           ,$criteria->data->status
-           ,$criteria->data->weather
+        $stmt->bind_param('iiiiis'
+           ,$i->criteria->data->ref
+           ,$i->criteria->data->appointment
+           ,$i->criteria->data->address
+           ,$i->criteria->data->confirmed
+           ,$i->criteria->data->reminder
+           ,$i->criteria->data->weather
         );
         $r->successInsert = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
         $r->successInsert
-            ?$criteria->data->id = $stmt->insert_id
+            ?$i->criteria->data->id = $stmt->insert_id
             :$r->errorInsert = $mysqli->error;
         $stmt->close();
     }
+
+    //finish duplication
+    if(isset($i->criteria->duplicate)){
+
+
+    }
+    
 }

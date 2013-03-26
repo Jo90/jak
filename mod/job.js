@@ -84,27 +84,43 @@ YUI.add('jak-mod-job',function(Y){
             },
             insert:{
                 job:function(e,action){
-                    alert(action+' '+this.get('value'));
+                    var post={}
+                    ;
+                    if(action==='duplicate'){
+                        post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job').get('innerHTML'),10);
+                    }
+                    Y.io('/db/job/iud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            var rs=Y.JSON.parse(o.responseText)[0].result,
+                                jobId //finish
+                            ;
+                            pod.display.job({});
+                        }},
+                        data:Y.JSON.stringify([{
+                            criteria:post,
+                            member  :JAK.user.usr
+                        }])
+                    });
                 }
             },
             remove:{
                 job:function(e){
-                    var jobId=this.get('value')
+                    var row=this.ancestor('tr'),
+                        jobId=parseInt(row.one('.yui3-datatable-col-job').get('innerHTML'),10)
                     ;
                     if(!confirm('remove job '+jobId+'?')){return;}
-                    Y.io('/db/job/d.php',{
+                    Y.io('/db/job/iud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){
-                            
-                            alert('update display to remove jobId');
-                            //find the row identifer
-                            //h.dt.removeRow(123)
-
+                            //>>>>>>>>>>>>FINISH verify success
+                            row.remove();
                         }},
                         data:Y.JSON.stringify([{
-                            criteria:{job:jobId},
-                            member  :JAK.user.usr
+                            remove:[jobId],
+                            member:JAK.user.usr
                         }])
                     });
                 }
@@ -113,10 +129,10 @@ YUI.add('jak-mod-job',function(Y){
 
         listeners=function(){
             h.bd.delegate('click',io.fetch.job,'.jak-search');
-            h.addJob.on('click',pod.display.job);
+            h.addJob.on('click',io.insert.job);
             h.dt.get('contentBox').delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
-            h.dt.get('contentBox').delegate('click',io.insert.job,'.jak-action-duplicate',null,'dup');
-            h.dt.get('contentBox').delegate('click',io.remove.job,'.jak-action-delete');
+            h.dt.get('contentBox').delegate('click',io.insert.job,'.jak-dup',null,'duplicate');
+            h.dt.get('contentBox').delegate('click',io.remove.job,'.jak-remove');
         };
 
         pod={
@@ -169,10 +185,12 @@ YUI.add('jak-mod-job',function(Y){
                     h.dt.addRow({
                         job        :job.id,
                         ref        :job.ref,
-                        streetRef  :addresses[job.address].streetRef,
-                        streetName :addresses[job.address].streetName,
-                        location   :locations[addresses[job.address].location].full,
-                        appointment:Y.Date.format(Y.Date.parse(job.appointment*1000),{format:"%a %d %b %Y"}),
+                        streetRef  :job.address===null?'':addresses[job.address].streetRef,
+                        streetName :job.address===null?'':addresses[job.address].streetName,
+                        location   :job.address===null?'':locations[addresses[job.address].location].full,
+                        appointment:job.appointment===null
+                                       ?''
+                                       :Y.Date.format(Y.Date.parse(job.appointment*1000),{format:"%a %d %b %Y"}),
                         confirmed  :job.confirmed===null
                                        ?''
                                        :Y.Date.format(Y.Date.parse(job.confirmed*1000),{format:"%a %d %b %Y"}),
@@ -181,8 +199,8 @@ YUI.add('jak-mod-job',function(Y){
                                         :Y.Date.format(Y.Date.parse(job.reminder*1000),{format:"%a %d %b %Y"}),
                         usr        :usrInfo.join(','),
                         address    :job.address,
-                        dup        :'<button class="jak-action-duplicate" value="'+job.id+'">Duplicate</button>',
-                        del        :'<button class="jak-action-delete" value="'+job.id+'">Delete</button>'
+                        actions    :Y.JAK.html('btn',{action:'dup',title:'duplicate'})
+                                   +Y.JAK.html('btn',{action:'remove',title:'remove'})
                     });
                 });
                 Y.JAK.widget.busy.set('message','');
@@ -331,17 +349,16 @@ YUI.add('jak-mod-job',function(Y){
                 h.dt=new Y.DataTable({
                     caption :'JAK Inspections Job Log',
                     columns:[
-                        {key:'job'        ,label:'Job'        ,abbr:'jobId'},
-                        {key:'ref'        ,label:'Ref'        ,abbr:'jobRef'},
-                        {key:'streetRef'  ,label:'#'          ,abbr:'ref'},
-                        {key:'streetName' ,label:'Street'     ,abbr:'st'},
-                        {key:'location'   ,label:'Location'   ,abbr:'suburb/city'},
-                        {key:'appointment',label:'Appointment',abbr:'appt'},
-                        {key:'confirmed'  ,label:'Confirmed'  ,abbr:'confirmed'},
-                        {key:'reminder'   ,label:'Remind'     ,abbr:'reminder'},
-                        {key:'usr'        ,label:'Clients'    ,abbr:'usr'},
-                        {key:'dup'        ,label:''           ,abbr:'dup',allowHTML:true},
-                        {key:'del'        ,label:''           ,abbr:'del',allowHTML:true}
+                        {key:'job'        ,label:'Job'        },
+                        {key:'ref'        ,label:'Ref'        },
+                        {key:'streetRef'  ,label:'#'          },
+                        {key:'streetName' ,label:'Street'     },
+                        {key:'location'   ,label:'Location'   },
+                        {key:'appointment',label:'Appointment'},
+                        {key:'confirmed'  ,label:'Confirmed'  },
+                        {key:'reminder'   ,label:'Remind'     },
+                        {key:'usr'        ,label:'Clients'    },
+                        {key:'actions'    ,label:''           ,allowHTML:true}
                     ],
                     data    :[],
                     sortable:true,

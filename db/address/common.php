@@ -67,7 +67,7 @@ function addr_getLocation($criteria) {
     return $r;
 }
 
-function addr_setAddress($criteria) {
+function addr_setAddress(&$criteria) {
     global $mysqli;
     $r = new \stdClass;
     $r->criteria = $criteria;

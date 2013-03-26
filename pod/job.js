@@ -104,8 +104,6 @@ YUI.add('jak-pod-job',function(Y){
 
             h.serviceSelect.on('change',trigger.questions);
 
-            h.propPartSave.on('click',function(){alert('save property parts');})
-
             h.questionList.delegate('click',function(){
                 h.questionList.all('.jak-focus').removeClass('jak-focus');
                 this.addClass('jak-focus');
@@ -253,7 +251,6 @@ YUI.add('jak-pod-job',function(Y){
                        +        Y.JAK.html('btn',{action:'add',title:'add property parts'})
                        +      '</li>'
                        +    '</ul>'
-                       +    Y.JAK.html('btn',{action:'save',label:'save property parts'})
                        +  '</fieldset>'
                        +  '<fieldset class="jak-section-question">'
                        +    '<legend>'
@@ -289,7 +286,6 @@ YUI.add('jak-pod-job',function(Y){
 
                     h.propPartSection =h.bd.one('.jak-section-propPart');
                     h.propPartList    =h.propPartSection.one('ul');
-                    h.propPartSave    =h.propPartSection.one('.jak-save');
 
                     h.close           =h.hd.one('.jak-close');
                     h.save            =h.ft.one('.jak-save');

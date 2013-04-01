@@ -5,6 +5,7 @@
 namespace jak;
 
 require_once '../prop/common.php';
+require_once '../shared/common.php';
 
 function job_getJob($criteria) {
     global $mysqli;
@@ -45,8 +46,8 @@ function job_getJob($criteria) {
 
 function job_setJob(&$i) {
     global $mysqli;
-    $i->result = new \stdClass;
-    $r = $i->result;
+
+    $r = initStep($i);
 
     if (!isset($i->criteria) &&
         !isset($i->remove) &&
@@ -93,8 +94,8 @@ function job_setJob(&$i) {
         }
         return $r;
     }
-    //insert
 
+    //insert
     if(isset($i->criteria->duplicate)){
 
         $i->criteria->jobIds = array($i->criteria->duplicate);
@@ -105,9 +106,9 @@ function job_setJob(&$i) {
     }
 
     if ($stmt = $mysqli->prepare(
-            "insert into `job`
-                    (ref,created,appointment,address,confirmed,reminder,weather)
-             values (?,UNIX_TIMESTAMP(NOW()),?,?,?,?,?)"
+        "insert into `job`
+                (ref,created,appointment,address,confirmed,reminder,weather)
+         values (?,UNIX_TIMESTAMP(NOW()),?,?,?,?,?)"
     )) {
         $stmt->bind_param('iiiiis'
            ,$i->criteria->data->ref
@@ -125,52 +126,124 @@ function job_setJob(&$i) {
         $stmt->close();
     }
 
+    if (!$r->successInsert) {$r->log[] = 'job insert error'; return;}
+    $JobId = $i->criteria->data->id;
+
     //finish duplication
-    if(isset($i->criteria->duplicate)){
-    	$jobId = $i->criteria->data->id;
-		// jobService
-	    if ($stmt = $mysqli->prepare(
-    	    "insert into jobService
-    	    	   (job, service)
-    	     select job, service	   
-        	   from `jobService` 
-        	  where job = $jobId"
-    	)) {
-        	$r->success = $stmt->execute();
-        	$r->rows = $mysqli->affected_rows;
-        	$stmt->close();
-    	}
-    	
-    	// propPart
-	    if ($stmt = $mysqli->prepare(
-    	    "insert into propPart
-    	    	   (job, propPartType, seq, indent, name)
-    	     select job, propPartType, seq, indent, name	   
-        	   from `propPart` 
-        	  where job = $jobId"
-    	)) {
-        	$r->success = $stmt->execute();
-        	$r->rows = $mysqli->affected_rows;
-        	$stmt->close();
-    	}
-		$criteriaPropPart = new \stdClass;
-		$criteriaPropPart->jobIds = array($jobId);
-		$propPart = prop_getPropPart($criteriaPropPart);
-/*		
-		// answerMatrix	    
-		$propPartIds = array();
-		$propPartIds = selectIds($propPart, 'id');	
-	    if ($stmt = $mysqli->prepare(
-    	    "insert into answerMatrix
-    	    	   (answer, propPart, service)
-    	     select answer, propPart, service	   
-        	   from `answerMatrix` 
-        	  where propPart in ($propPartIds)"
-    	)) {
-        	$r->success = $stmt->execute();
-        	$r->rows = $mysqli->affected_rows;
-        	$stmt->close();
-    	}
-*/
-    }    
+    if (isset($i->criteria->duplicate)) {
+
+        // jobService
+        if ($stmt = $mysqli->prepare(
+            "insert into jobService
+                   (job, service)
+             select job, service
+               from `jobService`
+              where job = $jobId"
+        )) {
+            $r->success = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $stmt->close();
+        }
+
+        // propPart
+        if ($stmt = $mysqli->prepare(
+            "insert into propPart
+                   (job, propPartType, seq, indent, name)
+             select job, propPartType, seq, indent, name
+               from `propPart`
+              where job = $jobId"
+        )) {
+            $r->success = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $stmt->close();
+        }
+        $criteriaPropPart = new \stdClass;
+        $criteriaPropPart->jobIds = array($jobId);
+        $propParts = prop_getPropPart($criteriaPropPart);
+
+        //questionMatrix and propPart
+        if ($stmt = $mysqli->prepare(
+            "select qm.*
+               from `propPart`       as pp,
+                    `questionMatrix` as qm
+              where pp.propPartType = qm.propPartType"
+        )) {
+            $stmt->execute();
+            $qm = \jak\fetch_result($stmt);
+            $stmt->close();
+
+            //use qm
+
+
+            
+        }
+        
+        
+        // answers and answerMatrix
+        $propPartIds = array();
+        $propPartIds = selectIds($propParts->data, 'id');
+        if (count($propPartIds) > 0) {
+            if ($stmt = $mysqli->prepare(
+                "insert into answerMatrix
+                       (answer, propPart, service)
+                 select answer, propPart, service
+                   from `questionMatrix`
+                  where propPart in ($propPartIds)"
+            )) {
+                $r->success = $stmt->execute();
+                $r->rows = $mysqli->affected_rows;
+                $stmt->close();
+            }
+        }
+    } else
+
+    //create plain job
+    {
+        //default property propPart
+        $mysqli->prepare(
+            "insert into `propPart`
+                    (job, propPartType, seq, indent, name)
+             values ($JobId,1,0,0,'main')"
+        );
+
+        //use propTemplate.def
+        if ($stmt = $mysqli->prepare(
+            'select ptp.*,
+                    pt.name  as propTemplateName,
+                    ppt.name as propPartTypeName
+               from `propTemplatePart`  as ptp,
+                    `propTemplate`      as pt,
+                    `propPartType`      as ppt
+              where ptp.propTemplate = pt.id
+                and ptp.propPartType = ppt.id
+                and pt.def           = 1'
+        )) {
+            $stmt->execute();
+            $propPartDef = \jak\fetch_result($stmt);
+            $stmt->close();
+
+            $r->propPartSuccess = array();
+            foreach ($propPartDef as $d) {
+                for ($i = 0; $i < $d->defaultRecs; $i++) {
+                    if ($stmt = $mysqli->prepare(
+                        "insert into `propPart`
+                                (job, propPartType, seq, indent, name)
+                         values ($JobId,$d->propPartType,0,0,?)"
+                    )) {
+                        $stmt->bind_param('s',
+                            $d->propPartTypeName
+                        );
+                        $r->propPartSuccess[] = $stmt->execute();
+                        $stmt->execute();
+                        $stmt->close();
+                    }
+                }
+            }
+        }
+
+        //questions/answers
+
+
+        
+    }
 }

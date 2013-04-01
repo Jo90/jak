@@ -10,9 +10,9 @@ YUI.add('jak-mod-job',function(Y){
         ){alert('error:mod-job parameters');return;}
 
         cfg=Y.merge({
-            title      :'job search',
-            width      :'900px',
-            zIndex     :9999
+            title :'job search',
+            width :'900px',
+            zIndex:9999
         },cfg);
 
         this.info={
@@ -20,11 +20,11 @@ YUI.add('jak-mod-job',function(Y){
             title      :cfg.title,
             description:'job search',
             file       :'/mod/job.js',
-            version    :'v1.0 March 2013'
+            version    :'v1.0 March 2013',
+            css        :'jak-mod-job'
         };
 
         var self=this,
-            css='jak-mod-job',
             d={},f={},h={},
             initialise={},
             io={},
@@ -35,10 +35,6 @@ YUI.add('jak-mod-job',function(Y){
             trigger={}
         ;
 
-        this.customEvent={
-            selected:self.info.id+(++JAK.env.customEventSequence)+':selected'
-        };
-
         this.my={}; //children
 
         /**
@@ -46,7 +42,7 @@ YUI.add('jak-mod-job',function(Y){
          */
 
         initialise=function(){
-            cfg.node.addClass(css);
+            cfg.node.addClass(self.info.css);
         };
 
         io={
@@ -93,10 +89,10 @@ YUI.add('jak-mod-job',function(Y){
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var rs=Y.JSON.parse(o.responseText)[0].result,
-                                jobId //finish
+                            var rs=Y.JSON.parse(o.responseText)[0],
+                                jobId=rs.criteria.data.id
                             ;
-                            pod.display.job({});
+                            pod.display.job({job:jobId});
                         }},
                         data:Y.JSON.stringify([{
                             criteria:post,
@@ -108,16 +104,16 @@ YUI.add('jak-mod-job',function(Y){
             remove:{
                 job:function(e){
                     var row=this.ancestor('tr'),
-                        jobId=parseInt(row.one('.yui3-datatable-col-job').get('innerHTML'),10)
+                        jobId=parseInt(row.one('.yui3-datatable-col-job').get('innerHTML'),10),
+                        address=row.one('.yui3-datatable-col-streetRef').get('innerHTML')+' '
+                            +row.one('.yui3-datatable-col-streetName').get('innerHTML')+' '
+                            +row.one('.yui3-datatable-col-location').get('innerHTML')
                     ;
-                    if(!confirm('remove job '+jobId+'?')){return;}
+                    if(!confirm('remove job #'+jobId+' for \n'+address+'?')){return;}
                     Y.io('/db/job/iud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
-                        on:{complete:function(){
-                            //>>>>>>>>>>>>FINISH verify success
-                            row.remove();
-                        }},
+                        on:{complete:function(){row.remove();}},
                         data:Y.JSON.stringify([{
                             remove:[jobId],
                             member:JAK.user.usr
@@ -150,7 +146,7 @@ YUI.add('jak-mod-job',function(Y){
                             self.my.podJob.set('zIndex',cfg.zIndex+10);
                             pod.display.job(p);
                         });
-                        Y.on(self.my.podJob.customEvent.save,pod.result.job);
+                        Y.on(self.my.podJob.customEvent.update,pod.result.job);
                     });
                 }
             },
@@ -190,13 +186,19 @@ YUI.add('jak-mod-job',function(Y){
                         location   :job.address===null?'':locations[addresses[job.address].location].full,
                         appointment:job.appointment===null
                                        ?''
-                                       :Y.Date.format(Y.Date.parse(job.appointment*1000),{format:"%a %d %b %Y"}),
+                                       :'<span title="'+Y.Date.format(Y.Date.parse(job.appointment*1000),{format:"%a %d %b %Y"})+'">'
+                                       +  Y.Date.format(Y.Date.parse(job.appointment*1000),{format:"%d %b %Y"})
+                                       +'</span>',
                         confirmed  :job.confirmed===null
                                        ?''
-                                       :Y.Date.format(Y.Date.parse(job.confirmed*1000),{format:"%a %d %b %Y"}),
-                        reminder:job.reminder===null
-                                        ?''
-                                        :Y.Date.format(Y.Date.parse(job.reminder*1000),{format:"%a %d %b %Y"}),
+                                       :'<span title="'+Y.Date.format(Y.Date.parse(job.confirmed*1000),{format:"%a %d %b %Y"})+'">'
+                                       +  Y.Date.format(Y.Date.parse(job.confirmed*1000),{format:"%d %b %Y"})
+                                       +'</span>',
+                        reminder   :job.reminder===null
+                                       ?''
+                                       :'<span title="'+Y.Date.format(Y.Date.parse(job.reminder*1000),{format:"%a %d %b %Y"})+'">'
+                                       +  Y.Date.format(Y.Date.parse(job.reminder*1000),{format:"%d %b %Y"})
+                                       +'</span>',
                         usr        :usrInfo.join(','),
                         address    :job.address,
                         actions    :Y.JAK.html('btn',{action:'dup',title:'duplicate'})
@@ -354,9 +356,9 @@ YUI.add('jak-mod-job',function(Y){
                         {key:'streetRef'  ,label:'#'          },
                         {key:'streetName' ,label:'Street'     },
                         {key:'location'   ,label:'Location'   },
-                        {key:'appointment',label:'Appointment'},
-                        {key:'confirmed'  ,label:'Confirmed'  },
-                        {key:'reminder'   ,label:'Remind'     },
+                        {key:'appointment',label:'Appointment',allowHTML:true},
+                        {key:'confirmed'  ,label:'Confirmed'  ,allowHTML:true},
+                        {key:'reminder'   ,label:'Reminder'   ,allowHTML:true},
                         {key:'usr'        ,label:'Clients'    },
                         {key:'actions'    ,label:''           ,allowHTML:true}
                     ],

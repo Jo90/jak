@@ -1,5 +1,5 @@
 <?php
-/** /db/job/iud.php
+/** /db/prop/sPropPart.php
  *
  */
 namespace jak;
@@ -13,12 +13,9 @@ foreach ($post as $i) {
     $r = initStep($i);
 
     if (!isset($i->criteria) &&
-        !isset($i->criteria->job) &&
-        !isset($i->remove) &&
-        !isset($i->criteria->duplicate) &&
-        !isset($i->criteria->jobIds)) {$r->log[] = 'parameter error'; continue;}
+        !isset($i->criteria->propPartIds)) {$r->log[] = 'parameter error'; continue;}
 
-    $r->job = job_setJob($i);
+    $r->propPart = prop_getPropPart($i->criteria);
 
 }
 header('Content-type: text/plain');

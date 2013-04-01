@@ -10,13 +10,10 @@ $post = json_decode(file_get_contents('php://input'));
 
 foreach ($post as $i) {
 
-    $i->log = array();
+    $r = initStep($i);
 
     if (!isset($i->criteria) &&
         !isset($i->criteria->propPartTypeIds)) {$r->log[] = 'parameter error'; continue;}
-
-    $i->result = new \stdClass;
-    $r         = $i->result;
 
     //find criteria
     if (isset($i->criteria->firstName, $i->criteria->lastName)) {

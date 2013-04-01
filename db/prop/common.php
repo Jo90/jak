@@ -60,7 +60,7 @@ function prop_getPropPart($criteria) {
 
     if ($stmt = $mysqli->prepare(
         "select *
-           from `propPart` $cnd $limit"
+           from `propPart` $cnd order by seq $limit"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
@@ -164,3 +164,72 @@ function prop_getPropTemplatePart($criteria) {
     return $r;
 }
 
+function prop_setPropPart(&$i) {
+    global $mysqli;
+    $i->result = new \stdClass;
+    $r = $i->result;
+
+    if (!isset($i->criteria) &&
+        !isset($i->remove)) {return null;}
+
+    if (isset($i->remove) && is_array($i->remove)) {
+        $propPartIds = implode(',', $i->remove);
+        if ($stmt = $mysqli->prepare(
+            "delete from `propPart`
+              where id in ($propPartIds)"
+        )) {
+            $r->successDelete = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $r->successDelete OR $r->errorDelete = $mysqli->error;
+            $stmt->close();
+        }
+        return $r;
+    }
+
+    if (isset($i->criteria->data->id)) {
+        if ($stmt = $mysqli->prepare(
+            "update `propPart`
+                set job          = ?,
+                    propPartType = ?,
+                    seq          = ?,
+                    indent       = ?,
+                    name         = ?
+              where id = ?"
+        )) {
+            $stmt->bind_param('iiiisi'
+                ,$i->criteria->data->job
+                ,$i->criteria->data->propPartType
+                ,$i->criteria->data->seq
+                ,$i->criteria->data->indent
+                ,$i->criteria->data->name
+                ,$i->criteria->data->id
+            );
+            $r->successUpdate = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $r->successUpdate OR $r->errorUpdate = $mysqli->error;
+            $stmt->close();
+        }
+        return $r;
+    }
+
+    if ($stmt = $mysqli->prepare(
+        "insert into `propPart`
+                (job, propPartType, seq, indent, name)
+         values (?,?,?,?,?)"
+    )) {
+        $stmt->bind_param('iiiis'
+           ,$i->criteria->data->job
+           ,$i->criteria->data->propPartType
+           ,$i->criteria->data->seq
+           ,$i->criteria->data->indent
+           ,$i->criteria->data->name
+        );
+        $r->successInsert = $stmt->execute();
+        $r->rows = $mysqli->affected_rows;
+        $r->successInsert
+            ?$i->criteria->data->id = $stmt->insert_id
+            :$r->errorInsert = $mysqli->error;
+        $stmt->close();
+    }
+
+}

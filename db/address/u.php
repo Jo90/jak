@@ -1,16 +1,18 @@
 <?php
 /** /db/address/u.php
  *
- *  JAK
- *
  */
 namespace jak;
+require_once '../shared/common.php';
 require_once 'common.php';
 
 $post = json_decode(file_get_contents('php://input'));
 if (!isset($post)) {exit('{"error":"insufficient parameters"}');}
 
 foreach ($post as $i) {
+
+    $r = initStep($i);
+
     if (!isset($i->criteria, $i->criteria->usr)) {continue;}
 
 

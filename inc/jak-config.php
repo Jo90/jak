@@ -29,8 +29,8 @@ if (isset($_COOKIE[JAK_COOKIE_DEVICE],$_COOKIE[JAK_COOKIE_THEME])) {
     define('JAK_ENV_DEVICE', $_COOKIE[JAK_COOKIE_DEVICE]);
     define('JAK_ENV_THEME' , $_COOKIE[JAK_COOKIE_THEME]);
 }
-define('YUI_CSS'                ,'<link rel="stylesheet" type="text/css" id="yuibasecss" href="http://yui.yahooapis.com/3.8.1/build/cssfonts/fonts-min.css?3.8.1/build/cssreset/reset-min.css&3.8.1/build/cssbase/base-min.css">');
-define('YUI_JS'                 ,'<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.8.1/build/yui/yui-min.js&3.8.1/build/loader/loader-min.js"></script>');
+define('YUI_CSS'                ,'<link rel="stylesheet" type="text/css" id="yuibasecss" href="http://yui.yahooapis.com/3.9.1/build/cssfonts/fonts-min.css?3.9.1/build/cssreset/reset-min.css&3.9.1/build/cssbase/base-min.css">');
+define('YUI_JS'                 ,'<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js&3.9.1/build/loader/loader-min.js"></script>');
 define('JAK_SALT'                ,'SALT'); //userLogon Challenge Handshake AP - salt initializer
 define('JAK_MEMBER'              ,'member'); //refer userLogon
 define('JAK_USERLOGON_REMEMBER'  , 'userLogon-remember');

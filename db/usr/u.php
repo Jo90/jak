@@ -7,6 +7,7 @@
 namespace kc;
 require_once 'functions.php';
 require_once 'common.php';
+require_once '../shared/common.php';
 
 $post = json_decode(file_get_contents('php://input'));
 if (!isset($post)) {exit('{"error":"insufficient parameters"}');}

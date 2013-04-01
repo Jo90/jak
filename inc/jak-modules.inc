@@ -26,7 +26,7 @@ modules:{
             'recordset',
             'resize-plugin',
             'selector-css3',
-            'substitute',
+            'template',
             'tabview',
             'yql'
         ]

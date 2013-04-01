@@ -6,13 +6,14 @@ namespace jak;
 require_once 'common.php';
 require_once '../shared/common.php';
 require_once '../address/common.php';
+require_once '../prop/common.php';
 require_once '../usr/common.php';
 
 $post = json_decode(file_get_contents('php://input'));
 
 foreach ($post as $i) {
 
-    $i->log = array();
+    $r = initStep($i);
 
     if (!isset($i->criteria) &&
         !isset($i->criteria->jobIds) &&
@@ -21,9 +22,6 @@ foreach ($post as $i) {
         !isset($i->criteria->lastName) &&
         !isset($i->criteria->streetName) &&
         !isset($i->criteria->location)) {$r->log[] = 'parameter error'; continue;}
-
-    $i->result = new \stdClass;
-    $r         = $i->result;
 
     //find criteria
     if (isset($i->criteria->location, $i->criteria->streetName, $i->criteria->streetRef)) {
@@ -63,6 +61,7 @@ foreach ($post as $i) {
     }
     $r->usr = usr_getUsr($i->criteria);
     
+    $r->propPart = prop_getPropPart($i->criteria);
 }
 header('Content-type: text/plain');
 echo json_encode($post);

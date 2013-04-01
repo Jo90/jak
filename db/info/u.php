@@ -5,13 +5,18 @@
  *
  */
 namespace kc;
+require_once '../shared/common.php';
 require_once 'common.php';
 
 $post = json_decode(file_get_contents('php://input'));
 if (!isset($post)) {exit('{"error":"insufficient parameters"}');}
 
 foreach ($post as $i) {
+
+    $r = initStep($i);
+
     if (!isset($i->criteria, $i->criteria->info)) {continue;}
+
     foreach ($i->criteria->info as $ix) {
         if (!isset($ix->data)) {continue;}
         info_setInfo($ix);

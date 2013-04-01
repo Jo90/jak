@@ -109,23 +109,23 @@ YUI.add('jak-common',function(Y){
                 var x;
                 for(tagProperty in tags){if(tags.hasOwnProperty(tagProperty)){
                     if(n._id===tagProperty && n[tags[tagProperty]]){
-                        html=Y.substitute(html,n[tags[tagProperty]]);
+                        html=Y.Lang.sub(html,n[tags[tagProperty]]);
                     }
                 }}
             }
         ;
         if(!tpl){return '<em>template not found</em>';}
         //tags
-            html=Y.substitute(tpl,tags);
+            html=Y.Lang.sub(tpl,tags);
         //includes
             if(inc){
                 Y.each(inc,fnIncludeSnippets);
-                html=Y.substitute(html,obj);
+                html=Y.Lang.sub(html,obj);
             }
         //defaults
             Y.each(this.html['DEFAULT'],fnDefaults);
         //clear
-            html=Y.substitute(html,this.html['TAG']);
+            html=Y.Lang.sub(html,this.html['TAG']);
         return html;
     };
     Y.JAK.html['TEMPLATE']={

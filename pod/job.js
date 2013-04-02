@@ -174,8 +174,8 @@ YUI.add('jak-pod-job',function(Y){
 
             h.serviceSelect.on('change',trigger.questions);
 
-            h.questionList.delegate('click',function(){
-                h.questionList.all('.jak-focus').removeClass('jak-focus');
+            h.answerList.delegate('click',function(){
+                h.answerList.all('.jak-focus').removeClass('jak-focus');
                 this.addClass('jak-focus');
             },'> li');
 
@@ -246,13 +246,17 @@ YUI.add('jak-pod-job',function(Y){
 
         populate={
             job:function(id,o){
-                var rs       =Y.JSON.parse(o.responseText)[0].result,
-                    addresses=rs.address.data,
-                    jobs     =rs.job.data,
-                    locations=rs.location.data,
-                    propParts=rs.propPart.data,
-                    usrJobs  =rs.usrJob.data,
-                    usrs     =rs.usr.data,
+                var rs            =Y.JSON.parse(o.responseText)[0].result,
+                    addresses     =rs.address.data,
+                    answers       =rs.answer.data,
+                    answerMatrices=rs.answerMatrix.data,
+                    jobs          =rs.job.data,
+                    locations     =rs.location.data,
+                    propParts     =rs.propPart.data,
+                    usrJobs       =rs.usrJob.data,
+                    usrs          =rs.usr.data,
+                    q,
+                    serviceIds    =[],
                     row
                 ;
                 h.bd.all('.jak-data[type=input]').set('value','');
@@ -276,14 +280,29 @@ YUI.add('jak-pod-job',function(Y){
                             +locations[addresses[job.address].location].full
                             :''
                     );
-                    //>>>>>>>>>>>users
-
-
-
-
 
                     trigger.reset.propPart();
                     populate.propPart(propParts);
+
+                    trigger.reset.answer();
+                    Y.each(answers,function(answer){
+                        q=JAK.data.question[answer.question];
+                        //services
+                        serviceIds=[];
+                        Y.each(answerMatrices,function(answerMatrix){
+                            if(answerMatrix.answer!==answer.id){return;}
+                            serviceIds.push('jak-service-'+answerMatrix.service);
+                        });
+                        h.answerList.append(
+                            '<li class="'+serviceIds.join(' ')+'">'
+                            +  '<em>'+q.name+'</em>'
+                            +  (q.codeType==='H'?q.code:'')
+                            +  Y.JAK.html('btn',{action:'remove',title:'remove'})
+                            +  Y.JAK.html('btn',{action:'dup',title:'duplicate'})
+                            +'</li>'
+                        );
+                    });
+
                 });
                 Y.JAK.widget.busy.set('message','');
             },
@@ -354,10 +373,9 @@ YUI.add('jak-pod-job',function(Y){
                             })
                        +    '</ul>'
                        +  '</fieldset>'
-                       +  '<fieldset class="jak-section-question">'
+                       +  '<fieldset class="jak-section-answer">'
                        +    '<legend>'
                        +      '<select class="jak-select-service"></select>'
-                       +      Y.JAK.html('btn',{action:'find',label:'generate/reset'})
                        +    '</legend>'
                        +    '<ul></ul>'
                        +  '</fieldset>'
@@ -383,8 +401,8 @@ YUI.add('jak-pod-job',function(Y){
 
                     h.serviceList     =h.bd.one('.jak-list-service');
                     h.serviceSelect   =h.bd.one('.jak-select-service');
-                    h.questionSection =h.bd.one('.jak-section-question');
-                    h.questionList    =h.questionSection.one('ul');
+                    h.answerSection   =h.bd.one('.jak-section-answer');
+                    h.answerList    =h.answerSection.one('ul');
 
                     h.propPartSection =h.bd.one('.jak-section-propPart');
                     h.propPartList    =h.propPartSection.one('ul');
@@ -392,12 +410,14 @@ YUI.add('jak-pod-job',function(Y){
                     h.close           =h.hd.one('.jak-close');
                     h.save            =h.ft.one('.jak-save');
 
+                    //services
                     Y.each(JAK.data.service,function(service){
                         h.serviceSelect.append('<option value="'+service.id+'">'+service.name+'</option>');
                         if(service.id===1){return;}//exclude general
                         jobServiceArr.push('<label><input type="checkbox" value="'+service.id+'"><em>'+service.name+'</em></label> $<input type="text" class="jak-data jak-data-jobService-fee" value="'+service.fee+'" placeholder="service fee" title="service fee" />');
                     });
                     h.serviceList.append(jobServiceArr.join(','));
+                    
             },
             propPart:function(p){
                 var html='<li>'
@@ -464,27 +484,23 @@ YUI.add('jak-pod-job',function(Y){
                 return data;
             },
             reset:{
+                answer:function(){
+                    h.answerList.setContent('');
+                },
                 propPart:function(){
                     h.propPartList.all('> li').slice(1).remove();
                     h.propPartList.one('> li .jak-data-propPart-id').set('value','');
                 }
             },
             questions:function(){
-                var serviceId=parseInt(this.get('value'),10),
-                    q
+                var serviceId=parseInt(this.get('value'),10)
                 ;
-                h.questionList.setContent('');
-                Y.each(JAK.data.questionMatrix,function(questionMatrix){
-                    if(questionMatrix.service!==serviceId){return;}
-                    q=JAK.data.question[questionMatrix.question];
-                    h.questionList.append(
-                        '<li>'
-                       +  '<em>'+q.name+'</em>'
-                       +  (q.codeType==='H'?q.code:'')
-                       +  Y.JAK.html('btn',{action:'remove',title:'remove'})
-                       +  Y.JAK.html('btn',{action:'dup',title:'duplicate'})
-                       +'</li>'
-                    );
+                h.answerList.all('li').each(function(row){
+                    if(row.hasClass('jak-service-'+serviceId)){
+                        row.setStyle('display','');
+                    }else{
+                        row.setStyle('display','none');
+                    }
                 });
             }
         };

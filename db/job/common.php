@@ -44,6 +44,39 @@ function job_getJob($criteria) {
     return $r;
 }
 
+function job_getPropPart($criteria) {
+    global $mysqli;
+    $r = new \stdClass;
+    $r->criteria = $criteria;
+    $cnd   = '';
+    $limit = '';
+
+    if (isset($criteria->propPartIds) && is_array($criteria->propPartIds) && count($criteria->propPartIds) > 0) {
+        $propPartIds = implode(',', $criteria->propPartIds);
+        $cnd = "where id in ($propPartIds)";
+    }
+
+    if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0){
+        $jobIds = implode(',', $criteria->jobIds);
+        $cnd = "where job in ($jobIds)";
+    }
+
+    if (isset($criteria->rowLimit)) {
+        $limit = ' limit ' . $criteria->rowLimit;
+    }
+
+    if ($stmt = $mysqli->prepare(
+        "select *
+           from `propPart` $cnd order by seq $limit"
+    )) {
+        $r->success = $stmt->execute();
+        $r->rows = $mysqli->affected_rows;
+        $r->data = \jak\fetch_result($stmt,'id');
+        $stmt->close();
+    }
+    return $r;
+}
+
 function job_setJob(&$i) {
     global $mysqli;
 
@@ -127,7 +160,7 @@ function job_setJob(&$i) {
     }
 
     if (!$r->successInsert) {$r->log[] = 'job insert error'; return;}
-    $JobId = $i->criteria->data->id;
+    $jobId = $i->criteria->data->id;
 
     //finish duplication
     if (isset($i->criteria->duplicate)) {
@@ -200,12 +233,11 @@ function job_setJob(&$i) {
     //create plain job
     {
         //default property propPart
-        $mysqli->prepare(
+        $mysqli->query(
             "insert into `propPart`
                     (job, propPartType, seq, indent, name)
-             values ($JobId,1,0,0,'main')"
+             values ($jobId,1,0,0,'')"
         );
-
         //use propTemplate.def
         if ($stmt = $mysqli->prepare(
             'select ptp.*,
@@ -225,25 +257,102 @@ function job_setJob(&$i) {
             $r->propPartSuccess = array();
             foreach ($propPartDef as $d) {
                 for ($i = 0; $i < $d->defaultRecs; $i++) {
-                    if ($stmt = $mysqli->prepare(
+                    $mysqli->query(
                         "insert into `propPart`
                                 (job, propPartType, seq, indent, name)
-                         values ($JobId,$d->propPartType,0,0,?)"
-                    )) {
-                        $stmt->bind_param('s',
-                            $d->propPartTypeName
-                        );
-                        $r->propPartSuccess[] = $stmt->execute();
-                        $stmt->execute();
-                        $stmt->close();
-                    }
+                         values ($jobId, $d->propPartType, 0, 0, '')"
+                    );
                 }
             }
         }
-
         //questions/answers
-
-
-        
+        $mysqli->query(
+            "insert into `answer`
+                    (question, job, detail)
+             select id, $jobId, def
+               from `question`"
+        );
+        $mysqli->query(
+            "insert into `answerMatrix`
+                    (answer, propPart, service, seq)
+             select a.id, pp.id, qm.service, qm.seq
+               from `questionMatrix` as qm,
+                    `answer`         as a,
+                    `propPart`       as pp
+               where qm.question     = a.question
+                 and qm.propPartType = pp.propPartType
+                 and a.job           = $jobId
+                 and pp.job          = $jobId"
+        );
     }
+}
+
+function job_setPropPart(&$i) {
+    global $mysqli;
+    $i->result = new \stdClass;
+    $r = $i->result;
+
+    if (!isset($i->criteria) &&
+        !isset($i->remove)) {return null;}
+
+    if (isset($i->remove) && is_array($i->remove)) {
+        $propPartIds = implode(',', $i->remove);
+        if ($stmt = $mysqli->prepare(
+            "delete from `propPart`
+              where id in ($propPartIds)"
+        )) {
+            $r->successDelete = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $r->successDelete OR $r->errorDelete = $mysqli->error;
+            $stmt->close();
+        }
+        return $r;
+    }
+
+    if (isset($i->criteria->data->id)) {
+        if ($stmt = $mysqli->prepare(
+            "update `propPart`
+                set job          = ?,
+                    propPartType = ?,
+                    seq          = ?,
+                    indent       = ?,
+                    name         = ?
+              where id = ?"
+        )) {
+            $stmt->bind_param('iiiisi'
+                ,$i->criteria->data->job
+                ,$i->criteria->data->propPartType
+                ,$i->criteria->data->seq
+                ,$i->criteria->data->indent
+                ,$i->criteria->data->name
+                ,$i->criteria->data->id
+            );
+            $r->successUpdate = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $r->successUpdate OR $r->errorUpdate = $mysqli->error;
+            $stmt->close();
+        }
+        return $r;
+    }
+
+    if ($stmt = $mysqli->prepare(
+        "insert into `propPart`
+                (job, propPartType, seq, indent, name)
+         values (?,?,?,?,?)"
+    )) {
+        $stmt->bind_param('iiiis'
+           ,$i->criteria->data->job
+           ,$i->criteria->data->propPartType
+           ,$i->criteria->data->seq
+           ,$i->criteria->data->indent
+           ,$i->criteria->data->name
+        );
+        $r->successInsert = $stmt->execute();
+        $r->rows = $mysqli->affected_rows;
+        $r->successInsert
+            ?$i->criteria->data->id = $stmt->insert_id
+            :$r->errorInsert = $mysqli->error;
+        $stmt->close();
+    }
+
 }

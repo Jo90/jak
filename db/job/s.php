@@ -7,6 +7,7 @@ require_once 'common.php';
 require_once '../shared/common.php';
 require_once '../address/common.php';
 require_once '../prop/common.php';
+require_once '../qa/common.php';
 require_once '../usr/common.php';
 
 $post = json_decode(file_get_contents('php://input'));
@@ -34,6 +35,7 @@ foreach ($post as $i) {
 
     if (isset($i->criteria->firstName, $i->criteria->lastName)) {
         $temp = usr_getUsr($i->criteria);
+        $i->criteria->usrIds = array();
         foreach ($temp->data as $d) {
             $i->criteria->usrIds[] = $d->id;
         }
@@ -61,7 +63,20 @@ foreach ($post as $i) {
     }
     $r->usr = usr_getUsr($i->criteria);
     
-    $r->propPart = prop_getPropPart($i->criteria);
+    $r->propPart = job_getPropPart($i->criteria);
+
+    $i->criteria->propPartIds = array();
+    foreach ($r->propPart->data as $d) {
+        $i->criteria->propPartIds[] = $d->id;
+    }
+    
+    $r->answerMatrix = qa_getAnswerMatrix($i->criteria);
+    $i->criteria->answerIds = array();
+    foreach ($r->answerMatrix->data as $d) {
+        $i->criteria->answerIds[] = $d->answer;
+    }
+
+    $r->answer = qa_getAnswer($i->criteria);
 }
 header('Content-type: text/plain');
 echo json_encode($post);

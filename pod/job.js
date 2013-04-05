@@ -126,30 +126,54 @@ YUI.add('jak-pod-job',function(Y){
             },
             save:{
                 job:function(){
-                    var post=[],
+                    var post={
+                            job:{
+                                id         :parseInt(f.jobId     .get('value'),10),
+                                address    :parseInt(f.jobAddress.get('value'),10),
+                                ref        :f.jobRef        .get('value'),
+                                appointment:f.jobAppointment.get('value'),
+                                confirmed  :f.jobConfirmed  .get('value'),
+                                reminder   :f.jobReminder   .get('value'),
+                                weather    :f.jobWeather    .get('value')
+                            },
+                            answer      :[],
+                            answerMatrix:[],
+                            propPart    :[],
+                            usr         :JAK.user.usr
+                        },
                         values=[]
                     ;
-                    h.answerList.all('li').each(function(row){
+
+                    h.propPartList.all('> li').each(function(row,idx){
+                        post.propPart.push({
+                            id          :parseInt(row.one('.jak-data-propPart-id').get('value'),10),
+                            job         :parseInt(f.jobId.get('value'),10),
+                            propPartType:parseInt(row.one('.jak-data-propPart-propPartType').get('value'),10),
+                            seq         :idx,
+                            indent      :0, //>>>>>>>>FINISH LATER
+                            name        :row.one('.jak-data-propPart-name').get('value')
+                        });
+                    });
+
+                    h.answerList.all('> li').each(function(row){
                         values=[];
                         row.all('input:checked').each(function(n){
                             values.push(n.get('value'));
                         });
-                        post.push({
-                            answer  :row.one('.jak-data-answer-id').get('value'),
-                            value   :values.join(','),
+                        post.answer.push({
+                            id      :row.one('.jak-data-answer-id').get('value'),
+                            question:row.one('.jak-data-answer-question').get('value'),
+                            detail  :values.join(','),
                             propPart:row.getData('propPart')
                         });
                     });
-                    Y.io('/db/prop/iud.php',{
+                    Y.io('/db/job/u.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){
                             debugger;
                         }},
-                        data:Y.JSON.stringify([{
-                            criteria:post,
-                            member  :JAK.user.usr
-                        }])
+                        data:Y.JSON.stringify([post])
                     });
                 }
             },
@@ -204,7 +228,7 @@ YUI.add('jak-pod-job',function(Y){
 
             h.propPartList.delegate('change',trigger.answerSetPropPart,'input.jak-data-propPart-id');
 
-            h.serviceSelect.on('change',trigger.questions);
+            h.serviceSelect.on('change',trigger.filterServiceQuestions);
 
             h.answerList.delegate('click',trigger.answerFocus,'> li');
 
@@ -256,14 +280,12 @@ YUI.add('jak-pod-job',function(Y){
                     Y.each(rs,function(r){
                         for(i=0;i<r.qty;i++){
                             h.podInvoke.ancestor('li').insert(
-                                '<li>'
-                               +  '<input type="hidden" class="jak-data jak-data-propPart-propPartType" value="'+r.propPartType+'" />'
-                               +  '<input type="checkbox" class="jak-data jak-data-propPart-id" value="" />'
-                               +  '<span class="jak-data-propPartType-name">'+JAK.data.propPartType[r.propPartType].name+'</span>'
-                               +  '<input type="text" placeholder="detail" class="jak-data jak-data-propPart-name" value="" />'
-                               +  Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
-                               +  Y.JAK.html('btn',{action:'add',title:'add property parts'})
-                               +'</li>',
+                                render.propPart({
+                                    propPartType    :r.propPartType,
+                                    propPartTypeName:JAK.data.propPartType[r.propPartType].name,
+                                    seq             :1,
+                                    indent          :0
+                                }),
                                'after'
                             );
                         }
@@ -327,13 +349,13 @@ YUI.add('jak-pod-job',function(Y){
                             propPartIds.push(answerMatrix.propPart);
                         });
                         nn=Y.Node.create(
-                            '<li class="'+serviceIds.join(' ')+'">'
-                            +  '<input type="hidden" class="jak-data jak-data-answer-id" value="'+answer.id+'" />'
-                            +  '<em>'+q.name+'</em>'
-                            +  (q.codeType==='H'?q.code:'')
-                            +  Y.JAK.html('btn',{action:'remove',title:'remove'})
-                            +  Y.JAK.html('btn',{action:'dup',title:'duplicate'})
-                            +'</li>'
+                            render.answer({
+                                serviceIds:serviceIds.join(' '),
+                                id        :answer.id,
+                                question  :answer.question,
+                                name      :q.name,
+                                code      :(q.codeType==='H'?q.code:'')
+                            })
                         );
                         h.answerList.append(nn);
                         nn.setData('propPart',propPartIds);
@@ -350,14 +372,14 @@ YUI.add('jak-pod-job',function(Y){
                         row.one('.jak-data-propPart-id').set('value',propPart.id);
                     }else{
                         h.propPartList.append(
-                            '<li>'
-                           +  '<input type="checkbox" class="jak-data jak-data-propPart-id" value="'+propPart.id+'" />'
-                           +  '<input type="hidden" class="jak-data jak-data-propPart-propPartType" value="'+propPart.propPartType+'" />'
-                           +  '<span class="jak-data-propPartType-name">'+JAK.data.propPartType[propPart.propPartType].name+'</span>'
-                           +  '<input type="text" placeholder="detail" class="jak-data jak-data-propPart-name" value="'+(propPart.name===null?'':propPart.name)+'" />'
-                           +  Y.JAK.html('btn',{action:'remove',title:'remove property part'})
-                           +  Y.JAK.html('btn',{action:'add',title:'add property parts'})
-                           +'</li>',
+                            render.propPart({
+                                id              :propPart.id,
+                                propPartType    :propPart.propPartType,
+                                propPartTypeName:JAK.data.propPartType[propPart.propPartType].name,
+                                name            :(propPart.name===null?'':propPart.name),
+                                seq             :1,
+                                indent          :0
+                            }),
                             'after'
                         );
                     }
@@ -447,6 +469,9 @@ YUI.add('jak-pod-job',function(Y){
                     h.propPartList    =h.propPartSection.one('ul');
                     h.save            =h.bd.one('.jak-save');
 
+                    //cleanup first property part
+                    h.propPartList.one('.jak-remove').remove();
+
                     //services
                     Y.each(JAK.data.service,function(service){
                         h.serviceSelect.append('<option value="'+service.id+'">'+service.name+'</option>');
@@ -456,6 +481,28 @@ YUI.add('jak-pod-job',function(Y){
                     h.serviceList.append(jobServiceArr.join(','));
 
             },
+            answer:function(p){
+                var html='<li class="{serviceIds}">'
+                      +  '<input type="hidden" class="jak-data jak-data-answer-id" value="{id}" />'
+                      +  '<input type="hidden" class="jak-data jak-data-answer-question" value="{question}" />'
+                      +  '<em>{name}</em>'
+                      +  '{code}'
+                      +  Y.JAK.html('btn',{action:'remove',title:'remove'})
+                      +  Y.JAK.html('btn',{action:'dup',title:'duplicate'})
+                      +'</li>',
+                    noParameters=typeof p==='undefined'
+                ;
+                return noParameters
+                    ?html
+                    :Y.Lang.sub(html,{
+                        'serviceIds':p.serviceIds,
+                        'id'        :p.id,
+                        'question'  :p.question,
+                        'name'      :p.name,
+                        'code'      :p.code
+                    })
+                ;
+            },
             propPart:function(p){
                 var html='<li>'
                       +  '<input type="checkbox" class="jak-data jak-data-propPart-id" value="{propPart-id}" />'
@@ -464,6 +511,7 @@ YUI.add('jak-pod-job',function(Y){
                       +  '<input type="hidden"   class="jak-data jak-data-propPart-indent" value="{propPart-indent}" />'
                       +  '<span                  class="jak-data-propPartType-name">{propPartType-name}</span>'
                       +  '<input type="text"     class="jak-data jak-data-propPart-name" value="{propPart-name}" placeholder="detail" />'
+                      +  Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
                       +  Y.JAK.html('btn',{action:'add',title:'add property parts'})
                       +'</li>',
                     noParameters=typeof p==='undefined'
@@ -484,26 +532,26 @@ YUI.add('jak-pod-job',function(Y){
 
         trigger={
             answerFocus:function(){
-                var data=this.getData('propPart'),
+                var propPartsArr=this.getData('propPart'),
                     propPartIdNode
                 ;
                 h.answerRowFocus=this;
                 h.answerList.all('.jak-focus').removeClass('jak-focus');
                 this.addClass('jak-focus');
-                //check propPart
+                //check/uncheck propPart
                 h.propPartList.all('li').each(function(propPart){
                     propPartIdNode=propPart.one('.jak-data-propPart-id');
-                    propPartIdNode.set('checked',Y.Array.indexOf(data,parseInt(propPartIdNode.get('value'),10))!==-1);
+                    propPartIdNode.set('checked',Y.Array.indexOf(propPartsArr,parseInt(propPartIdNode.get('value'),10))!==-1);
                 });
             },
             answerSetPropPart:function(){
-                var propPartId=parseInt(this.get('value'),10),
-                    answers   =h.answerRowFocus.getData('propPart'),
-                    index     =answers.indexOf(propPartId);
+                var propPartId     =parseInt(this.get('value'),10),
+                    answerPropParts=h.answerRowFocus.getData('propPart'),
+                    index          =answerPropParts.indexOf(propPartId);
                 ;
                 this.get('checked')
-                    ?answers.push(propPartId)
-                    :answers.splice(index,1);
+                    ?answerPropParts.push(propPartId)
+                    :answerPropParts.splice(index,1);
             },
             blankForm:function(){
                 f.jobId           .set('value','');
@@ -516,31 +564,18 @@ YUI.add('jak-pod-job',function(Y){
                 f.jobWeather      .set('value','');
                 trigger.reset.propPart();
             },
-            getData:function(){
-                var data={
-                        job:{
-                            id         :parseInt(f.jobId     .get('value'),10),
-                            address    :parseInt(f.jobAddress.get('value'),10),
-                            ref        :f.jobRef        .get('value'),
-                            appointment:f.jobAppointment.get('value'),
-                            confirmed  :f.jobConfirmed  .get('value'),
-                            reminder   :f.jobReminder   .get('value'),
-                            weather    :f.jobWeather    .get('value')
-                        },
-                        propPart:[]
-                    }
+            filterServiceQuestions:function(){
+                var serviceId=parseInt(this.get('value'),10),
+                    hasService,
+                    visibleAnswer=false
                 ;
-                h.propPartList.all('> li').each(function(row){
-                    data.propPart.push({
-                        id          :parseInt(row.one('.jak-data-propPart-id').get('value'),10),
-                        job         :parseInt(f.jobId.get('value'),10),
-                        propPartType:parseInt(row.one('.jak-data-propPart-propPartType').get('value'),10),
-                        seq         :idx,
-                        indent      :0, //>>>>>>>>FINISH LATER
-                        name        :row.one('.jak-data-propPart-name').get('value')
-                    });
+                h.answerList.all('li').each(function(row){
+                    hasService=row.hasClass('jak-service-'+serviceId);
+                    row.setStyle('display',hasService?'':'none');
+                    if(!visibleAnswer && hasService){visibleAnswer=row;}
                 });
-                return data;
+                //focus on first displayed
+                if(visibleAnswer!==false){visibleAnswer.simulate('click');}
             },
             reset:{
                 answer:function(){
@@ -550,19 +585,6 @@ YUI.add('jak-pod-job',function(Y){
                     h.propPartList.all('> li').slice(1).remove();
                     h.propPartList.one('> li .jak-data-propPart-id').set('value','');
                 }
-            },
-            questions:function(){
-                var serviceId=parseInt(this.get('value'),10),
-                    hasService,
-                    visible=false
-                ;
-                h.answerList.all('li').each(function(row){
-                    hasService=row.hasClass('jak-service-'+serviceId);
-                    row.setStyle('display',hasService?'':'none');
-                    if(!visible && hasService){visible=row;}
-                });
-                //focus on first displayed
-                if(visible!==false){visible.simulate('click');}
             }
         };
 

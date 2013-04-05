@@ -85,7 +85,7 @@ YUI.add('jak-mod-job',function(Y){
                     if(action==='duplicate'){
                         post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job').get('innerHTML'),10);
                     }
-                    Y.io('/db/job/iud.php',{
+                    Y.io('/db/job/id.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
@@ -110,7 +110,7 @@ YUI.add('jak-mod-job',function(Y){
                             +row.one('.yui3-datatable-col-location').get('innerHTML')
                     ;
                     if(!confirm('remove job #'+jobId+' for \n'+address+'?')){return;}
-                    Y.io('/db/job/iud.php',{
+                    Y.io('/db/job/id.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){row.remove();}},

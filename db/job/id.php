@@ -1,5 +1,5 @@
 <?php
-/** /db/job/iud.php
+/** /db/job/id.php
  *
  */
 namespace jak;

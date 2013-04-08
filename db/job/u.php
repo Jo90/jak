@@ -16,7 +16,6 @@ foreach ($post as $i) {
     if (!isset($i->criteria) &&
         !isset($i->criteria->job) &&
         !isset($i->remove) &&
-        !isset($i->criteria->duplicate) &&
         !isset($i->criteria->jobIds)) {$r->log[] = 'parameter error'; continue;}
 
     $r->job          = job_setJob($i);

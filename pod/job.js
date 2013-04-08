@@ -126,9 +126,11 @@ YUI.add('jak-pod-job',function(Y){
             },
             save:{
                 job:function(){
-                    var post={
+                    var answerId,
+                        jobId=parseInt(f.jobId.get('value'),10),
+                        criteria={
                             job:{
-                                id         :parseInt(f.jobId     .get('value'),10),
+                                id         :jobId,
                                 address    :parseInt(f.jobAddress.get('value'),10),
                                 ref        :f.jobRef        .get('value'),
                                 appointment:f.jobAppointment.get('value'),
@@ -138,42 +140,46 @@ YUI.add('jak-pod-job',function(Y){
                             },
                             answer      :[],
                             answerMatrix:[],
-                            propPart    :[],
                             usr         :JAK.user.usr
                         },
-                        values=[]
+                        answerDetails=[],
+                        propPartIds=[],
+                        serviceIds=[]
                     ;
 
-                    h.propPartList.all('> li').each(function(row,idx){
-                        post.propPart.push({
-                            id          :parseInt(row.one('.jak-data-propPart-id').get('value'),10),
-                            job         :parseInt(f.jobId.get('value'),10),
-                            propPartType:parseInt(row.one('.jak-data-propPart-propPartType').get('value'),10),
-                            seq         :idx,
-                            indent      :0, //>>>>>>>>FINISH LATER
-                            name        :row.one('.jak-data-propPart-name').get('value')
+                    h.answerList.all('> li').each(function(answerRow){
+                        answerId     =parseInt(answerRow.one('.jak-data-answer-id').get('value'),10);
+                        answerDetails=[];
+                        propPartIds  =answerRow.getData('propPart');
+                        serviceIds   =answerRow.getData('service');
+                        answerRow.all('input:checked').each(function(n){
+                            answerDetails.push(n.get('value'));
+                        });
+                        criteria.answer.push({
+                            id      :answerId,
+                            question:answerRow.one('.jak-data-answer-question').get('value'),
+                            job     :jobId,
+                            detail  :answerDetails.join(',')
+                        });
+                        Y.each(serviceIds,function(service){
+                            Y.each(propPartIds,function(propPart){
+                                criteria.answerMatrix.push({
+                                    answer  :answerId,
+                                    propPart:propPart,
+                                    service :service,
+                                    job     :jobId
+                                });
+                            });
                         });
                     });
 
-                    h.answerList.all('> li').each(function(row){
-                        values=[];
-                        row.all('input:checked').each(function(n){
-                            values.push(n.get('value'));
-                        });
-                        post.answer.push({
-                            id      :row.one('.jak-data-answer-id').get('value'),
-                            question:row.one('.jak-data-answer-question').get('value'),
-                            detail  :values.join(','),
-                            propPart:row.getData('propPart')
-                        });
-                    });
                     Y.io('/db/job/u.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){
                             debugger;
                         }},
-                        data:Y.JSON.stringify([post])
+                        data:Y.JSON.stringify([{criteria:criteria}])
                     });
                 }
             },
@@ -345,12 +351,11 @@ YUI.add('jak-pod-job',function(Y){
                         propPartIds=[];
                         Y.each(answerMatrices,function(answerMatrix){
                             if(answerMatrix.answer!==answer.id){return;}
-                            serviceIds.push('jak-service-'+answerMatrix.service);
+                            serviceIds.push(answerMatrix.service);
                             propPartIds.push(answerMatrix.propPart);
                         });
                         nn=Y.Node.create(
                             render.answer({
-                                serviceIds:serviceIds.join(' '),
                                 id        :answer.id,
                                 question  :answer.question,
                                 name      :q.name,
@@ -359,6 +364,7 @@ YUI.add('jak-pod-job',function(Y){
                         );
                         h.answerList.append(nn);
                         nn.setData('propPart',propPartIds);
+                        nn.setData('service' ,serviceIds);
                     });
 
                 });
@@ -482,7 +488,7 @@ YUI.add('jak-pod-job',function(Y){
 
             },
             answer:function(p){
-                var html='<li class="{serviceIds}">'
+                var html='<li>'
                       +  '<input type="hidden" class="jak-data jak-data-answer-id" value="{id}" />'
                       +  '<input type="hidden" class="jak-data jak-data-answer-question" value="{question}" />'
                       +  '<em>{name}</em>'
@@ -495,7 +501,6 @@ YUI.add('jak-pod-job',function(Y){
                 return noParameters
                     ?html
                     :Y.Lang.sub(html,{
-                        'serviceIds':p.serviceIds,
                         'id'        :p.id,
                         'question'  :p.question,
                         'name'      :p.name,
@@ -505,11 +510,13 @@ YUI.add('jak-pod-job',function(Y){
             },
             propPart:function(p){
                 var html='<li>'
-                      +  '<input type="checkbox" class="jak-data jak-data-propPart-id" value="{propPart-id}" />'
                       +  '<input type="hidden"   class="jak-data jak-data-propPart-propPartType" value="{propPart-propPartType}" />'
                       +  '<input type="hidden"   class="jak-data jak-data-propPart-seq" value="{propPart-seq}" />'
                       +  '<input type="hidden"   class="jak-data jak-data-propPart-indent" value="{propPart-indent}" />'
-                      +  '<span                  class="jak-data-propPartType-name">{propPartType-name}</span>'
+                      +  '<label>'
+                      +    '<input type="checkbox" class="jak-data jak-data-propPart-id" value="{propPart-id}" />'
+                      +    '<span                  class="jak-data-propPartType-name">{propPartType-name}</span>'
+                      +  '</label>'
                       +  '<input type="text"     class="jak-data jak-data-propPart-name" value="{propPart-name}" placeholder="detail" />'
                       +  Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
                       +  Y.JAK.html('btn',{action:'add',title:'add property parts'})
@@ -565,12 +572,14 @@ YUI.add('jak-pod-job',function(Y){
                 trigger.reset.propPart();
             },
             filterServiceQuestions:function(){
-                var serviceId=parseInt(this.get('value'),10),
+                var serviceId =parseInt(this.get('value'),10),
+                    serviceIds=[],
                     hasService,
                     visibleAnswer=false
                 ;
                 h.answerList.all('li').each(function(row){
-                    hasService=row.hasClass('jak-service-'+serviceId);
+                    serviceIds=row.getData('service');
+                    hasService=Y.Array.indexOf(serviceIds,serviceId)!==-1;
                     row.setStyle('display',hasService?'':'none');
                     if(!visibleAnswer && hasService){visibleAnswer=row;}
                 });

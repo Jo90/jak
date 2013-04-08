@@ -218,8 +218,8 @@ function job_setJob(&$i) {
         if (count($propPartIds) > 0) {
             if ($stmt = $mysqli->prepare(
                 "insert into answerMatrix
-                       (answer, propPart, service)
-                 select answer, propPart, service
+                       (answer, propPart, service, job)
+                 select answer, propPart, service, $jobId
                    from `questionMatrix`
                   where propPart in ($propPartIds)"
             )) {
@@ -274,8 +274,8 @@ function job_setJob(&$i) {
         );
         $mysqli->query(
             "insert into `answerMatrix`
-                    (answer, propPart, service, seq)
-             select a.id, pp.id, qm.service, qm.seq
+                    (answer, propPart, service, seq, job)
+             select a.id, pp.id, qm.service, qm.seq, $jobId
                from `questionMatrix` as qm,
                     `answer`         as a,
                     `propPart`       as pp

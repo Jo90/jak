@@ -70,13 +70,16 @@ foreach ($post as $i) {
         $i->criteria->propPartIds[] = $d->id;
     }
     
-    $r->answerMatrix = qa_getAnswerMatrix($i->criteria);
+    $r->propPartAnswer = qa_getPropPartAnswer($i->criteria);
     $i->criteria->answerIds = array();
-    foreach ($r->answerMatrix->data as $d) {
+    foreach ($r->propPartAnswer->data as $d) {
         $i->criteria->answerIds[] = $d->answer;
     }
 
     $r->answer = qa_getAnswer($i->criteria);
+
+    $r->answerInfo         = shared_getInfo((object)array('dbTable'=>1,'pks'=>$i->criteria->answerIds));
+    $r->propPartAnswerInfo = shared_getInfo((object)array('dbTable'=>3,'pks'=>$i->criteria->propPartIds));
 }
 header('Content-type: text/plain');
 echo json_encode($post);

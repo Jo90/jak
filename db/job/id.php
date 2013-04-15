@@ -12,11 +12,12 @@ foreach ($post as $i) {
 
     $r = initStep($i);
 
-    if (!isset($i->criteria) &&
-        !isset($i->criteria->job) &&
+    if (!isset($i->data) &&
+        !isset($i->data->job) &&
+        !isset($i->create) &&
         !isset($i->remove) &&
-        !isset($i->criteria->duplicate) &&
-        !isset($i->criteria->jobIds)) {$r->log[] = 'parameter error'; continue;}
+        !isset($i->duplicate) &&
+        !isset($i->data->jobIds)) {$r->log[] = 'parameter error'; continue;}
 
     $r->job = job_setJob($i);
 

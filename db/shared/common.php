@@ -5,10 +5,32 @@
  */
 namespace jak;
 
+/**
+ *  General functions
+ */
+
 function initStep(&$i) {
     $i->log = array();
     $i->result = new \stdClass;
     return $i->result;
+}
+
+function explodeArrayForInsert($data, $fields, $dataTypes) { //array, string, string
+    $out = array();
+    $fieldsArr = explode(',', $fields);
+    $fieldsCnt = count($fieldArr);
+    foreach ($data as $row) {
+        $fields = array();
+        for ($i = 0; $i < $fieldsCnt; $i++) {
+            if ($dataTypes[$i] == 'i') {
+                $fields[] = $row[$i];
+            } else {
+                $fields[] = '"' . mysql_real_escape_string($row['']) . '"';
+            }
+        }
+        $out[] = $fields;
+    }
+    return '(' . implode('),(',$out) . ')';
 }
 
 function selectIds($dataSet, $field) {
@@ -19,10 +41,36 @@ function selectIds($dataSet, $field) {
     return $ids;
 }
 
-function tg_getTag($criteria) {
+/**
+ *  DB get/set
+ */
+
+function shared_getInfo($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initStep($criteria);
+
+    $dbTable = $criteria->dbTable;
+    $pks     = implode(',', $criteria->pks);
+    if ($stmt = $mysqli->prepare(
+        "select *
+           from `info`
+           where dbTable = $dbTable
+             and pk in ($pks)"
+    )) {
+        $r->success = $stmt->execute();
+        $r->rows = $mysqli->affected_rows;
+        $r->data = \jak\fetch_result($stmt,'id');
+        $stmt->close();
+    }
+    return $r;
+}
+
+function shared_getTag($criteria) {
+    global $mysqli;
+
+    $r = initStep($criteria);
+
     $dbTable = $criteria->dbTable;
     $pks     = implode(',', $criteria->pks);
     if ($stmt = $mysqli->prepare(
@@ -39,10 +87,11 @@ function tg_getTag($criteria) {
     return $r;
 }
 
-function info_setTag(&$criteria) {
+function shared_setTag(&$criteria) {
     global $mysqli;
-    $criteria->result = new \stdClass;
-    $r = $criteria->result;
+
+    $r = initStep($criteria);
+
     if (!isset($criteria, $criteria->data, $criteria->data->dbTable, $criteria->data->pk)) {return null;}
 
     if (isset($criteria->remove) && $criteria->remove) {

@@ -13,9 +13,9 @@ foreach ($post as $i) {
 
     $r = initStep($i);
 
-    if (!isset($i->criteria, $i->criteria->usr)) {continue;}
+    if (!isset($i->remove)) {continue;}
 
-
+    addr_setAddress($i);
 
 
 

@@ -42,16 +42,16 @@ function qa_getAnswer($criteria) {
     return $r;
 }
 
-function qa_getAnswerMatrix($criteria) {
+function qa_getPropPartAnswer($criteria) {
     global $mysqli;
     $r = new \stdClass;
     $r->criteria = $criteria;
     $cnd   = '';
     $limit = '';
 
-    if (isset($criteria->answerMatrixIds) && is_array($criteria->answerMatrixIds) && count($criteria->answerMatrixIds) > 0) {
-        $answerMatrixIds = implode(',', $criteria->answerMatrixIds);
-        $cnd = "where id in ($answerMatrixIds)";
+    if (isset($criteria->propPartAnswerIds) && is_array($criteria->propPartAnswerIds) && count($criteria->propPartAnswerIds) > 0) {
+        $propPartAnswerIds = implode(',', $criteria->propPartAnswerIds);
+        $cnd = "where id in ($propPartAnswerIds)";
     } else
 
     if (isset($criteria->propPartIds) && is_array($criteria->propPartIds) && count($criteria->propPartIds) > 0) {
@@ -65,7 +65,7 @@ function qa_getAnswerMatrix($criteria) {
 
     if ($stmt = $mysqli->prepare(
         "select *
-           from `answerMatrix` $cnd $limit"
+           from `propPartAnswer` $cnd $limit"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
@@ -133,10 +133,10 @@ function qa_getQuestionMatrix($criteria) {
 
 function qa_setAnswer(&$i) {
     global $mysqli;
-    $i->result = new \stdClass;
-    $r = $i->result;
 
-    if (!isset($i->criteria) &&
+    $r = initStep($i);
+
+    if (!isset($i->data) &&
         !isset($i->remove)) {return null;}
 
     if (isset($i->remove) && is_array($i->remove)) {
@@ -153,7 +153,7 @@ function qa_setAnswer(&$i) {
         return $r;
     }
 
-    if (isset($i->criteria->data->id)) {
+    if (isset($i->data->id)) {
         if ($stmt = $mysqli->prepare(
             "update `answer`
                 set question = ?,
@@ -162,10 +162,10 @@ function qa_setAnswer(&$i) {
               where id = ?"
         )) {
             $stmt->bind_param('iisi'
-                ,$i->criteria->data->question
-                ,$i->criteria->data->job
-                ,$i->criteria->data->detail
-                ,$i->criteria->data->id
+                ,$i->data->question
+                ,$i->data->job
+                ,$i->data->detail
+                ,$i->data->id
             );
             $r->successUpdate = $stmt->execute();
             $r->rows = $mysqli->affected_rows;
@@ -181,46 +181,33 @@ function qa_setAnswer(&$i) {
          values (?,?,?)"
     )) {
         $stmt->bind_param('iii'
-           ,$i->criteria->data->question
-           ,$i->criteria->data->job
-           ,$i->criteria->data->detail
+           ,$i->data->question
+           ,$i->data->job
+           ,$i->data->detail
         );
         $r->successInsert = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
         $r->successInsert
-            ?$i->criteria->data->id = $stmt->insert_id
+            ?$i->data->id = $stmt->insert_id
             :$r->errorInsert = $mysqli->error;
         $stmt->close();
     }
 
 }
 
-function qa_setAnswerMatrix(&$i) {
+function qa_setPropPartAnswer(&$i) {
     global $mysqli;
-    $i->result = new \stdClass;
-    $r = $i->result;
 
-    if (!isset($i->criteria) &&
+    $r = initStep($i);
+
+    if (!isset($i->data) &&
         !isset($i->remove)) {return null;}
 
     if (isset($i->remove) && is_array($i->remove)) {
-        $answerMatrixIds = implode(',', $i->remove);
+        $propPartAnswerIds = implode(',', $i->remove);
         if ($stmt = $mysqli->prepare(
-            "delete from `answerMatrix`
-              where id in ($answerMatrixIds)"
-        )) {
-            $r->successDelete = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successDelete OR $r->errorDelete = $mysqli->error;
-            $stmt->close();
-        }
-        return $r;
-    } else
-    if (isset($i->remove, $i->criteria->jobId)) {
-        $jobId = $i->criteria->jobId;
-        if ($stmt = $mysqli->prepare(
-            "delete from `answerMatrix`
-              where job = $jobId"
+            "delete from `propPartAnswer`
+              where id in ($propPartAnswerIds)"
         )) {
             $r->successDelete = $stmt->execute();
             $r->rows = $mysqli->affected_rows;
@@ -230,23 +217,23 @@ function qa_setAnswerMatrix(&$i) {
         return $r;
     }
 
-    if (isset($i->criteria->data->id)) {
+    if (isset($i->data->id) && $i->data->id != null) {
         if ($stmt = $mysqli->prepare(
-            "update `answerMatrix`
-                set answer   = ?,
-                    propPart = ?,
-                    service  = ?,
-                    seq      = ?,
-                    job      = ?
+            "update `propPartAnswer`
+                set propPart = ?,
+                    answer   = ?,
+                    current  = ?,
+                    job      = ?,
+                    seq      = ?
               where id = ?"
         )) {
             $stmt->bind_param('iiiiii'
-                ,$i->criteria->data->answer
-                ,$i->criteria->data->propPart
-                ,$i->criteria->data->service
-                ,$i->criteria->data->seq
-                ,$i->criteria->data->job
-                ,$i->criteria->data->id
+                ,$i->data->propPart
+                ,$i->data->answer
+                ,$i->data->current
+                ,$i->data->job
+                ,$i->data->seq
+                ,$i->data->id
             );
             $r->successUpdate = $stmt->execute();
             $r->rows = $mysqli->affected_rows;
@@ -257,21 +244,21 @@ function qa_setAnswerMatrix(&$i) {
     }
 
     if ($stmt = $mysqli->prepare(
-        "insert into `answerMatrix`
-                (answer, propPart, service, seq, job)
+        "insert into `propPartAnswer`
+                (propPart, answer, current, job, seq)
          values (?,?,?,?,?)"
     )) {
         $stmt->bind_param('iiiii'
-           ,$i->criteria->data->answer
-           ,$i->criteria->data->propPart
-           ,$i->criteria->data->service
-           ,$i->criteria->data->seq
-           ,$i->criteria->data->job
+           ,$i->data->propPart
+           ,$i->data->answer
+           ,$i->data->current
+           ,$i->data->job
+           ,$i->data->seq
         );
         $r->successInsert = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
         $r->successInsert
-            ?$i->criteria->data->id = $stmt->insert_id
+            ?$i->data->id = $stmt->insert_id
             :$r->errorInsert = $mysqli->error;
         $stmt->close();
     }

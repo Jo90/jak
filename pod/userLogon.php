@@ -85,10 +85,11 @@ YUI.add('jak-pod-userLogon',function(Y){
                         h.submit.set('disabled',h.forgot.who.get('value')==='');
                     });
                 //logon
-                    h.bd.delegate('keyup',function(){
-                        h.submit.set('disabled',
-                            (h.logon.username.get('value')==='' || h.logon.password.get('value')==='')
-                        );
+                    h.bd.delegate('keyup',function(e){
+                        var ok=h.logon.username.get('value')!=='' && h.logon.password.get('value')!==''
+                        ;
+                        h.submit.set('disabled',!ok);
+                        if(ok && e.keyCode===13){h.submit.simulate('click');}
                     },'.jak-logon .jak-data-username,.jak-logon .jak-data-password');
                 //username
                     h.bd.delegate('blur',function(){

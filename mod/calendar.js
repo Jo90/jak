@@ -3,14 +3,6 @@
  */
 YUI.add('jak-mod-calendar',function(Y){
 
-    /**
-     *  create reuseable job pods
-     */
-    WB.my.jobNew=new Y.WB.pod.jobNew({
-        title:'new task'
-       ,visible:false
-    });
-
     Y.namespace('JAK.mod').calendar=function(cfg){
 
         if(typeof cfg=='undefined' ||
@@ -80,10 +72,11 @@ YUI.add('jak-mod-calendar',function(Y){
                                 editable:true,
                                 /*
                                 events:function(start,end,callback){
-                                    Y.io('/taskRange.php',{ //>>>>>>>>>>>>>>>>>FIX
+                                    Y.io('/db/job/s.php',{
                                         method:'POST',
                                         headers:{'Content-Type':'application/json'},
                                         on:{complete:function(id,o){
+                                            debugger;
                                         }},
                                         data:Y.JSON.stringify({
                                             start:new Date(),
@@ -109,7 +102,9 @@ YUI.add('jak-mod-calendar',function(Y){
                                 },
                                 weekMode:'liquid',
                                 //events
-                                dayClick   :WB.my.jobNew.display,
+                                dayClick   :function(){
+                                    alert('FINISH click day, call job pod with appointment day set');
+                                },
                                 eventClick :function(){alert('click on event');},
                                 eventDrop  :function(){alert('event drop');},
                                 eventResize:function(){alert('event resize');}

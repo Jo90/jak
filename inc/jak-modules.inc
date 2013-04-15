@@ -28,8 +28,15 @@ modules:{
             'selector-css3',
             'template',
             'tabview',
+            'moment',
             'yql'
         ]
+    },
+    /**
+     * external libraries
+     */
+    'moment':{
+        fullpath:'/js/moment.js'
     },
     /**
      * css
@@ -56,6 +63,10 @@ modules:{
     },
     'jak-css-pod-job':{
         fullpath:'/css/pod/job.css',
+        type:'css'
+    },
+    'jak-css-pod-note':{
+        fullpath:'/css/pod/note.css',
         type:'css'
     },
     'jak-css-pod-propPart':{
@@ -90,7 +101,7 @@ modules:{
      */
     'jak-mod-calendar':{
         fullpath:'/mod/calendar.js',
-        requires:['jak-common']
+        requires:['jak-common','jak-pod-job']
     },
     'jak-mod-dashboard':{
         fullpath:'/mod/dashboard.js',
@@ -120,6 +131,10 @@ modules:{
     'jak-pod-job':{
         fullpath:'/pod/job.js',
         requires:['jak-common','jak-css-pod-job']
+    },
+    'jak-pod-note':{
+        fullpath:'/pod/note.js',
+        requires:['jak-common','jak-css-pod-note']
     },
     'jak-pod-propPart':{
         fullpath:'/pod/propPart.js',
@@ -162,7 +177,7 @@ modules:{
     },
     'jak-widget-calendar':{
          fullpath:'/widget/calendar.js',
-         requires:['calendar','jak-common','jak-css-calendar']
+         requires:['calendar','moment','jak-common','jak-css-calendar']
     },
     'jak-widget-dialogMask':{
          fullpath:'/widget/dialogMask.js',

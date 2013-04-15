@@ -1,5 +1,11 @@
 /** //widget/calendar.js
  *
+ *
+ *
+ *   >>>>>>>>>>>>>>>>>>>>>> DO update time <<<<<<<<<<<<<<<<<<<<<<<
+ *   listeners to time changes
+ *
+ * 
  */
 YUI.add('jak-widget-calendar',function(Y){
 
@@ -11,13 +17,13 @@ YUI.add('jak-widget-calendar',function(Y){
        +    '<button class="jak-calendar-clear" title="clear date field">clear</button>'
        +  '</div>'
        +  '<div class="jak-calendar-time">'
-       +    '<select>'
+       +    '<select class="jak-widget-calendar-hour">'
        +      '<option>12</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option>'
        +    '</select>'
-       +    ':<select>'
+       +    ':<select class="jak-widget-calendar-minute">'
        +      '<option>00</option><option>05</option><option>10</option><option>15</option><option>20</option><option>25</option><option>30</option><option>35</option><option>40</option><option>45</option><option>50</option><option>55</option>'
        +    '</select>'
-       +    '<select>'
+       +    '<select class="jak-widget-calendar-ampm">'
        +      '<option>am</option>'
        +      '<option>pm</option>'
        +    '</select>'
@@ -26,8 +32,7 @@ YUI.add('jak-widget-calendar',function(Y){
        +'</div></div>'
     );
 
-    var DEFAULT_DATE_FORMAT="%a %d %b %Y",
-        cal=new Y.Calendar({
+    var cal=new Y.Calendar({
             contentBox:'#jak-calendar',
             date:new Date(),
             showNextMonth:true,
@@ -52,29 +57,28 @@ YUI.add('jak-widget-calendar',function(Y){
     });
 
     cal.on('dateClick',function(e){
-        var date_format=DEFAULT_DATE_FORMAT,
+        var date_format='DDMMMYY hh:mma',
             cfg=callingNode.getData('calendar') //use configuration if defined
         ;
         if(cfg && cfg.date_format){date_format=cfg.date_format;}
-        callingNode.set('value',Y.Date.format(Y.Date.parse(e.date),{format:date_format}));
+        callingNode.set('value',moment(e.date).format(date_format));
     });
 
     Y.one('body').delegate('focus',function(){
         focusValue=this.get('value');
         var nodeDate=focusValue===''
                 ?new Date()
-                :Y.Date.parse(focusValue),
-            nodeMonth=new Date(nodeDate)
+                :moment(focusValue,'DDMMMYY hh:mma').toDate()
         ;
         callingNode=this;
         cal.show();
         cal.get('boundingBox').setXY([this.getX()+2,this.getY()+26]);
-        cal.deselectDates(); //causes selectionChange to fire
+        cal.deselectDates();
         //if different month
-            if(Y.Date.format(nodeMonth,{format:"%b%Y"})!==Y.Date.format(new Date(cal.get('date')),{format:"%b%Y"})){
-                cal.set('date',nodeMonth);
+            if(moment(nodeDate).format('MMYY')!==moment(cal.get('date')).format('MMYY')){
+                cal.set('date',nodeDate);
             }
-        cal.selectDates(nodeDate); //causes selectionChange to fire
+        cal.selectDates(nodeDate);
     },'.jak-date');
 
     cal.get('boundingBox').on('clickoutside',function(e){

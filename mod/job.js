@@ -80,31 +80,31 @@ YUI.add('jak-mod-job',function(Y){
             },
             insert:{
                 job:function(e,action){
-                    var post={}
+                    var post={
+                            member:JAK.user.usr
+                        }
                     ;
-                    if(action==='duplicate'){
-                        post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job').get('innerHTML'),10);
-                    }
+                    action==='duplicate'
+                        ?post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job').get('innerHTML'),10)
+                        :post.create=true;
+
                     Y.io('/db/job/id.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
                             var rs=Y.JSON.parse(o.responseText)[0],
-                                jobId=rs.criteria.data.id
+                                jobId=rs.data.id
                             ;
                             pod.display.job({job:jobId});
                         }},
-                        data:Y.JSON.stringify([{
-                            criteria:post,
-                            member  :JAK.user.usr
-                        }])
+                        data:Y.JSON.stringify([post])
                     });
                 }
             },
             remove:{
                 job:function(e){
                     var row=this.ancestor('tr'),
-                        jobId=parseInt(row.one('.yui3-datatable-col-job').get('innerHTML'),10),
+                        jobId=parseInt(row.one('.yui3-datatable-col-job em').get('innerHTML'),10),
                         address=row.one('.yui3-datatable-col-streetRef').get('innerHTML')+' '
                             +row.one('.yui3-datatable-col-streetName').get('innerHTML')+' '
                             +row.one('.yui3-datatable-col-location').get('innerHTML')
@@ -152,7 +152,7 @@ YUI.add('jak-mod-job',function(Y){
             },
             result:{
                 job:function(rs){
-                    debugger;
+                    
                 }
             }
         };
@@ -179,26 +179,22 @@ YUI.add('jak-mod-job',function(Y){
                         });
                     });
                     h.dt.addRow({
-                        job        :job.id,
+                        job        :'<em title="Job #'+job.id+' created '+moment.unix(job.created).format('DD MMM YYYY hh:mm a')+'">'
+                                    +job.id
+                                    +'</em>',
                         ref        :job.ref,
                         streetRef  :job.address===null?'':addresses[job.address].streetRef,
                         streetName :job.address===null?'':addresses[job.address].streetName,
                         location   :job.address===null?'':locations[addresses[job.address].location].full,
                         appointment:job.appointment===null
                                        ?''
-                                       :'<span title="'+Y.Date.format(Y.Date.parse(job.appointment*1000),{format:"%a %d %b %Y"})+'">'
-                                       +  Y.Date.format(Y.Date.parse(job.appointment*1000),{format:"%d %b %Y"})
-                                       +'</span>',
+                                       :'<span>'+moment.unix(job.appointment).format('DDMMMYY hh:mma')+'</span>',
                         confirmed  :job.confirmed===null
                                        ?''
-                                       :'<span title="'+Y.Date.format(Y.Date.parse(job.confirmed*1000),{format:"%a %d %b %Y"})+'">'
-                                       +  Y.Date.format(Y.Date.parse(job.confirmed*1000),{format:"%d %b %Y"})
-                                       +'</span>',
+                                       :'<span>'+moment.unix(job.confirmed).format('DDMMMYY hh:mma')+'</span>',
                         reminder   :job.reminder===null
                                        ?''
-                                       :'<span title="'+Y.Date.format(Y.Date.parse(job.reminder*1000),{format:"%a %d %b %Y"})+'">'
-                                       +  Y.Date.format(Y.Date.parse(job.reminder*1000),{format:"%d %b %Y"})
-                                       +'</span>',
+                                       :'<span>'+moment.unix(job.reminder).format('DDMMMYY hh:mma')+'</span>',
                         usr        :usrInfo.join(','),
                         address    :job.address,
                         actions    :Y.JAK.html('btn',{action:'dup',title:'duplicate'})
@@ -351,7 +347,7 @@ YUI.add('jak-mod-job',function(Y){
                 h.dt=new Y.DataTable({
                     caption :'JAK Inspections Job Log',
                     columns:[
-                        {key:'job'        ,label:'Job'        },
+                        {key:'job'        ,label:'Job'        ,allowHTML:true},
                         {key:'ref'        ,label:'Ref'        },
                         {key:'streetRef'  ,label:'#'          },
                         {key:'streetName' ,label:'Street'     },
@@ -376,7 +372,7 @@ YUI.add('jak-mod-job',function(Y){
                    this.hasClass('yui3-datatable-col-confirmed')||
                    this.hasClass('yui3-datatable-col-reminder')
                 ){
-                    pod.display.job({job:parseInt(this.ancestor('tr').one('.yui3-datatable-col-job').get('innerHTML'),10)});
+                    pod.display.job({job:parseInt(this.ancestor('tr').one('.yui3-datatable-col-job em').get('innerHTML'),10)});
                 }
                 if(this.hasClass('yui3-datatable-col-streetRef')||this.hasClass('yui3-datatable-col-streetName')||this.hasClass('yui3-datatable-col-location')){
                     alert('address');

@@ -9,8 +9,9 @@ require_once '../shared/common.php';
 
 function job_getJob($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initStep($criteria);
+
     $cnd   = '';
     $limit = '';
 
@@ -46,8 +47,9 @@ function job_getJob($criteria) {
 
 function job_getPropPart($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initStep($criteria);
+
     $cnd   = '';
     $limit = '';
 
@@ -82,9 +84,10 @@ function job_setJob(&$i) {
 
     $r = initStep($i);
 
-    if (!isset($i->criteria) &&
+    if (!isset($i->data) &&
+        !isset($i->create) &&
         !isset($i->remove) &&
-        !isset($i->criteria->duplicate)) {return null;}
+        !isset($i->duplicate)) {return null;}
 
     if (isset($i->remove) && is_array($i->remove)) {
         $jobIds = implode(',', $i->remove);
@@ -100,7 +103,7 @@ function job_setJob(&$i) {
         return $r;
     }
 
-    if (isset($i->criteria->data->id)) {
+    if (isset($i->data->id)) {
         if ($stmt = $mysqli->prepare(
             "update `job`
                 set ref         = ?,
@@ -112,13 +115,13 @@ function job_setJob(&$i) {
               where id = ?"
         )) {
             $stmt->bind_param('iiiiisi'
-                ,$i->criteria->data->ref
-                ,$i->criteria->data->appointment
-                ,$i->criteria->data->address
-                ,$i->criteria->data->confirmed
-                ,$i->criteria->data->reminder
-                ,$i->criteria->data->weather
-                ,$i->criteria->data->id
+                ,$i->data->ref
+                ,$i->data->appointment
+                ,$i->data->address
+                ,$i->data->confirmed
+                ,$i->data->reminder
+                ,$i->data->weather
+                ,$i->data->id
             );
             $r->successUpdate = $stmt->execute();
             $r->rows = $mysqli->affected_rows;
@@ -129,41 +132,42 @@ function job_setJob(&$i) {
     }
 
     //insert
-    if(isset($i->criteria->duplicate)){
+    if(isset($i->duplicate)){
 
-        $i->criteria->jobIds = array($i->criteria->duplicate);
-        if (!isset($i->criteria->data)) {$i->criteria->data = new \stdClass;}
-        $temp = job_getJob($i->criteria);
-        $i->criteria->data->ref     = $temp->data->{$i->criteria->duplicate}->ref;
-        $i->criteria->data->address = $temp->data->{$i->criteria->duplicate}->address;
+        $i->jobIds = array($i->duplicate);
+        if (!isset($i->data)) {$i->data = new \stdClass;}
+        $temp = job_getJob($i);
+        $i->data->ref     = $temp->data->{$i->duplicate}->ref;
+        $i->data->address = $temp->data->{$i->duplicate}->address;
     }
 
     if ($stmt = $mysqli->prepare(
         "insert into `job`
-                (ref,created,appointment,address,confirmed,reminder,weather)
-         values (?,UNIX_TIMESTAMP(NOW()),?,?,?,?,?)"
+                (ref, created, createdBy, appointment, address, confirmed, reminder, weather)
+         values (?,unix_timestamp(now()),?,?,?,?,?,?)"
     )) {
-        $stmt->bind_param('iiiiis'
-           ,$i->criteria->data->ref
-           ,$i->criteria->data->appointment
-           ,$i->criteria->data->address
-           ,$i->criteria->data->confirmed
-           ,$i->criteria->data->reminder
-           ,$i->criteria->data->weather
+        $stmt->bind_param('isiiiis'
+           ,$i->data->ref
+           ,$_SESSION['member']
+           ,$i->data->appointment
+           ,$i->data->address
+           ,$i->data->confirmed
+           ,$i->data->reminder
+           ,$i->data->weather
         );
         $r->successInsert = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
         $r->successInsert
-            ?$i->criteria->data->id = $stmt->insert_id
+            ?$i->data->id = $stmt->insert_id
             :$r->errorInsert = $mysqli->error;
         $stmt->close();
     }
 
     if (!$r->successInsert) {$r->log[] = 'job insert error'; return;}
-    $jobId = $i->criteria->data->id;
+    $jobId = $i->data->id;
 
     //finish duplication
-    if (isset($i->criteria->duplicate)) {
+    if (isset($i->duplicate)) {
 
         // jobService
         if ($stmt = $mysqli->prepare(
@@ -208,18 +212,18 @@ function job_setJob(&$i) {
             //use qm
 
 
-            
+
         }
-        
-        
-        // answers and answerMatrix
+
+
+        // answers and answers related to propPart propPartAnswer
         $propPartIds = array();
         $propPartIds = selectIds($propParts->data, 'id');
         if (count($propPartIds) > 0) {
             if ($stmt = $mysqli->prepare(
-                "insert into answerMatrix
-                       (answer, propPart, service, job)
-                 select answer, propPart, service, $jobId
+                "insert into `propPartAnswer`
+                       (propPart, answer, job)
+                 select propPart, answer, $jobId
                    from `questionMatrix`
                   where propPart in ($propPartIds)"
             )) {
@@ -254,7 +258,6 @@ function job_setJob(&$i) {
             $propPartDef = \jak\fetch_result($stmt);
             $stmt->close();
 
-            $r->propPartSuccess = array();
             foreach ($propPartDef as $d) {
                 for ($i = 0; $i < $d->defaultRecs; $i++) {
                     $mysqli->query(
@@ -272,10 +275,11 @@ function job_setJob(&$i) {
              select id, $jobId, def
                from `question`"
         );
+        //>>>>>>>>>>>>>>>FIX used distinct because of duplicate - why?
         $mysqli->query(
-            "insert into `answerMatrix`
-                    (answer, propPart, service, seq, job)
-             select a.id, pp.id, qm.service, qm.seq, $jobId
+            "insert into `propPartAnswer`
+                    (propPart, answer, job, seq)
+             select distinct pp.id, a.id, $jobId, qm.seq
                from `questionMatrix` as qm,
                     `answer`         as a,
                     `propPart`       as pp
@@ -289,10 +293,10 @@ function job_setJob(&$i) {
 
 function job_setPropPart(&$i) {
     global $mysqli;
-    $i->result = new \stdClass;
-    $r = $i->result;
 
-    if (!isset($i->criteria) &&
+    $r = initStep($i);
+
+    if (!isset($i->data) &&
         !isset($i->remove)) {return null;}
 
     if (isset($i->remove) && is_array($i->remove)) {
@@ -309,7 +313,7 @@ function job_setPropPart(&$i) {
         return $r;
     }
 
-    if (isset($i->criteria->data->id)) {
+    if (isset($i->data->id)) {
         if ($stmt = $mysqli->prepare(
             "update `propPart`
                 set job          = ?,
@@ -320,12 +324,12 @@ function job_setPropPart(&$i) {
               where id = ?"
         )) {
             $stmt->bind_param('iiiisi'
-                ,$i->criteria->data->job
-                ,$i->criteria->data->propPartType
-                ,$i->criteria->data->seq
-                ,$i->criteria->data->indent
-                ,$i->criteria->data->name
-                ,$i->criteria->data->id
+                ,$i->data->job
+                ,$i->data->propPartType
+                ,$i->data->seq
+                ,$i->data->indent
+                ,$i->data->name
+                ,$i->data->id
             );
             $r->successUpdate = $stmt->execute();
             $r->rows = $mysqli->affected_rows;
@@ -341,16 +345,16 @@ function job_setPropPart(&$i) {
          values (?,?,?,?,?)"
     )) {
         $stmt->bind_param('iiiis'
-           ,$i->criteria->data->job
-           ,$i->criteria->data->propPartType
-           ,$i->criteria->data->seq
-           ,$i->criteria->data->indent
-           ,$i->criteria->data->name
+           ,$i->data->job
+           ,$i->data->propPartType
+           ,$i->data->seq
+           ,$i->data->indent
+           ,$i->data->name
         );
         $r->successInsert = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
         $r->successInsert
-            ?$i->criteria->data->id = $stmt->insert_id
+            ?$i->data->id = $stmt->insert_id
             :$r->errorInsert = $mysqli->error;
         $stmt->close();
     }

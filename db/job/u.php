@@ -11,16 +11,12 @@ $post = json_decode(file_get_contents('php://input'));
 
 foreach ($post as $i) {
 
-    $r = initStep($i);
+    if (!isset($i->job)) {$r->log[] = 'parameter error'; continue;}
 
-    if (!isset($i->criteria) &&
-        !isset($i->criteria->job) &&
-        !isset($i->remove) &&
-        !isset($i->criteria->jobIds)) {$r->log[] = 'parameter error'; continue;}
+    job_setJob($i->job);
 
-    $r->job          = job_setJob($i);
-    $r->answer       = qa_setAnswer($i);
-    $r->answerMatrix = qa_setAnswerMatrix($i);
+    foreach ($i->answer         as $answer        ) {qa_setAnswer($answer);}
+    foreach ($i->propPartAnswer as $propPartAnswer) {qa_setPropPartAnswer($propPartAnswer);}
 
 }
 header('Content-type: text/plain');

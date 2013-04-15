@@ -90,6 +90,14 @@ YUI.add('jak-common',function(Y){
         }
     };
 
+    Y.JAK.date={
+        toUTC:function(d){
+            return d===''
+                ?null
+                :Y.Date.parse(d).getTime()/1000;
+        }
+    };
+
     Y.JAK.firstRecord=function(o){
         for(r in o){if(o.hasOwnProperty(r)){return o[r];}}
     };

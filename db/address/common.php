@@ -6,8 +6,9 @@ namespace jak;
 
 function addr_getAddress($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initStep($criteria);
+
     $cnd   = '';
     $limit = '';
 
@@ -40,8 +41,9 @@ function addr_getAddress($criteria) {
 
 function addr_getLocation($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initStep($criteria);
+
     $cnd   = '';
     $limit = '';
 
@@ -67,22 +69,21 @@ function addr_getLocation($criteria) {
     return $r;
 }
 
-function addr_setAddress(&$criteria) {
+function addr_setAddress(&$i) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initStep($i);
+
     $cnd   = '';
     $limit = '';
 
     //criteria
-    if (isset($criteria->remove) && $criteria->remove) {
+    if (isset($i->remove) && is_array($i->remove)) {
+        $addressIds = implode(',', $i->remove);
         if ($stmt = $mysqli->prepare(
             "delete from `address`
-              where id = ?"
+              where id in ($addressIds)"
         )) {
-            $stmt->bind_param('i'
-                ,$criteria->data->id
-            );
             $r->successDelete = $stmt->execute();
             $r->rows = $mysqli->affected_rows;
             $r->successDelete OR $r->errorDelete = $mysqli->error;

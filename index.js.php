@@ -55,6 +55,8 @@ echo 'JAK.user.SALT="' , $_SESSION[JAK_SALT] , '";' , PHP_EOL;
 //debug YUI({filter:'raw',
 YUI({<?php require 'jak-modules.inc'; ?>}).use(
     'jak-pod-userLogon',
+    'jak-pod-job',
+    'jak-widget-dialogMask',
     function(Y){
 
         Y.on('error',function(type,msg){
@@ -95,6 +97,9 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                     Y.use('jak-mod-dashboard',function(Y){
                         h.myDashboard=new Y.JAK.mod.dashboard({node:h.tp.das});
                     });
+
+                //instantiate reusable pods
+                    JAK.my.podJob=new Y.JAK.pod.job({visible:false});
 
                 //panels
                     my.panelBuild=function(){

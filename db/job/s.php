@@ -22,7 +22,10 @@ foreach ($post as $i) {
         !isset($i->criteria->firstName) &&
         !isset($i->criteria->lastName) &&
         !isset($i->criteria->streetName) &&
-        !isset($i->criteria->location)) {$r->log[] = 'parameter error'; continue;}
+        !isset($i->criteria->location) &&
+        !isset($i->criteria->appointmentStart) &&
+        !isset($i->criteria->appointmentEnd)
+    ) {$r->log[] = 'parameter error'; continue;}
 
     //find criteria
     if (isset($i->criteria->location, $i->criteria->streetName, $i->criteria->streetRef)) {

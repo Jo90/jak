@@ -11,6 +11,7 @@ YUI.add('jak-pod-job',function(Y){
         cfg=Y.merge({
             title      :'job',
             width      :1000,
+            visible    :true,
             xy         :[10,20],
             zIndex     :99999
         },cfg);
@@ -43,6 +44,8 @@ YUI.add('jak-pod-job',function(Y){
                 io.fetch.job();
             }else{
                 h.serviceSelect.simulate('change');
+                if(typeof p.appointment!=='undefined'){f.jobAppointment.set('value',moment.unix(p.appointment).format('DDMMMYY hh:mma'));}
+                if(typeof p.visible!=='undefined'){self.set('visible',p.visible);}
             }
         };
 
@@ -51,6 +54,7 @@ YUI.add('jak-pod-job',function(Y){
         };
         this.set=function(what,value){
             if(what==='zIndex'){h.ol.set('zIndex',value);}
+            if(what==='visible'){h.ol.set('visible',value);}
             if(what==='cfg'   ){cfg=Y.merge(cfg,value);}
         };
 
@@ -488,6 +492,7 @@ YUI.add('jak-pod-job',function(Y){
                        +  '</fieldset>'
                        +'</fieldset>',
                     width  :cfg.width,
+                    visible:cfg.visible,
                     xy     :cfg.xy,
                     zIndex :cfg.zIndex
                 }).plug(Y.Plugin.Resize).render();

@@ -129,25 +129,15 @@ YUI.add('jak-mod-job',function(Y){
             h.dt.get('contentBox').delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
             h.dt.get('contentBox').delegate('click',io.insert.job,'.jak-dup',null,'duplicate');
             h.dt.get('contentBox').delegate('click',io.remove.job,'.jak-remove');
+            //custom
+               Y.on(JAK.my.podJob.customEvent.update,pod.result.job);
         };
 
         pod={
             display:{
                 job:function(p){
-                    if(!self.my.podJob){pod.load.job(p);return false;}
-                    self.my.podJob.display(p);
-                }
-            },
-            load:{
-                job:function(p){
-                    Y.use('jak-pod-job',function(Y){
-                        self.my.podJob=new Y.JAK.pod.job(p);
-                        Y.JAK.whenAvailable.inDOM(self,'my.podJob',function(){
-                            self.my.podJob.set('zIndex',cfg.zIndex+10);
-                            pod.display.job(p);
-                        });
-                        Y.on(self.my.podJob.customEvent.update,pod.result.job);
-                    });
+                    JAK.my.podJob.display(p);
+                    JAK.my.podJob.set('visible',true);
                 }
             },
             result:{

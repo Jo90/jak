@@ -24,6 +24,9 @@ function job_getJob($criteria) {
         $addressIds = implode(',', $criteria->addressIds);
         $cnd = "where address in ($addressIds)";
     } else
+    if (isset($criteria->appointmentStart,$criteria->appointmentEnd)) {
+        $cnd = "where appointment between $criteria->appointmentStart and $criteria->appointmentEnd";
+    } else
     //last jobs
     if (isset($criteria->lastJob) && $criteria->lastJob) {
         $cnd = 'order by id desc';

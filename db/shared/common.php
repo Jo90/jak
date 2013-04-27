@@ -9,7 +9,7 @@ namespace jak;
  *  General functions
  */
 
-function initStep(&$i) {
+function initResult(&$i) {
     $i->log = array();
     $i->result = new \stdClass;
     return $i->result;
@@ -33,6 +33,26 @@ function explodeArrayForInsert($data, $fields, $dataTypes) { //array, string, st
     return '(' . implode('),(',$out) . ')';
 }
 
+function remove($table, &$i) {
+    global $mysqli;
+
+    if (!isset($i->remove)) {$i->removeError = 'no remove parameter'; return false;}
+
+    if (is_numeric($i->remove)) {$cnd = 'where id = ' . $i->remove;}
+    else if (is_array($i->remove))   {$cnd = 'where id in ("' . implode('","', array_map('mysql_real_escape_string', $i->remove)) . '")';}
+    else {$cnd = 'where id = "' . $mysqli->real_escape_string($i->remove) . '"';}
+
+    if ($stmt = $mysqli->prepare(
+        "delete from `$table` $cnd"
+    )) {
+        $i->removeSuccess = $stmt->execute();
+        $i->removeRows = $mysqli->affected_rows;
+        $i->removeSuccess OR $r->removeError = $mysqli->error;
+        $stmt->close();
+    }
+    return true;
+}
+
 function selectIds($dataSet, $field) {
     $ids = array();
     foreach ($dataSet as $d) {
@@ -48,15 +68,24 @@ function selectIds($dataSet, $field) {
 function shared_getInfo($criteria) {
     global $mysqli;
 
-    $r = initStep($criteria);
+    $r = initResult($criteria);
 
-    $dbTable = $criteria->dbTable;
-    $pks     = implode(',', $criteria->pks);
+    if (isset($criteria->infoIds) && is_array($criteria->infoIds) && count($criteria->infoIds) > 0) {
+        $infoIds = implode(',', $criteria->infoIds);
+        $cnd = "where id in ($infoIds)";
+    }
+    if (isset($criteria->dbTable, $criteria->pks) && is_array($criteria->pks) && count($criteria->pks) > 0) {
+        $pks = implode(',', $criteria->pks);
+        $cnd = "where dbTable = $criteria->dbTable and pk in ($pks)";
+    }
+    if (isset($criteria->dbTable, $criteria->pk)) {
+        $cnd = "where dbTable = $criteria->dbTable and pk = $criteria->pk";
+    }
+
     if ($stmt = $mysqli->prepare(
         "select *
-           from `info`
-           where dbTable = $dbTable
-             and pk in ($pks)"
+           from `info` $cnd
+          order by seq, id desc"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
@@ -69,7 +98,7 @@ function shared_getInfo($criteria) {
 function shared_getTag($criteria) {
     global $mysqli;
 
-    $r = initStep($criteria);
+    $r = initResult($criteria);
 
     $dbTable = $criteria->dbTable;
     $pks     = implode(',', $criteria->pks);
@@ -87,28 +116,72 @@ function shared_getTag($criteria) {
     return $r;
 }
 
-function shared_setTag(&$criteria) {
+function shared_setInfo(&$i) {
     global $mysqli;
 
-    $r = initStep($criteria);
+    remove('info',$i);
 
-    if (!isset($criteria, $criteria->data, $criteria->data->dbTable, $criteria->data->pk)) {return null;}
+    foreach ($i->record as $rec) {
 
-    if (isset($criteria->remove) && $criteria->remove) {
+        $r = initResult($rec);
+
+        if (isset($rec->data->id) && $rec->data->id != '') {
+            if ($stmt = $mysqli->prepare(
+                "update `info`
+                    set seq      = ?,
+                        category = ?,
+                        detail   = ?
+                where id = ?"
+            )) {
+                $stmt->bind_param('issi'
+                    ,$rec->data->seq
+                    ,$rec->data->category
+                    ,$rec->data->detail
+                    ,$rec->data->id
+                );
+                $r->successUpdate = $stmt->execute();
+                $r->rows = $mysqli->affected_rows;
+                $r->successUpdate OR $r->errorUpdate = $mysqli->error;
+                $stmt->close();
+            }
+            continue;
+        }
+        //insert
         if ($stmt = $mysqli->prepare(
-            "delete from `tag`
-              where id = ?"
+                "insert into `info`
+                        (dbTable,pk,seq,category,detail)
+                values (?,?,?,?,?)"
         )) {
-            $stmt->bind_param('i'
-                ,$criteria->data->id
+            $stmt->bind_param('iiiss'
+            ,$rec->data->dbTable
+            ,$rec->data->pk
+            ,$rec->data->seq
+            ,$rec->data->category
+            ,$rec->data->detail
             );
-            $r->successDelete = $stmt->execute();
+            $r->successInsert = $stmt->execute();
             $r->rows = $mysqli->affected_rows;
-            $r->successDelete OR $r->errorDelete = $mysqli->error;
+            $r->successInsert
+                ?$rec->data->id = $stmt->insert_id
+                :$r->errorInsert = $mysqli->error;
             $stmt->close();
         }
     }
-    if (isset($criteria->data->id)) {
+}
+
+function shared_setTag(&$i) {
+    global $mysqli;
+
+    $r = initResult($i);
+
+    if (!isset($i) &&
+        !isset($i->data) &&
+        !isset($i->dbTable, $i->data->pk) &&
+        !isset($i->remove)) {return null;}
+
+    remove('tag',$i);
+
+    if (isset($i->data->id)) {
         if ($stmt = $mysqli->prepare(
             "update `tag`
                 set displayOrder = ?,
@@ -116,9 +189,9 @@ function shared_setTag(&$criteria) {
               where id = ?"
         )) {
             $stmt->bind_param('isi'
-                ,$criteria->data->displayOrder
-                ,$criteria->data->name
-                ,$criteria->data->id
+                ,$i->data->displayOrder
+                ,$i->data->name
+                ,$i->data->id
             );
             $r->successUpdate = $stmt->execute();
             $r->rows = $mysqli->affected_rows;
@@ -134,15 +207,15 @@ function shared_setTag(&$criteria) {
              values (?,?,?,?)"
     )) {
         $stmt->bind_param('iiis'
-           ,$criteria->data->dbTable
-           ,$criteria->data->pk
-           ,$criteria->data->displayOrder
-           ,$criteria->data->name
+           ,$i->data->dbTable
+           ,$i->data->pk
+           ,$i->data->displayOrder
+           ,$i->data->name
         );
         $r->successInsert = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
         $r->successInsert
-            ?$criteria->data->id = $stmt->insert_id
+            ?$i->data->id = $stmt->insert_id
             :$r->errorInsert = $mysqli->error;
         $stmt->close();
     }

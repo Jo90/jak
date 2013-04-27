@@ -4,6 +4,6 @@
 .jak-pod-address .jak-close {float:right;}
 
 .jak-pod-address .jak-data-streetRef,
-.jak-pod-address .jak-data-locationName {width:12em;}
-.jak-pod-address .jak-data-streetName   {width:10em;}
-.jak-pod-address .jak-data-row-limit {width:2em;}
+.jak-pod-address .jak-data-locationName {width:15em;}
+.jak-pod-address .jak-data-streetName   {width:12em;}
+.jak-pod-address .jak-data-streetRef    {width:4em;}

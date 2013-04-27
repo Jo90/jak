@@ -4,14 +4,14 @@
 
 #jak-calendar .jak-date {width:7em;}
 
-.yui3-calendar, #jak-calendar {
+#jak-calendar .yui3-calendar, #jak-calendar {
   position:absolute;
   top:30px;
   left:30px;
   z-index:99999999;
+  width:20em;
 }
 
-#jak-calendar .jak-calendar-options {display:inline-block;width:10em;float:left;}
-#jak-calendar .jak-calendar-time    {display:inline-block;width:12.5em;float:right;}
+#jak-calendar .jak-calendar-time {width:17em;margin:0 auto;}
 
 #jak-calendar .yui3-calendar-pane {clear:both;}

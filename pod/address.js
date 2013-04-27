@@ -32,14 +32,11 @@ YUI.add('jak-pod-address',function(Y){
         ;
 
         this.display=function(p){
-            d.params=Y.merge(d.params,p);
+            cfg=Y.merge(cfg,p);
             Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
-            trigger.displayOptions();
             h.ol.show();
             trigger.reset();
-            if(typeof p.address!=='undefined' && p.address!==''){
-                io.fetch.address();
-            }
+            io.fetch.address();
         };
 
         this.get=function(what){
@@ -68,13 +65,19 @@ YUI.add('jak-pod-address',function(Y){
         io={
             fetch:{
                 address:function(){
+                    //sentry
+                        if(typeof cfg.address==='undefined' ||
+                            cfg.address==='' ||
+                            cfg.address===null ||
+                            isNaN(cfg.address)
+                        ){return;}
                     Y.JAK.widget.busy.set('message','getting address(s)...');
                     Y.io('/db/address/s.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.address},
                         data:Y.JSON.stringify([{
-                            criteria:{addressIds:[d.params.address]},
+                            criteria:{addressIds:[cfg.address]},
                             member  :JAK.user.usr
                         }])
                     });
@@ -112,7 +115,7 @@ YUI.add('jak-pod-address',function(Y){
                         }},
                         data:Y.JSON.stringify([{
                             criteria:{
-                                remove:[f.id.get('value')]
+                                remove:[cfg.address]
                             },
                             member:JAK.user.usr
                         }])
@@ -126,16 +129,26 @@ YUI.add('jak-pod-address',function(Y){
                 h.ol.hide();
                 Y.JAK.widget.dialogMask.hide();
             });
-            f.state       .on('change',trigger.onChange,null,'state');
-            f.locationName.on('change',trigger.onChange,null,'locationName');
-            f.streetName  .on('change',trigger.onChange,null,'streetName');
-            f.streetRef   .on('change',trigger.onChange,null,'streetRef');
-            h.addressSelect.on('click',function(){
-                Y.fire(self.customEvent.select,trigger.addressData());
-                h.close.simulate('click');
-            });
-            h.addressCreate.on('click',io.insert.address);
-            h.addressDelete.on('click',io.remove.address);
+            //field changes
+                f.state.on('change',trigger.reset);
+                f.locationName.on('change',function(){
+                    delete cfg.address;
+                    f.streetName.set('value','');
+                    f.streetRef .set('value','');
+                    trigger.displayOptions();
+                });
+                f.streetName.on('change',function(){
+                    delete cfg.address;
+                    f.streetRef.set('value','');
+                    trigger.displayOptions();
+                });
+            //button/options
+                h.addressSelect.on('click',function(){
+                    Y.fire(self.customEvent.select,trigger.addressData());
+                    h.close.simulate('click');
+                });
+                h.addressCreate.on('click',io.insert.address);
+                h.addressDelete.on('click',io.remove.address);
         };
 
         populate={
@@ -144,34 +157,21 @@ YUI.add('jak-pod-address',function(Y){
                     addresses=rs.address.data,
                     locations=rs.location.data,
                     jobs     =rs.job.data,
-                    users    =rs.usrJob.data,
-                    cnt      =0
+                    users    =rs.usrJob.data
                 ;
-                h.addressSelect.hide();
-                h.addressCreate.hide();
-                h.addressDelete.hide();
+                trigger.reset();
                 Y.each(addresses,function(address){
                     var _jobs =Object.keys(jobs).length,
                         _users=Object.keys(users).length
                     ;
-                    trigger.displayOptions();
-                    h.addressSelect.show();
-                    cnt++;
-                    f.id          .set('value',address.id);
                     f.location    .set('value',address.location);
                     f.locationName.set('value',locations[address.location].name);
                     f.streetName  .set('value',address.streetName);
                     f.streetRef   .set('value',address.streetRef);
                     f.jobs        .setContent(_jobs);
                     f.users       .setContent(_users);
-                    if(_jobs===0&&_users===0){
-                        h.addressDelete.show();
-                    }
                 });
-                //no address found = create
-                if(cnt===0){
-                    io.insert.address();
-                }
+                trigger.displayOptions();
                 Y.JAK.widget.busy.set('message','');
             }
         };
@@ -184,7 +184,6 @@ YUI.add('jak-pod-address',function(Y){
                        +Y.JAK.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:
                         '<select class="jak-data-state"><option>NSW</option><option>VIC</option><option>QLD</option><option>ACT</option><option>NT</option><option>TAS</option><option>WA</option></select>'
-                       +'<input type="hidden" class="jak-data-id" />'
                        +'<input type="hidden" class="jak-data-location" />'
                        +'<input type="text"   class="jak-data-locationName" title="suburb/city" placeholder="suburb" />'
                        +'<input type="text"   class="jak-data-streetName"   title="street" placeholder="street" />'
@@ -204,7 +203,6 @@ YUI.add('jak-pod-address',function(Y){
                     h.bb           =h.ol.get('boundingBox');
                     h.close        =h.hd.one('.jak-close');
                     f.state        =h.bd.one('.jak-data-state');
-                    f.id           =h.bd.one('.jak-data-id');
                     f.location     =h.bd.one('.jak-data-location');
                     f.locationName =h.bd.one('.jak-data-locationName');
                     f.streetName   =h.bd.one('.jak-data-streetName');
@@ -225,8 +223,9 @@ YUI.add('jak-pod-address',function(Y){
                         resultTextLocator:function(result){return result[4];},
                         after:{
                             results:function(e){
+                                delete cfg.address;
+                                f.location.set('value','');
                                 if(e.data.length===1){this.selectItem();}
-                                if(e.data.length===0){f.location.set('value',0);}
                             }
                         },
                         on:{
@@ -248,12 +247,13 @@ YUI.add('jak-pod-address',function(Y){
                         resultTextLocator:function(result){return result[0];},
                         after:{
                             results:function(e){
+                                delete cfg.address;
                                 if(e.data.length===1){this.selectItem();}
                             }
                         },
                         on:{
                             query:function(e){
-                                this.set('source','/db/address/acStreetName.php?streetRef='+encodeURI(f.streetRef.get('value'))+'&streetName={query}&location='+f.location.get('value'));
+                                this.set('source','/db/address/acStreetName.php?streetName={query}&location='+f.location.get('value'));
                             }
                         }
                     });
@@ -265,23 +265,21 @@ YUI.add('jak-pod-address',function(Y){
                         resultTextLocator:function(result){return result[1];},
                         after:{
                             results:function(e){
-                                h.addressCreate.setStyle('display','none');
-                                if(e.data.length===0 &&
-                                   f.location.get('value')!=='' &&
-                                   f.streetName.get('value')!=='' &&
-                                   f.streetRef.get('value')!==''){
-                                    trigger.displayOptions();
-                                    h.addressCreate.show();
-                                }
                                 if(e.data.length===1){
-                                    d.params.address=e.results[0].raw[0];
+                                    cfg.address=e.results[0].raw[0];
                                     io.fetch.address();
+                                }else{
+                                    trigger.displayOptions();
                                 }
                             }
                         },
                         on:{
                             query:function(e){
                                 this.set('source','/db/address/acStreetRef.php?streetRef={query}&streetName='+encodeURI(f.streetName.get('value'))+'&location='+f.location.get('value'));
+                            },
+                            select:function(e){
+                                cfg.address=e.result.raw[0];
+                                io.fetch.address();
                             }
                         }
                     });
@@ -293,7 +291,7 @@ YUI.add('jak-pod-address',function(Y){
         trigger={
             addressData:function(){
                 return {
-                    id          :parseInt(f.id.get('value'),10),
+                    id          :cfg.address,
                     streetName  :f.streetName  .get('value'),
                     streetRef   :f.streetRef   .get('value'),
                     location    :f.location    .get('value'),
@@ -301,29 +299,31 @@ YUI.add('jak-pod-address',function(Y){
                 };
             },
             displayOptions:function(){
+                var address=trigger.addressData(),
+                    jobs   =f.jobs.get('innerHTML'),
+                    users  =f.users.get('innerHTML')
+                ;
                 h.addressSelect.hide();
                 h.addressCreate.hide();
                 h.addressDelete.hide();
-                f.jobs .setContent('');
-                f.users.setContent('');
-                //
-
-            },
-            onChange:function(e,field){
-                if(field==='state'){
-                    trigger.reset();
-                }else
-                if(field==='locationName'){
-                    f.streetName.set('value','');
-                    f.streetRef .set('value','');
-                }else
-                if(field==='streetName' &&
-                   f.streetName.get('value')===''){
-                    f.streetRef.set('value','');
-                    trigger.displayOptions();
+                if(!isNaN(cfg.address)){
+                    h.addressSelect.show();
+                    if(jobs==='' && users===''){
+                        h.addressDelete.show();
+                    }
+                }else{
+                    if(address.location  !=='' &&
+                       address.streetName!=='' &&
+                       address.streetRef !==''
+                    ){
+                        h.addressCreate.show();
+                    }
                 }
             },
             reset:function(){
+                h.addressSelect.hide();
+                h.addressCreate.hide();
+                h.addressDelete.hide();
                 f.location    .set('value','');
                 f.locationName.set('value','');
                 f.streetName  .set('value','');

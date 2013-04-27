@@ -6,8 +6,9 @@ namespace jak;
 
 function qa_getAnswer($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initResult($criteria);
+
     $cnd   = '';
     $limit = '';
 
@@ -44,8 +45,9 @@ function qa_getAnswer($criteria) {
 
 function qa_getPropPartAnswer($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initResult($criteria);
+
     $cnd   = '';
     $limit = '';
 
@@ -77,8 +79,9 @@ function qa_getPropPartAnswer($criteria) {
 
 function qa_getQuestion($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initResult($criteria);
+
     $cnd   = '';
     $limit = '';
 
@@ -105,8 +108,9 @@ function qa_getQuestion($criteria) {
 
 function qa_getQuestionMatrix($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initResult($criteria);
+
     $cnd   = '';
     $limit = '';
 
@@ -134,24 +138,12 @@ function qa_getQuestionMatrix($criteria) {
 function qa_setAnswer(&$i) {
     global $mysqli;
 
-    $r = initStep($i);
+    $r = initResult($i);
 
     if (!isset($i->data) &&
         !isset($i->remove)) {return null;}
 
-    if (isset($i->remove) && is_array($i->remove)) {
-        $answerIds = implode(',', $i->remove);
-        if ($stmt = $mysqli->prepare(
-            "delete from `answer`
-              where id in ($answerIds)"
-        )) {
-            $r->successDelete = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successDelete OR $r->errorDelete = $mysqli->error;
-            $stmt->close();
-        }
-        return $r;
-    }
+    remove('answer',$i);
 
     if (isset($i->data->id)) {
         if ($stmt = $mysqli->prepare(
@@ -198,24 +190,12 @@ function qa_setAnswer(&$i) {
 function qa_setPropPartAnswer(&$i) {
     global $mysqli;
 
-    $r = initStep($i);
+    $r = initResult($i);
 
     if (!isset($i->data) &&
         !isset($i->remove)) {return null;}
 
-    if (isset($i->remove) && is_array($i->remove)) {
-        $propPartAnswerIds = implode(',', $i->remove);
-        if ($stmt = $mysqli->prepare(
-            "delete from `propPartAnswer`
-              where id in ($propPartAnswerIds)"
-        )) {
-            $r->successDelete = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successDelete OR $r->errorDelete = $mysqli->error;
-            $stmt->close();
-        }
-        return $r;
-    }
+    remove('propPartAnswer', $i);
 
     if (isset($i->data->id) && $i->data->id != null) {
         if ($stmt = $mysqli->prepare(

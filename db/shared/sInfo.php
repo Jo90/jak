@@ -1,11 +1,9 @@
 <?php
-/** /db/prop/sPropPart.php
+/** /db/shared/sInfo.php
  *
  */
 namespace jak;
-
 require_once 'common.php';
-require_once '../shared/common.php';
 
 $post = json_decode(file_get_contents('php://input'));
 
@@ -14,10 +12,11 @@ foreach ($post as $i) {
     $r = initResult($i);
 
     if (!isset($i->criteria) &&
-        !isset($i->criteria->propPartIds)) {$r->log[] = 'parameter error'; continue;}
+        !isset($i->criteria->infoIds) &&
+        !isset($i->criteria->dbTable) &&
+        !isset($i->criteria->pks)) {$r->log[] = 'invalid parameters'; continue;}
 
-    $r->propPart = prop_getPropPart($i->criteria);
-
+    $r->info = shared_getInfo($i->criteria);
 }
 header('Content-type: text/plain');
 echo json_encode($post);

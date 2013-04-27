@@ -2,7 +2,9 @@
 /** /db/address/s.php
  *
  */
+
 namespace jak;
+
 require_once '../shared/common.php';
 require_once 'common.php';
 require_once '../job/common.php';
@@ -12,7 +14,7 @@ $post = json_decode(file_get_contents('php://input'));
 
 foreach ($post as $i) {
 
-    $r = initStep($i);
+    $r = initResult($i);
 
     if (!isset($i->criteria) &&
         !isset($i->criteria->addressIds)) {

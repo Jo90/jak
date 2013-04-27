@@ -63,7 +63,9 @@ YUI.add('jak-mod-calendar',function(Y){
 
         render={
             base:function(){
-                $(Y.Node.getDOMNode(cfg.node)).fullCalendar({
+                JAK.my.fc=$(Y.Node.getDOMNode(cfg.node))
+                ;
+                JAK.my.fc.fullCalendar({
                     allowCalEventOverlap:true,
                     allDayDefault:false,
                     contentHeight:500,

@@ -9,11 +9,11 @@ YUI.add('jak-pod-job',function(Y){
         ){cfg={};}
 
         cfg=Y.merge({
-            title      :'job',
-            width      :1000,
-            visible    :true,
-            xy         :[10,20],
-            zIndex     :99999
+            title   :'job',
+            width   :1000,
+            visible :true,
+            xy      :[10,20],
+            zIndex  :99999
         },cfg);
 
         this.info={
@@ -109,6 +109,11 @@ YUI.add('jak-pod-job',function(Y){
                             member  :JAK.user.usr
                         }])
                     });
+                }
+            },
+            insert:{
+                answer:function(){
+                    alert('duplicate - to do - must create immediately to allow notes to be attached....')
                 }
             },
             remove:{
@@ -242,9 +247,14 @@ YUI.add('jak-pod-job',function(Y){
             h.serviceSelect.on('change',trigger.filterServiceQuestions);
 
             h.answerList.delegate('click',trigger.answerFocus,'> li');
-            h.answerList.delegate('click',pod.display.note,'.jak-info');
+            h.answerList.delegate('click',pod.display.info,'.jak-info');
+            h.answerList.delegate('click',io.insert.answer,'.jak-dup');
+            h.answerList.delegate('click',function(){alert('remove not implemented yet');},'.jak-remove');
 
             h.save.on('click',io.save.job);
+
+            //custom
+                Y.on(JAK.my.podInfo.customEvent.save,pod.result.info);
         };
 
         pod={
@@ -254,10 +264,14 @@ YUI.add('jak-pod-job',function(Y){
                     if(!self.my.podAddress){pod.load.address();return false;}
                     self.my.podAddress.display({address:f.jobAddress.get('value')});
                 },
-                note:function(){
+                info:function(){
                     h.podInvoke=this;
-                    if(!self.my.podNote){pod.load.note();return false;}
-                    self.my.podNote.display({note:1}); //>>>>>>>>>FINISH replace 1
+                    JAK.my.podInfo.display({
+                        categories:['General','Feedback','Clarify','Warning'],
+                        dbTable   :JAK.data.dbTable['answer'].id,
+                        pk        :parseInt(this.ancestor('li').one('.jak-data-answer-id').get('value'),10),
+                        visible   :true
+                    });
                 },
                 propPart:function(){
                     h.podInvoke=this;
@@ -274,16 +288,6 @@ YUI.add('jak-pod-job',function(Y){
                             h.podInvoke.simulate('click');
                         });
                         Y.on(self.my.podAddress.customEvent.select,pod.result.address);
-                    });
-                },
-                note:function(){
-                    Y.use('jak-pod-note',function(Y){
-                        self.my.podNote=new Y.JAK.pod.note({});
-                        Y.JAK.whenAvailable.inDOM(self,'my.podNote',function(){
-                            self.my.podNote.set('zIndex',cfg.zIndex+10);
-                            h.podInvoke.simulate('click');
-                        });
-                        Y.on(self.my.podNote.customEvent.save,pod.result.note);
                     });
                 },
                 propPart:function(){
@@ -308,8 +312,11 @@ YUI.add('jak-pod-job',function(Y){
                         })
                     );
                 },
-                note:function(rs){
-
+                info:function(rs){
+                    var cnt=rs.info.record.length
+                    ;
+                    //update note count
+                    h.podInvoke.one('span').setContent(cnt===0?'':cnt);
                 },
                 propPart:function(rs){
                     var i=0
@@ -337,6 +344,7 @@ YUI.add('jak-pod-job',function(Y){
                 var rs             =Y.JSON.parse(o.responseText)[0].result,
                     addresses      =rs.address.data,
                     answers        =rs.answer.data,
+                    answerInfos    =rs.answerInfo.data,
                     propPartAnswers=rs.propPartAnswer.data,
                     jobs           =rs.job.data,
                     locations      =rs.location.data,
@@ -344,6 +352,7 @@ YUI.add('jak-pod-job',function(Y){
                     usrJobs        =rs.usrJob.data,
                     usrs           =rs.usr.data,
                     propPartAnswerData=[],
+                    answerNoteCount=0,
                     nn,
                     q,
                     row
@@ -386,12 +395,22 @@ YUI.add('jak-pod-job',function(Y){
                                 propPartAnswerData.push(propPartAnswer);
                             }
                         });
+
+                        answerNoteCount=0;
+                        Y.each(answerInfos,function(answerInfo){
+                            if(answerInfo.dbTable===JAK.data.dbTable['answer'].id &&
+                               answerInfo.pk===answer.id){
+                                answerNoteCount++;
+                           }
+                        });
+                        
                         nn=Y.Node.create(
                             render.answer({
                                 id        :answer.id,
                                 question  :answer.question,
                                 name      :q.name,
-                                code      :(q.codeType==='H'?q.code:'')
+                                code      :(q.codeType==='H'?q.code:''),
+                                notes     :(answerNoteCount===0?'':answerNoteCount)
                             })
                         );
                         h.answerList.append(nn);
@@ -551,19 +570,15 @@ YUI.add('jak-pod-job',function(Y){
                       +  '{code}'
                       +  Y.JAK.html('btn',{action:'remove',title:'remove'})
                       +  Y.JAK.html('btn',{action:'dup',title:'duplicate'})
-                      +  Y.JAK.html('btn',{action:'info',title:'notes'})
-                      +'</li>',
-                    noParameters=typeof p==='undefined'
+                      +  Y.JAK.html('btn',{action:'info',title:'notes',label:p.notes})
+                      +'</li>'
                 ;
-                return noParameters
-                    ?html
-                    :Y.Lang.sub(html,{
-                        'id'      :p.id,
-                        'question':p.question,
-                        'name'    :p.name,
-                        'code'    :p.code
-                    })
-                ;
+                return Y.Lang.sub(html,{
+                    'id'      :p.id,
+                    'question':p.question,
+                    'name'    :p.name,
+                    'code'    :p.code
+                });
             },
             propPart:function(p){
                 var html='<li>'

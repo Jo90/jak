@@ -8,9 +8,8 @@ namespace jak;
 require_once 'jak-config.php';
 
 $post = json_decode(file_get_contents('php://input'));
-if (!isset($_REQUEST['streetRef'], $_REQUEST['streetName'], $_REQUEST['location'])) {exit;}
+if (!isset($_REQUEST['streetName'], $_REQUEST['location'])) {exit;}
 
-$streetRef  = $_REQUEST['streetRef' ] . '%';
 $streetName = $_REQUEST['streetName'] . '%';
 $location   = $_REQUEST['location'  ];
 $data       = new \stdClass;
@@ -19,9 +18,6 @@ $limit      = 'limit 10';
 
 if ($location != '') {
     $cnd = 'and location = ' . $location;
-}
-if ($streetRef != '') {
-    $cnd .= ' and streetRef like "' . $streetRef . '%"';
 }
 
 if (isset($criteria->rowLimit)) {

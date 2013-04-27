@@ -1,10 +1,9 @@
 <?php
 /** /db/usr/s.php
  *
- *  JAK
- *
  */
-namespace kc;
+namespace jak;
+
 require_once 'common.php';
 require_once '../shared/common.php';
 require_once '../usr/common.php';
@@ -14,7 +13,7 @@ if (!isset($post)) {exit('{"error":"insufficient parameters"}');}
 
 foreach ($post as $i) {
 
-    $r = initStep($i);
+    $r = initResult($i);
 
     if (!isset($i->criteria, $i->criteria->usrIds)) {continue;}
 

@@ -4,13 +4,13 @@
  */
 namespace jak;
 
-require_once '../prop/common.php';
 require_once '../shared/common.php';
+require_once '../prop/common.php';
 
 function job_getJob($criteria) {
     global $mysqli;
 
-    $r = initStep($criteria);
+    $r = initResult($criteria);
 
     $cnd   = '';
     $limit = '';
@@ -51,7 +51,7 @@ function job_getJob($criteria) {
 function job_getPropPart($criteria) {
     global $mysqli;
 
-    $r = initStep($criteria);
+    $r = initResult($criteria);
 
     $cnd   = '';
     $limit = '';
@@ -85,26 +85,14 @@ function job_getPropPart($criteria) {
 function job_setJob(&$i) {
     global $mysqli;
 
-    $r = initStep($i);
+    $r = initResult($i);
 
     if (!isset($i->data) &&
         !isset($i->create) &&
         !isset($i->remove) &&
         !isset($i->duplicate)) {return null;}
 
-    if (isset($i->remove) && is_array($i->remove)) {
-        $jobIds = implode(',', $i->remove);
-        if ($stmt = $mysqli->prepare(
-            "delete from `job`
-              where id in ($jobIds)"
-        )) {
-            $r->successDelete = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successDelete OR $r->errorDelete = $mysqli->error;
-            $stmt->close();
-        }
-        return $r;
-    }
+    remove('job',$i);
 
     if (isset($i->data->id)) {
         if ($stmt = $mysqli->prepare(
@@ -297,24 +285,12 @@ function job_setJob(&$i) {
 function job_setPropPart(&$i) {
     global $mysqli;
 
-    $r = initStep($i);
+    $r = initResult($i);
 
     if (!isset($i->data) &&
         !isset($i->remove)) {return null;}
 
-    if (isset($i->remove) && is_array($i->remove)) {
-        $propPartIds = implode(',', $i->remove);
-        if ($stmt = $mysqli->prepare(
-            "delete from `propPart`
-              where id in ($propPartIds)"
-        )) {
-            $r->successDelete = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successDelete OR $r->errorDelete = $mysqli->error;
-            $stmt->close();
-        }
-        return $r;
-    }
+    remove('propPart', $i);
 
     if (isset($i->data->id)) {
         if ($stmt = $mysqli->prepare(

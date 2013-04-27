@@ -1,8 +1,6 @@
 <?php
 /** /index.js.php
  *
- *  JAK
- *
  */
 namespace jak;
 require_once 'jak-config.php';
@@ -20,15 +18,10 @@ JAK={
     rs:{},              //result sets
     std:{               //standards
         format:{
-            date    :'d MMM yyyy',
-            dateDM  :'d MMM',
-            dateDMY :'ddMMyy',
-            datetime:'dMMMyy h:mmtt',
-            email   :/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/,
-            time    :'h:mmtt'
+            email   :/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/
         }
     },
-    user:{},            //user info
+    user:{}
 };
 //conditional constants
 <?php
@@ -55,8 +48,9 @@ echo 'JAK.user.SALT="' , $_SESSION[JAK_SALT] , '";' , PHP_EOL;
 //debug YUI({filter:'raw',
 YUI({<?php require 'jak-modules.inc'; ?>}).use(
     'jak-pod-userLogon',
+    'jak-pod-info',
     'jak-pod-job',
-    'jak-widget-dialogMask',
+    'jak-widget',
     function(Y){
 
         Y.on('error',function(type,msg){
@@ -91,6 +85,16 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                         ]
                     }).render('.jak-tabs');
 
+                    //on select calendar tab
+                    JAK.my.tabView.after('selectionChange',function(e){
+                        if(e.newVal.get('label')==='Calendar'){
+                            //can render only when visible - slight delay
+                            setTimeout(function(){
+                                JAK.my.fc.fullCalendar('render');
+                            },300);
+                        }
+                    });
+
                 //dashboard
                     h.tv.das=JAK.my.tabView.item(0);
                     h.tp.das=h.tv.das.get('panelNode');
@@ -98,14 +102,15 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                         h.myDashboard=new Y.JAK.mod.dashboard({node:h.tp.das});
                     });
 
-                //instantiate reusable pods
-                    JAK.my.podJob=new Y.JAK.pod.job({visible:false});
+                //reusable
+                    JAK.my.podJob =new Y.JAK.pod.job({visible:false});
+                    JAK.my.podInfo=new Y.JAK.pod.info({visible:false});
 
                 //panels
                     my.panelBuild=function(){
 
                         //calendar
-                            JAK.my.tabView.add({label:'Calendar',content:'Calendar',index:1},1);
+                            JAK.my.tabView.add({label:'Calendar',content:'',index:1},1);
                             h.tv.cal=JAK.my.tabView.item(1);
                             h.tp.cal=h.tv.cal.get('panelNode');
 
@@ -132,6 +137,7 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                             h.tp.rep=h.tv.rep.get('panelNode');
 
                     };
+
                     my.panelDestroy=function(){
                         JAK.my.tabView.remove(4);JAK.my.tabView.remove(3);JAK.my.tabView.remove(2);JAK.my.tabView.remove(1);
                         delete h.tv.cal,h.tv.job,h.tv.chk,h.tv.rep,h.tp.cal,h.tp.job,h.tp.chk,h.tp.rep;

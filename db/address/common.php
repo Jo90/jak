@@ -4,10 +4,12 @@
  */
 namespace jak;
 
+require_once '../shared/common.php';
+
 function addr_getAddress($criteria) {
     global $mysqli;
 
-    $r = initStep($criteria);
+    $r = initResult($criteria);
 
     $cnd   = '';
     $limit = '';
@@ -42,7 +44,7 @@ function addr_getAddress($criteria) {
 function addr_getLocation($criteria) {
     global $mysqli;
 
-    $r = initStep($criteria);
+    $r = initResult($criteria);
 
     $cnd   = '';
     $limit = '';
@@ -72,25 +74,13 @@ function addr_getLocation($criteria) {
 function addr_setAddress(&$i) {
     global $mysqli;
 
-    $r = initStep($i);
+    $r = initResult($i);
 
     $cnd   = '';
     $limit = '';
 
-    //criteria
-    if (isset($i->remove) && is_array($i->remove)) {
-        $addressIds = implode(',', $i->remove);
-        if ($stmt = $mysqli->prepare(
-            "delete from `address`
-              where id in ($addressIds)"
-        )) {
-            $r->successDelete = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successDelete OR $r->errorDelete = $mysqli->error;
-            $stmt->close();
-        }
-        return $r;
-    }
+    remove('address', $i);
+
     if (isset($criteria->data->id)) {
         if ($stmt = $mysqli->prepare(
             "update `address`

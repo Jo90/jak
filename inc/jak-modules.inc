@@ -18,8 +18,6 @@ modules:{
             'datatable-sort',
             'dd',
             'event-outside',
-            'jak-utl-date',
-            'jak-widget',
             'jak-yui3-sugar',
             'node-event-simulate',
             'overlay',
@@ -41,14 +39,6 @@ modules:{
     /**
      * css
      */
-    'jak-css-calendar':{
-        fullpath:'/css/widget/calendar.css', 
-        type:'css'
-    },
-    'jak-css-dialogMask':{
-        fullpath:'/css/widget/dialogMask.css',
-        type:'css'
-    },
     'jak-css-mod-job':{
         fullpath:'/css/mod/job.css',
         type:'css'
@@ -65,10 +55,6 @@ modules:{
         fullpath:'/css/pod/job.css',
         type:'css'
     },
-    'jak-css-pod-note':{
-        fullpath:'/css/pod/note.css',
-        type:'css'
-    },
     'jak-css-pod-propPart':{
         fullpath:'/css/pod/propPart.css',
         type:'css'
@@ -83,6 +69,14 @@ modules:{
     },
     'jak-css-pod-userLogon':{
         fullpath:'/css/pod/userLogon.css',
+        type:'css'
+    },
+    'jak-css-calendar':{
+        fullpath:'/css/widget/calendar.css',
+        type:'css'
+    },
+    'jak-css-dialogMask':{
+        fullpath:'/css/widget/dialogMask.css',
         type:'css'
     },
     /**
@@ -128,13 +122,13 @@ modules:{
         fullpath:'/pod/address.js',
         requires:['jak-common','jak-css-pod-address']
     },
+    'jak-pod-info':{
+        fullpath:'/pod/info.js',
+        requires:['jak-common','jak-css-pod-info']
+    },
     'jak-pod-job':{
         fullpath:'/pod/job.js',
         requires:['jak-common','jak-css-pod-job']
-    },
-    'jak-pod-note':{
-        fullpath:'/pod/note.js',
-        requires:['jak-common','jak-css-pod-note']
     },
     'jak-pod-propPart':{
         fullpath:'/pod/propPart.js',

@@ -11,9 +11,11 @@
  * 
  */
 namespace jak;
+
 if (!isset($_SESSION)) {session_start();}
 //php session timeout 30 mins
 ini_set('session.gc_maxlifetime',30*60);
+
 /**
  * NAMED CONSTANTS
  */

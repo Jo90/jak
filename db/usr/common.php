@@ -4,7 +4,7 @@
  */
 namespace jak;
 
-require_once '../shared/common.php';
+require_once ROOT . '/db/shared/common.php';
 
 function usr_getUsr($criteria) {
     global $mysqli;

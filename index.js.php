@@ -43,6 +43,7 @@ $i         = 40;
 while ($i--) {$randomStr .= substr($seed,rand(0,$seedLen),1);}
 $_SESSION[JAK_SALT] = $randomStr;
 echo 'JAK.user.SALT="' , $_SESSION[JAK_SALT] , '";' , PHP_EOL;
+
 ?>
 
 //debug YUI({filter:'raw',

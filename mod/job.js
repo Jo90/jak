@@ -127,6 +127,7 @@ YUI.add('jak-mod-job',function(Y){
             h.bd.delegate('click',io.fetch.job,'.jak-search');
             h.addJob.on('click',io.insert.job);
             h.dt.get('contentBox').delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
+            h.dt.get('contentBox').delegate('click',trigger.report,'.jak-rep',null,'duplicate');
             h.dt.get('contentBox').delegate('click',io.insert.job,'.jak-dup',null,'duplicate');
             h.dt.get('contentBox').delegate('click',io.remove.job,'.jak-remove');
             //custom
@@ -187,6 +188,8 @@ YUI.add('jak-mod-job',function(Y){
                                        :'<span>'+moment.unix(job.reminder).format('DDMMMYY hh:mma')+'</span>',
                         usr        :usrInfo.join(','),
                         address    :job.address,
+                        report     :Y.JAK.html('btn',{action:'rep',title:'summary',classes:'jak-rep-summary'})
+                                   +Y.JAK.html('btn',{action:'rep',title:'details',classes:'jak-rep-detail'}),
                         actions    :Y.JAK.html('btn',{action:'dup',title:'duplicate'})
                                    +Y.JAK.html('btn',{action:'remove',title:'remove'})
                     });
@@ -346,6 +349,7 @@ YUI.add('jak-mod-job',function(Y){
                         {key:'confirmed'  ,label:'Confirmed'  ,allowHTML:true},
                         {key:'reminder'   ,label:'Reminder'   ,allowHTML:true},
                         {key:'usr'        ,label:'Clients'    },
+                        {key:'report'     ,label:'Reports'    ,allowHTML:true},
                         {key:'actions'    ,label:''           ,allowHTML:true}
                     ],
                     data    :[],
@@ -356,6 +360,10 @@ YUI.add('jak-mod-job',function(Y){
         };
 
         trigger={
+            report:function(){
+                if(this.hasClass('jak-rep-summary')){alert('summary');}
+                if(this.hasClass('jak-rep-detail')){alert('detail');}
+            },
             selectGridCell:function(e){
                 if(this.hasClass('yui3-datatable-col-job')||
                    this.hasClass('yui3-datatable-col-appointment')||

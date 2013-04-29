@@ -1,5 +1,5 @@
 <?php
-/** /db/prop/iud.php
+/** //db/prop/iud.php
  *
  */
 namespace jak;

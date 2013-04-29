@@ -1,5 +1,5 @@
 <?php
-/** /db/address/common.php
+/** //db/address/common.php
  *
  */
 namespace jak;

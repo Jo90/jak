@@ -1,12 +1,12 @@
 <?php
-/** /db/shared/iudInfo.php
+/** //db/shared/iudInfo.php
  *
  */
 namespace jak;
+
 require_once 'common.php';
 
 $post = json_decode(file_get_contents('php://input'));
-if (!isset($post)) {exit('{"error":"insufficient parameters"}');}
 
 foreach ($post as $i) {
 

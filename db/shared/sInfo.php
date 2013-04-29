@@ -1,8 +1,9 @@
 <?php
-/** /db/shared/sInfo.php
+/** //db/shared/sInfo.php
  *
  */
 namespace jak;
+
 require_once 'common.php';
 
 $post = json_decode(file_get_contents('php://input'));

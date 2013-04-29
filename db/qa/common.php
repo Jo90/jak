@@ -1,5 +1,5 @@
 <?php
-/** /db/qa/common.php
+/** //db/qa/common.php
  *
  */
 namespace jak;

@@ -1,8 +1,7 @@
 <?php
-/** /db/address/s.php
+/** //db/address/s.php
  *
  */
-
 namespace jak;
 
 require_once '../shared/common.php';

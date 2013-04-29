@@ -59,6 +59,10 @@ modules:{
         fullpath:'/css/pod/propPart.css',
         type:'css'
     },
+    'jak-css-pod-rep':{
+        fullpath:'/css/pod/rep.css',
+        type:'css'
+    },
     'jak-css-pod-usr':{
         fullpath:'/css/pod/usr.css',
         type:'css'
@@ -103,7 +107,7 @@ modules:{
     },
     'jak-mod-job':{
         fullpath:'/mod/job.js',
-        requires:['jak-common','jak-css-mod-job']
+        requires:['jak-common','jak-css-mod-job','jak-pod-rep']
     },
     /**
      * plugins
@@ -137,6 +141,10 @@ modules:{
     'jak-pod-userLogon':{
         fullpath:'/pod/userLogon.php',
         requires:['jak-common','jak-css-pod-userLogon','jak-js-sha1']
+    },
+    'jak-pod-rep':{
+        fullpath:'/pod/rep.js',
+        requires:['jak-common','jak-css-pod-rep']
     },
     'jak-pod-usr':{
         fullpath:'/pod/usr.php',

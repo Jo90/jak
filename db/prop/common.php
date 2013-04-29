@@ -6,8 +6,9 @@ namespace jak;
 
 function prop_getPropPartType($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initResult($i);
+
     $cnd   = '';
     $limit = '';
 
@@ -34,8 +35,9 @@ function prop_getPropPartType($criteria) {
 
 function prop_getPropTemplate($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initResult($i);
+
     $cnd   = '';
     $limit = '';
 
@@ -62,8 +64,9 @@ function prop_getPropTemplate($criteria) {
 
 function prop_getPropTemplatePart($criteria) {
     global $mysqli;
-    $r = new \stdClass;
-    $r->criteria = $criteria;
+
+    $r = initResult($i);
+
     $cnd   = '';
     $limit = '';
 

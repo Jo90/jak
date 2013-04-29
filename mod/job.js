@@ -361,8 +361,18 @@ YUI.add('jak-mod-job',function(Y){
 
         trigger={
             report:function(){
-                if(this.hasClass('jak-rep-summary')){alert('summary');}
-                if(this.hasClass('jak-rep-detail')){alert('detail');}
+                if(this.hasClass('jak-rep-summary')){
+                    JAK.my.podRep.display({
+                        html   :'<h2>summary</h2>blurb,.....',
+                        visible:true
+                    });
+                }
+                if(this.hasClass('jak-rep-detail')){
+                    JAK.my.podRep.display({
+                        html   :'<h1>details</h1>',
+                        visible:true
+                    });
+                }
             },
             selectGridCell:function(e){
                 if(this.hasClass('yui3-datatable-col-job')||

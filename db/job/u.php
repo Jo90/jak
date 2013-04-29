@@ -3,6 +3,7 @@
  *
  */
 namespace jak;
+
 require_once 'common.php';
 require_once '../shared/common.php';
 require_once '../qa/common.php';

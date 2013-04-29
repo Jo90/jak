@@ -51,6 +51,7 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
     'jak-pod-userLogon',
     'jak-pod-info',
     'jak-pod-job',
+    'jak-pod-rep',
     'jak-widget',
     function(Y){
 
@@ -104,8 +105,9 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                     });
 
                 //reusable
-                    JAK.my.podJob =new Y.JAK.pod.job({visible:false});
                     JAK.my.podInfo=new Y.JAK.pod.info({visible:false});
+                    JAK.my.podJob =new Y.JAK.pod.job({visible:false});
+                    JAK.my.podRep =new Y.JAK.pod.rep({visible:false});
 
                 //panels
                     my.panelBuild=function(){

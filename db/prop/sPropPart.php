@@ -1,5 +1,5 @@
 <?php
-/** /db/prop/sPropPart.php
+/** //db/prop/sPropPart.php
  *
  */
 namespace jak;

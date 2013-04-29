@@ -129,21 +129,16 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
                                 h.myJob=new Y.JAK.mod.job({node:h.tp.job});
                             });
 
-                        //check sheets
-                            JAK.my.tabView.add({label:'Check sheets',content:'',index:3},3);
-                            h.tv.chk=JAK.my.tabView.item(3);
-                            h.tp.chk=h.tv.chk.get('panelNode');
-
                         //reports
-                            JAK.my.tabView.add({label:'Reports',content:'',index:4},4);
-                            h.tv.rep=JAK.my.tabView.item(4);
+                            JAK.my.tabView.add({label:'Reports',content:'Consolidated reports...',index:3},3);
+                            h.tv.rep=JAK.my.tabView.item(3);
                             h.tp.rep=h.tv.rep.get('panelNode');
 
                     };
 
                     my.panelDestroy=function(){
-                        JAK.my.tabView.remove(4);JAK.my.tabView.remove(3);JAK.my.tabView.remove(2);JAK.my.tabView.remove(1);
-                        delete h.tv.cal,h.tv.job,h.tv.chk,h.tv.rep,h.tp.cal,h.tp.job,h.tp.chk,h.tp.rep;
+                        JAK.my.tabView.remove(3);JAK.my.tabView.remove(2);JAK.my.tabView.remove(1);
+                        delete h.tv.cal,h.tv.job,h.tv.chk,h.tv.rep,h.tp.cal,h.tp.job,h.tp.rep;
                     };
 
                 //listeners

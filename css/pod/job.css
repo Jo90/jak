@@ -6,6 +6,8 @@
 
 .jak-pod-job .yui3-widget-bd {overflow:hidden;}
 
+.jak-pod-job li:nth-child(odd) {background:#ddd;}
+
 .jak-pod-job .jak-address {display:inline-block;width:20em;float:left;height:3em;}
 .jak-pod-job .jak-data-id  {width:3em;}
 .jak-pod-job .jak-data-ref {width:4em;}
@@ -14,12 +16,14 @@
 
 .jak-pod-job a.jak-btn.jak-info > span {font-size:0.8em;font-weight:bold;color:#8A0808;}
 
-.jak-pod-job .jak-section-propPart {clear:both;width:27em;float:left;}
-.jak-pod-job .jak-list-propPart,
-.jak-pod-job .jak-section-question ul,
-.jak-pod-job .jak-section-answer ul {list-style-type:none;}
+.jak-pod-job .jak-section-propPart {clear:both;float:left;}
+.jak-pod-job .jak-section-propPartAnswer {float:left;width:4em;}
 
-.jak-pod-job .jak-section-question .jak-focus {font-weight:bold;color:#08088A;}
+.jak-pod-job .jak-list-propPart,
+.jak-pod-job .jak-list-propPartAnswer,
+.jak-pod-job .jak-list-answer {list-style-type:none;}
+
+.jak-pod-job .jak-focus {font-weight:bold;color:#08088A;background-color:#DDF6CE !important;}
 
 .jak-pod-job .jak-data-jobService-fee {width:4em;}
 

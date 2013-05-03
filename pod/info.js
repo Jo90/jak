@@ -48,6 +48,7 @@ YUI.add('jak-pod-info',function(Y){
             //display
                 Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
                 h.ol.show();
+                self.set('title',cfg.title);
                 self.set('visible',cfg.visible);
             d.action==='fetch'
                 ?io.fetch.info(p)
@@ -59,6 +60,7 @@ YUI.add('jak-pod-info',function(Y){
         };
         this.set=function(what,value){
             if(what==='cfg'    ){cfg=Y.merge(cfg,value);}
+            if(what==='title'  ){h.hd.one('span').set('innerHTML',value);}
             if(what==='visible'){h.ol.set('visible',value);}
             if(what==='zIndex' ){h.ol.set('zIndex',value);}
         };
@@ -188,7 +190,7 @@ YUI.add('jak-pod-info',function(Y){
             base:function(){
                 h.ol=new Y.Overlay({
                     headerContent:
-                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAKPS">'+self.info.title+'</span> '
+                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAK">'+self.info.title+'</span> '
                        +Y.JAK.html('btn',{action:'add',title:'add'})
                        +Y.JAK.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:'<ul></ul>',

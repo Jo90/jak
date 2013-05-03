@@ -170,9 +170,7 @@ YUI.add('jak-mod-job',function(Y){
                         });
                     });
                     h.dt.addRow({
-                        job        :'<em title="Job #'+job.id+' created '+moment.unix(job.created).format('DD MMM YYYY hh:mm a')+'">'
-                                    +job.id
-                                    +'</em>',
+                        job        :'<input type="button" title="Job #'+job.id+' created '+moment.unix(job.created).format('DD MMM YYYY hh:mm a')+'" value="'+job.id+'" />',
                         ref        :job.ref,
                         streetRef  :job.address===null?'':addresses[job.address].streetRef,
                         streetName :job.address===null?'':addresses[job.address].streetName,
@@ -380,7 +378,7 @@ YUI.add('jak-mod-job',function(Y){
                    this.hasClass('yui3-datatable-col-confirmed')||
                    this.hasClass('yui3-datatable-col-reminder')
                 ){
-                    pod.display.job({job:parseInt(this.ancestor('tr').one('.yui3-datatable-col-job em').get('innerHTML'),10)});
+                    pod.display.job({job:parseInt(this.ancestor('tr').one('.yui3-datatable-col-job input').get('value'),10)});
                 }
                 if(this.hasClass('yui3-datatable-col-streetRef')||this.hasClass('yui3-datatable-col-streetName')||this.hasClass('yui3-datatable-col-location')){
                     alert('address');
@@ -390,14 +388,10 @@ YUI.add('jak-mod-job',function(Y){
         /**
          *  load & initialise
          */
-        Y.JAK.dataSet.fetch([
-        ],function(){
-
-            render.base();
-            initialise();
-            listeners();
-
-        });
+        render.base();
+        initialise();
+        listeners();
+        h.bd.one('.jak-search-last-jobs').simulate('click');
     };
 
 },'1.0 March 2013',{requires:['base','io','node']});

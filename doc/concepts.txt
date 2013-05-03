@@ -1,0 +1,81 @@
+Amelita: Discussion with John 30th April, Joe 1st May
+
+are sub-parts mutually exclusive?  If not - how?  If so, then 
+
+1. Categorise property parts.
+        Following is for building report (4349.1)
+        i.e. interior, exterior, subfloor, roof space, roof exterior, site
+
+        INTERIOR
+                ceilings,
+                walls,
+                floors,
+                windows,
+                doors,
+                kitchen,
+                laundry,
+                bathroom,
+                ensuite,
+                shower/wc,
+                stairs,
+                Services
+                        smoke detectors,
+                                located, not installed, damaged
+                                        ARE SMOKE DETECTORS SUPPOSE TO BE INSTALLED IN SPECIFIC PROPERTY PARTS E.G. KITCHEN?
+                                        IF YES, THIS CAN BECOME A QUESTION.
+                        electrical,
+                                different possible answers
+                        plumbing,
+                        fireplace
+
+        EXTERIOR
+                walls,
+                windows,
+                paint,
+                include 'Attatchments' in here
+
+        SUBFLOOR
+                slab
+                crawl space (timber)
+                        shower leaking rot damage, etc
+                Termite Shields                 - relevant to all inspection reports
+                Subfloor drainage               - relevant to all inspection reports
+                Subfloor ventilation    - relevant to all inspection reports
+
+        ROOF SPACE
+                possible answers
+
+        ROOF EXTERIOR
+                possible answers
+
+        SITE
+                outbuildings,
+                car accommodation,
+                retaining walls,
+                paths/driveways,
+                fences,
+                surface water drainage
+
+        CRACKING TO BUILDING MEMBERS
+                Implement as a tag?
+
+
+
+        Following is for building report (4349.3)
+        i.e. subterranean termites
+
+        SUBTERRANEAN TERMITES - THIS CAN BE EXTRA QA WHEN CLICKING ON 4349.3
+
+                ceilings,               (check boxes to indicate if termites are found, major safety hazard)
+                                                TYPES OF TERMITE - SELECT BOX
+                                                SEVERITY OF DAMAGE - SELECT BOX
+                walls,                  (check boxes to indicate if termites are found, major safety hazard)
+                floors,                 (check boxes to indicate if termites are found, major safety hazard)
+                windows,                (check boxes to indicate if termites are found, major safety hazard)
+                doors,                  (check boxes to indicate if termites are found, major safety hazard)
+                kitchen,                (check boxes to indicate if termites are found, major safety hazard)
+                laundry,                (check boxes to indicate if termites are found, major safety hazard)
+                bathroom,               (check boxes to indicate if termites are found, major safety hazard)
+                ensuite,                (check boxes to indicate if termites are found, major safety hazard)
+                shower/wc,              (check boxes to indicate if termites are found, major safety hazard)
+                stairs                  (check boxes to indicate if termites are found, major safety hazard)

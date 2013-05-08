@@ -19,9 +19,7 @@
 .jak-pod-job .jak-section-propPart {clear:both;float:left;}
 .jak-pod-job .jak-section-propPartAnswer {float:left;width:4em;}
 
-.jak-pod-job .jak-list-propPart,
-.jak-pod-job .jak-list-propPartAnswer,
-.jak-pod-job .jak-list-answer {list-style-type:none;}
+.jak-pod-job ul {list-style-type:none;}
 
 .jak-pod-job .jak-focus {font-weight:bold;color:#08088A;background-color:#DDF6CE !important;}
 

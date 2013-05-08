@@ -32,53 +32,37 @@ foreach ($post as $i) {
     if (isset($i->criteria->location, $i->criteria->streetName, $i->criteria->streetRef)) {
         $temp = addr_getAddress($i->criteria);
         $i->criteria->addressIds  = array();
-        foreach ($temp->data as $d) {
-            $i->criteria->addressIds[] = $d->id;
-        }
+        foreach ($temp->data as $d) {$i->criteria->addressIds[] = $d->id;}
     } else
 
     if (isset($i->criteria->firstName, $i->criteria->lastName)) {
         $temp = usr_getUsr($i->criteria);
         $i->criteria->usrIds = array();
-        foreach ($temp->data as $d) {
-            $i->criteria->usrIds[] = $d->id;
-        }
+        foreach ($temp->data as $d) {$i->criteria->usrIds[] = $d->id;}
         $temp = usr_getUsrJob($i->criteria);
-        foreach ($temp->data as $d) {
-            $i->criteria->jobIds[] = $d->job;
-        }
+        foreach ($temp->data as $d) {$i->criteria->jobIds[] = $d->job;}
     }
 
     $r->job = job_getJob($i->criteria);
 
-    foreach ($r->job->data as $d) {
-        if ($d->address != '') {$i->criteria->addressIds[] = $d->address;}
-    }
+    foreach ($r->job->data as $d) {if ($d->address != '') {$i->criteria->addressIds[] = $d->address;}}
     $r->address = addr_getAddress($i->criteria);
     $i->criteria->locationIds = array();
-    foreach ($r->address->data as $d) {
-        $i->criteria->locationIds[] = $d->location;
-    }
+    foreach ($r->address->data as $d) {$i->criteria->locationIds[] = $d->location;}
     $r->location = addr_getLocation($i->criteria);
 
     $r->usrJob = usr_getUsrJob($i->criteria);
-    foreach ($r->usrJob->data as $d) {
-        $i->criteria->usrIds[] = $d->usr;
-    }
+    foreach ($r->usrJob->data as $d) {$i->criteria->usrIds[] = $d->usr;}
     $r->usr = usr_getUsr($i->criteria);
     
     $r->propPart = job_getPropPart($i->criteria);
 
     $i->criteria->propPartIds = array();
-    foreach ($r->propPart->data as $d) {
-        $i->criteria->propPartIds[] = $d->id;
-    }
+    foreach ($r->propPart->data as $d) {$i->criteria->propPartIds[] = $d->id;}
     
     $r->propPartAnswer = qa_getPropPartAnswer($i->criteria);
     $i->criteria->answerIds = array();
-    foreach ($r->propPartAnswer->data as $d) {
-        $i->criteria->answerIds[] = $d->answer;
-    }
+    foreach ($r->propPartAnswer->data as $d) {$i->criteria->answerIds[] = $d->answer;}
 
     $r->answer = qa_getAnswer($i->criteria);
 

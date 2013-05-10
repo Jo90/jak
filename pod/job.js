@@ -74,8 +74,9 @@ YUI.add('jak-pod-job',function(Y){
             h.bb.addClass('jak-pod-'+self.info.id);
             new Y.DD.Drag({node:h.bb,handles:[h.hd,h.ft]});
             //prop part filter
-                propPartTypeCategory['All']=1;
-                propPartTypeCategory['General']=1;
+                //ensure display order
+                    propPartTypeCategory['All']=1;
+                    propPartTypeCategory['General']=1;
                 Y.each(JAK.data.propPartType,function(propPartType){
                     propPartTypeCategory[propPartType.category]=1;
                 });
@@ -83,7 +84,7 @@ YUI.add('jak-pod-job',function(Y){
                     h.propPartFilter.append('<option>'+id+'</option>');
                 });
             //answer filter and non general services
-                h.answerFilter.append('<option>Property part specific</option>');
+                h.answerFilter.append('<option value="0">All</option>');
                 Y.each(JAK.data.service,function(service){
                     h.answerFilter.append('<option value="'+service.id+'">'+service.name+'</option>');
                     //exclude general from job services
@@ -256,11 +257,10 @@ YUI.add('jak-pod-job',function(Y){
             });
             //job
                 f.jobAddressDetail.on('click',pod.display.address);
-                h.displayServices.on('click',trigger.showHide.services);
-            //notes
-                h.bd.delegate('click' ,pod.display.info,'.jak-info');
+            //all
+                h.bd.delegate('click',pod.display.info,'.jak-info');
+                h.bd.delegate('click',trigger.showHide,'.jak-eye');
             //property parts
-                h.propPartSection.one('> legend > a').on('click',trigger.showHide.propPartExtension);
                 h.propPartSection.delegate('click',pod.display.propPart,'.jak-add');
                 h.propPartFilter.on('change',trigger.filter.propPart);
                 h.propPartList.delegate('click',io.remove.propPart,'.jak-remove');
@@ -529,29 +529,38 @@ YUI.add('jak-pod-job',function(Y){
                             +  '<option>wet</option>'
                             +  '<option>dark</option>'
                             +'</select>'
+                        //display
+                            +'<span class="jak-section jak-section-display">'
+                            +  ' &nbsp; ['
+                            +    Y.JAK.html('btn',{action:'eye',title:'change view',classes:'jak-eye-open jak-display-service',label:'services'})
+                            +    ' &nbsp;'
+                            +    Y.JAK.html('btn',{action:'eye',title:'change view',classes:'jak-eye-open jak-display-details',label:'details'})
+                            +  ']'
+                            +'</span>'
                         //services
-                            +'<input type="button" class="jak-display-services" value="hide services" />'
                             +'<fieldset class="jak-list-service">'
                             +  '<legend>services</legend>'
                             +'</fieldset>'
-                        +'<div>'
+                        +'<div class="jak-section-details">'
                         //property parts
                             +  '<fieldset class="jak-section jak-section-propPart">'
-                            +    '<legend>property &nbsp;'
+                            +    '<legend>'
+                            +      Y.JAK.html('btn',{action:'eye',label:'property&nbsp;',title:'change view',classes:'jak-eye-open'})
                             +      '<select></select>'
-                            +      ' &nbsp; (<a class="jak-min-max" href="#">collapse</a>)'
                             +    '</legend>'
                             +    '<ul></ul>'
                             +  '</fieldset>'
                         //property part answer associations
                             +  '<fieldset class="jak-section jak-section-propPartAnswer">'
-                            +    '<legend>link</legend>'
+                            +    '<legend>'
+                            +      Y.JAK.html('btn',{action:'eye',label:'link&nbsp;',title:'change view',classes:'jak-eye-open'})
+                            +    '</legend>'
                             +    '<ul></ul>'
                             +  '</fieldset>'
                         //question/answers
                             +  '<fieldset class="jak-section jak-section-answer">'
                             +    '<legend>'
-                            +      'statement'
+                            +      Y.JAK.html('btn',{action:'eye',label:'statement&nbsp;',title:'change view',classes:'jak-eye-open'})
                             +      '<select></select>'
                             +      Y.JAK.html('btn',{action:'save',title:'save',label:'save'})
                             +    '</legend>'
@@ -583,6 +592,8 @@ YUI.add('jak-pod-job',function(Y){
                     h.displayServices =h.bd.one('.jak-display-services');
                     h.serviceList     =h.bd.one('.jak-list-service');
                     
+                    h.detailsSection  =h.bd.one('> .jak-section-details');
+
                     h.propPartSection =h.bd.one('.jak-section-propPart');
                     h.propPartFilter  =h.propPartSection.one('> legend > select');
                     h.propPartList    =h.propPartSection.one('> ul');
@@ -667,7 +678,7 @@ YUI.add('jak-pod-job',function(Y){
         trigger={
             filter:{
                 answer:function(){
-                    var serviceId=parseInt(this.get('value'),10),
+                    var answerFilterValue=parseInt(this.get('value'),10),
                         hasService,
                         serviceHasQuestion=function(service,question){
                             var found=false;
@@ -678,14 +689,20 @@ YUI.add('jak-pod-job',function(Y){
                         },
                         visibleAnswer=false
                     ;
-                    h.answerList.all('li').each(function(row){
-                        questionId=parseInt(row.one('.jak-data-question').get('value'),10);
-                        hasService=serviceHasQuestion(serviceId,questionId);
-                        row.setStyle('display',hasService?'':'none');
-                        if(!visibleAnswer && hasService){visibleAnswer=row;}
-                    });
+                    if(this.get('selectedIndex')===0){
+                        h.answerList.all('li').each(function(row){
+                            if(!visibleAnswer){visibleAnswer=row;}
+                            row.setStyle('display','');
+                        });
+                    }else{
+                        h.answerList.all('li').each(function(row){
+                            hasService=serviceHasQuestion(answerFilterValue,parseInt(row.one('.jak-data-question').get('value'),10));
+                            row.setStyle('display',hasService?'':'none');
+                            if(!visibleAnswer && hasService){visibleAnswer=row;}
+                        });
+                    }
                     //focus on first displayed
-                    if(visibleAnswer!==false){visibleAnswer.simulate('click');}
+                        if(visibleAnswer!==false){visibleAnswer.simulate('click');}
                 },
                 propPart:function(){
                     var category=this.get('value')
@@ -749,7 +766,6 @@ debugger;
 
 
 
-                        
                     }else{
                         //update
 
@@ -757,31 +773,56 @@ debugger;
 
 
 
-                        
                     }
                 }
             },
-            showHide:{
-                propPartExtension:function(){
-                    var section=this.ancestor('.jak-section')
-                    ;
-                    if(section.hasClass('jak-section-propPart')){
-                        if(this.get('innerHTML')==='collapse'){
-                            h.propPartList.all('.jak-showhide').setStyle('display','none');
-                            this.set('innerHTML','expand');
+            showHide:function(){
+                var section=this.ancestor('.jak-section')
+                ;
+                if(section.hasClass('jak-section-display')){
+                    if(this.hasClass('jak-display-service')){
+                        if(this.hasClass('jak-eye-open')){
+                            this.replaceClass('jak-eye-open','jak-eye-closed');
+                            h.serviceList.setStyle('display','none');
                         }else{
-                            h.propPartList.all('.jak-showhide').setStyle('display','');
-                            this.set('innerHTML','collapse');
+                            this.replaceClass('jak-eye-closed','jak-eye-open');
+                            h.serviceList.setStyle('display','');
+                        }
+                    }else if(this.hasClass('jak-display-details')){
+                        if(this.hasClass('jak-eye-open')){
+                            this.replaceClass('jak-eye-open','jak-eye-closed');
+                            h.detailsSection.setStyle('display','none');
+                        }else{
+                            this.replaceClass('jak-eye-closed','jak-eye-open');
+                            h.detailsSection.setStyle('display','');
                         }
                     }
-                },
-                services:function(){
-                    if(this.get('value')==='show services'){
-                        h.serviceList.setStyle('display','');
-                        this.set('value','hide services');
+                }else if(section.hasClass('jak-section-propPart')){
+                    if(this.hasClass('jak-eye-open')){
+                        this.replaceClass('jak-eye-open','jak-eye-half');
+                        h.propPartList.all('.jak-btn').setStyle('display','none');
+                    }else if(this.hasClass('jak-eye-half')){
+                        this.replaceClass('jak-eye-half','jak-eye-closed');
+                        h.propPartList.all('.jak-showhide').setStyle('display','none');
                     }else{
-                        h.serviceList.setStyle('display','none');
-                        this.set('value','show services');
+                        this.replaceClass('jak-eye-closed','jak-eye-open');
+                        h.propPartList.all('.jak-showhide,.jak-btn').setStyle('display','');
+                    }
+                }else if(section.hasClass('jak-section-answer')){
+                    if(this.hasClass('jak-eye-open')){
+                        this.replaceClass('jak-eye-open','jak-eye-closed');
+                        section.all('>ul .jak-btn').setStyle('display','none');
+                    }else{
+                        this.replaceClass('jak-eye-closed','jak-eye-open');
+                        section.all('>ul .jak-btn').setStyle('display','');
+                    }
+                }else if(section.hasClass('jak-section-propPartAnswer')){
+                    if(this.hasClass('jak-eye-open')){
+                        this.replaceClass('jak-eye-open','jak-eye-closed');
+                        section.all('>ul .jak-btn').setStyle('display','none');
+                    }else{
+                        this.replaceClass('jak-eye-closed','jak-eye-open');
+                        section.all('>ul .jak-btn').setStyle('display','');
                     }
                 }
             }
@@ -790,7 +831,9 @@ debugger;
          *  load & initialise
          */
         Y.JAK.dataSet.fetch([
+            ['propPartTag','id'],
             ['propPartType','id'],
+            ['propPartTypeTag','id'],
             ['question','id'],
             ['questionMatrix','id'],
             ['service','id']

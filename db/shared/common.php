@@ -69,6 +69,7 @@ function shared_getInfo($criteria) {
 
     $r = initResult($criteria);
 
+    $cnd = "";
     if (isset($criteria->infoIds) && is_array($criteria->infoIds) && count($criteria->infoIds) > 0) {
         $infoIds = implode(',', $criteria->infoIds);
         $cnd = "where id in ($infoIds)";

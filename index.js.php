@@ -63,6 +63,12 @@ YUI({<?php require 'jak-modules.inc'; ?>}).use(
         Y.JAK.dataSet.fetch(
             [
                 ['dbTable','name'],
+                ['propPartTag','id'],
+                ['propPartType','id'],
+                ['propPartTypeTag','id'],
+                ['question','id'],
+                ['questionMatrix','id'],
+                ['service','id']
             ]
            ,function(){
                 var d={},h={tv:{},tp:{}},my={}

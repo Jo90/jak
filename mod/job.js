@@ -104,7 +104,7 @@ YUI.add('jak-mod-job',function(Y){
             remove:{
                 job:function(e){
                     var row=this.ancestor('tr'),
-                        jobId=parseInt(row.one('.yui3-datatable-col-job em').get('innerHTML'),10),
+                        jobId=parseInt(row.one('.yui3-datatable-col-job input').get('value'),10),
                         address=row.one('.yui3-datatable-col-streetRef').get('innerHTML')+' '
                             +row.one('.yui3-datatable-col-streetName').get('innerHTML')+' '
                             +row.one('.yui3-datatable-col-location').get('innerHTML')

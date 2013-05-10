@@ -16,6 +16,14 @@ function dataSets($arr, $echo=false) {
         $stmt->close();
     }
     /**
+     *  propPartTag
+     */
+    if (in_array('propPartTag',$arr) && $stmt = $mysqli->prepare("select * from `propPartTag` order by name")) {
+        $stmt->execute();
+        $rs->propPartTag = fetch_info($stmt);
+        $stmt->close();
+    }
+    /**
      *  propPartType
      */
     if (in_array('propPartType',$arr) && $stmt = $mysqli->prepare("select * from `propPartType` order by name")) {
@@ -23,7 +31,14 @@ function dataSets($arr, $echo=false) {
         $rs->propPartType = fetch_info($stmt);
         $stmt->close();
     }
-
+    /**
+     *  propPartTypeTag
+     */
+    if (in_array('propPartTypeTag',$arr) && $stmt = $mysqli->prepare("select * from `propPartTypeTag`")) {
+        $stmt->execute();
+        $rs->propPartTypeTag = fetch_info($stmt);
+        $stmt->close();
+    }
     /**
      *  propTemplate
      */
@@ -32,7 +47,6 @@ function dataSets($arr, $echo=false) {
         $rs->propTemplate = fetch_info($stmt);
         $stmt->close();
     }
-
     /**
      *  propTemplatePart
      */
@@ -41,7 +55,6 @@ function dataSets($arr, $echo=false) {
         $rs->propTemplatePart = fetch_info($stmt);
         $stmt->close();
     }
-
     /**
      *  question
      */
@@ -50,7 +63,6 @@ function dataSets($arr, $echo=false) {
         $rs->question = fetch_info($stmt);
         $stmt->close();
     }
-
     /**
      *  questionMatrix
      */
@@ -59,7 +71,6 @@ function dataSets($arr, $echo=false) {
         $rs->questionMatrix = fetch_info($stmt);
         $stmt->close();
     }
-
     /**
      *  service
      */
@@ -68,7 +79,6 @@ function dataSets($arr, $echo=false) {
         $rs->service = fetch_info($stmt);
         $stmt->close();
     }
-
     if ($echo) {
         echo PHP_EOL , '//core info'
             ,PHP_EOL , 'if(!window.JAK){var JAK={};}'

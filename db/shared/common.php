@@ -153,11 +153,11 @@ function shared_setInfo(&$i) {
                 values (?,?,?,?,?)"
         )) {
             $stmt->bind_param('iiiss'
-            ,$rec->data->dbTable
-            ,$rec->data->pk
-            ,$rec->data->seq
-            ,$rec->data->category
-            ,$rec->data->detail
+                ,$rec->data->dbTable
+                ,$rec->data->pk
+                ,$rec->data->seq
+                ,$rec->data->category
+                ,$rec->data->detail
             );
             $r->successInsert = $stmt->execute();
             $r->rows = $mysqli->affected_rows;

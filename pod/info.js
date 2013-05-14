@@ -138,8 +138,8 @@ YUI.add('jak-pod-info',function(Y){
                                 h.close.simulate('click');
                             }},
                             data:Y.JSON.stringify([{
-                                data  :d.saveData,
-                                member:JAK.user.usr
+                                data:d.saveData,
+                                usr :JAK.user.usr
                             }])
                         });
                     }

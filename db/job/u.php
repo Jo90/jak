@@ -12,13 +12,19 @@ $post = json_decode(file_get_contents('php://input'));
 
 foreach ($post as $i) {
 
-    if (!isset($i->job)) {$r->log[] = 'parameter error'; continue;}
+    if (!isset($i->data)) {continue;}
 
-    job_setJob($i->job);
+	foreach ($i->data as $ix) {
 
-    foreach ($i->answer         as $answer        ) {qa_setAnswer($answer);}
-    foreach ($i->propPartAnswer as $propPartAnswer) {qa_setPropPartAnswer($propPartAnswer);}
+	    $r = initResult($ix);
 
+	    if (!isset($ix->job)) {$r->log[] = 'parameter error'; continue;}
+
+    	job_setJob($ix->job);
+
+    	foreach ($ix->answer         as $answer        ) {qa_setAnswer($answer);}
+    	foreach ($ix->propPartAnswer as $propPartAnswer) {qa_setPropPartAnswer($propPartAnswer);}
+	}
 }
 header('Content-type: text/plain');
 echo json_encode($post);

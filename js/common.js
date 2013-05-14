@@ -187,6 +187,25 @@ YUI.add('jak-common',function(Y){
         node.all('option').each(fn);
     };
 
+    //return string position and tag name for determining order for processing html tags
+    //remove "<" from search string tag
+    Y.JAK.mergeIndicesOf=function(searchArr,str,obj){
+        str=str.toLowerCase();
+        Y.each(searchArr,function(searchStr){
+            var startIndex=0,
+                searchStrLen=searchStr.length,
+                index,
+                tag
+            ;
+            searchStr=searchStr.toLowerCase();
+            tag=searchStr.substr(1);
+            while((index=str.indexOf(searchStr,startIndex))>-1){
+                obj[index]=tag;
+                startIndex=index+searchStrLen;
+            }
+        });
+    };
+
     Y.JAK.removeOption=function(node){
         node.one('.jak-remove').remove();
         node.append(Y.JAK.html('removeCheckbox'));

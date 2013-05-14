@@ -201,20 +201,65 @@ YUI.add('jak-pod-job',function(Y){
                                 record:[]
                             }
                         },
-                        answerDetails=[],
                         answerSeq=1
                     ;
                     h.answerList.all('> li').each(function(a){
-                        answerDetails=[];
-                        a.all('input:checked').each(function(n){
-                            answerDetails.push(n.get('value'));
+                        var answerValues=[],
+                            cnt={button:0,input:0,select:0,textarea:0},
+                            indices={},
+                            nodes={
+                                button  :a.all('span > button'),
+                                input   :a.all('span > input'),
+                                select  :a.all('span > select'),
+                                textarea:a.all('span > textarea')
+                            },
+                            questionId=parseInt(a.one('.jak-data-question').get('value'),10),
+                            q=JAK.data.question[questionId]
+                        ;
+                        Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code,indices);
+
+                        Y.each(indices,function(tag,idx){
+                            var node=nodes[tag].item(cnt[tag]),
+                                nodeType=node.get('type'),
+                                selectMultiArr=[]
+                            ;
+                            //tag action
+                                switch(tag){
+                                    case 'button':
+                                        break;
+                                    case 'input':
+                                        if(nodeType==='text'){
+                                            answerValues.push(node.get('value'));
+                                        }else if(nodeType==='checkbox'){
+                                            answerValues.push(node.get('checked')?node.get('value'):'');
+debugger;
+                                        }
+                                        break;
+                                    case 'select':
+                                        if(nodeType==='select-one'){
+                                            answerValues.push(node.get('value'));
+                                        }else{
+                                            selectMultiArr=[];
+                                            node.all('option').each(function(){
+                                                if(this.get('selected')){selectMultiArr.push(this.get('value'));}
+                                            });
+                                            answerValues.push(selectMultiArr.join(','));
+                                        }
+                                        break;
+                                    case 'textarea':
+                                        answerValues.push(node.get('value'));
+                                        break;
+                                }
+                            //tag occurance
+                                cnt[tag]++;
                         });
+debugger;
                         post.answer.record.push({
                             data:{
                                 id      :parseInt(a.one('.jak-data-id').get('value'),10),
                                 question:parseInt(a.one('.jak-data-question').get('value'),10),
                                 job     :jobId,
-                                detail  :answerDetails.join(','),
+                                detail  :answerValues.join(';'),
                                 seq     :answerSeq++
                             }
                         });
@@ -408,10 +453,7 @@ YUI.add('jak-pod-job',function(Y){
                         nodes
                     ;
                     q=JAK.data.question[answer.question];
-                    trigger.mergeIndicesOf('<button'  ,q.code,indices);
-                    trigger.mergeIndicesOf('<input'   ,q.code,indices);
-                    trigger.mergeIndicesOf('<select'  ,q.code,indices);
-                    trigger.mergeIndicesOf('<textarea',q.code,indices);
+                    Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code,indices);
                     answerInfoCount=0;
                     Y.each(d.rs.answerInfo.data,function(i){
                         if(i.dbTable===JAK.data.dbTable['answer'].id && i.pk===answer.id){answerInfoCount++;}
@@ -427,14 +469,14 @@ YUI.add('jak-pod-job',function(Y){
                     );
                     h.answerList.append(nn);
                     nodes={
-                        button  :nn.all('button'),
-                        input   :nn.all('input'),
-                        select  :nn.all('select'),
-                        textarea:nn.all('textarea')
+                        button  :nn.all('span > button'),
+                        input   :nn.all('span > input'),
+                        select  :nn.all('span > select'),
+                        textarea:nn.all('span > textarea')
                     };
                     if(answer.detail!=='' && answer.detail!==null){
                         Y.each(indices,function(tag,idx){
-                            var answerValue=answer.detail.split(',')[idx],
+                            var answerValue=answer.detail.split(';')[idx],
                                 node=nodes[tag].item(cnt[tag]),
                                 nodeType=node.get('type')
                             ;
@@ -455,6 +497,12 @@ YUI.add('jak-pod-job',function(Y){
                                         if(nodeType==='select-one'){
                                             Y.JAK.matchSelect(node,answerValue);
                                         }else{
+                                            //select-multiple
+
+
+                                            //>>>>>>>>FINISH
+
+
 
                                         }
                                         break;
@@ -689,7 +737,7 @@ YUI.add('jak-pod-job',function(Y){
                    +  '<input type="hidden" class="jak-data jak-data-id" value="{id}" />'
                    +  '<input type="hidden" class="jak-data jak-data-question" value="{question}" />'
                    +  '<em title="answer#{id}">{name}</em>'
-                   +  '{code}'
+                   +  '<span>{code}</span>'
                    +  Y.JAK.html('btn',{action:'remove',title:'remove'})
                    +  Y.JAK.html('btn',{action:'dup',title:'duplicate'})
                    +  Y.JAK.html('btn',{action:'info',title:'notes',label:p.infoCount})
@@ -795,18 +843,6 @@ YUI.add('jak-pod-job',function(Y){
                     h.propPartRowFocus=this;
                     h.propPartList.all('.jak-focus').removeClass('jak-focus');
                     this.addClass('jak-focus');
-                }
-            },
-            mergeIndicesOf:function(searchStr,str,obj){
-                var startIndex=0,
-                    searchStrLen=searchStr.length,
-                    index
-                ;
-                str=str.toLowerCase();
-                searchStr=searchStr.toLowerCase();
-                while((index=str.indexOf(searchStr,startIndex))>-1){
-                    obj[index]=searchStr.substr(1);
-                    startIndex=index+searchStrLen;
                 }
             },
             reset:{

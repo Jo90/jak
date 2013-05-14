@@ -80,9 +80,7 @@ YUI.add('jak-mod-job',function(Y){
             },
             insert:{
                 job:function(e,action){
-                    var post={
-                            member:JAK.user.usr
-                        }
+                    var post={}
                     ;
                     action==='duplicate'
                         ?post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job').get('innerHTML'),10)
@@ -92,12 +90,15 @@ YUI.add('jak-mod-job',function(Y){
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var rs=Y.JSON.parse(o.responseText)[0],
-                                jobId=rs.data.id
+                            var rs=Y.JSON.parse(o.responseText)[0].data.job.create.result
                             ;
-                            pod.display.job({job:jobId});
+                            if(!rs.successInsert){alert('insert failed');}
+                            else{pod.display.job({job:rs.data.id});}
                         }},
-                        data:Y.JSON.stringify([post])
+                        data:Y.JSON.stringify([{
+                            data:{job:post},
+                            usr :JAK.user.usr
+                        }])
                     });
                 }
             },
@@ -115,8 +116,10 @@ YUI.add('jak-mod-job',function(Y){
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){row.remove();}},
                         data:Y.JSON.stringify([{
-                            remove:[jobId],
-                            member:JAK.user.usr
+                            data:{job:{
+                                remove:[jobId]
+                            }},
+                            usr:JAK.user.usr
                         }])
                     });
                 }

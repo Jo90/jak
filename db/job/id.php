@@ -11,16 +11,14 @@ $post = json_decode(file_get_contents('php://input'));
 
 foreach ($post as $i) {
 
-    $r = initResult($i);
-
     if (!isset($i->data) &&
         !isset($i->data->job) &&
-        !isset($i->create) &&
-        !isset($i->remove) &&
-        !isset($i->duplicate) &&
-        !isset($i->data->jobIds)) {$r->log[] = 'parameter error'; continue;}
+        !isset($i->data->job->record) &&
+        !isset($i->data->job->create) &&
+        !isset($i->data->job->duplicate) &&
+        !isset($i->data->job->remove)) {$i->error = 'parameter error'; continue;}
 
-    $r->job = job_setJob($i);
+    job_setJob($i->data->job);
 
 }
 header('Content-type: text/plain');

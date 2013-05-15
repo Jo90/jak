@@ -298,20 +298,6 @@ function job_setJob(&$i) {
                 }
             }
             
-// get all propPartAnswer
-// initialise a propPart and an answer array
-// foreach row
-	// check if propPart has been inserted by scanning array
-	// if not then insert propPart
-	//		remember old and new propPart ids in array
-	// check if answer has been inserted by scanning answer array
-	// if not then insert answer
-	//		remember old and new answer ids in array
-	// get the corresponding propPart and answer ids from array
-	// insert into propPartAnswer
-
-			// propPart, answer, propPartAnswer
-/*
             if ($stmt = $mysqli->prepare(
                 'select pp.*,
                 		a.id as aId, a.question, a.seq as aSeq, a.detail,
@@ -355,7 +341,7 @@ function job_setJob(&$i) {
 					}
 					$ppNewId = 0;
 					foreach($ppArr as $oldId => $newId){
-						if ($oldId == $d->)
+						if ($oldId == $d->id)
 							$ppNewId = $newId;
 					}
 
@@ -395,7 +381,7 @@ function job_setJob(&$i) {
 			}
         }
     }
-*/
+
 /*
 
         if (!$r->successInsert) {$r->log[] = 'job insert error'; return;}

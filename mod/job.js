@@ -90,7 +90,7 @@ YUI.add('jak-mod-job',function(Y){
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var rs=Y.JSON.parse(o.responseText)[0].data.job.create.result
+                            var rs=Y.JSON.parse(o.responseText)[0].data.job[action].result
                             ;
                             if(!rs.successInsert){alert('insert failed');}
                             else{pod.display.job({job:rs.data.id});}
@@ -128,7 +128,7 @@ YUI.add('jak-mod-job',function(Y){
 
         listeners=function(){
             h.bd.delegate('click',io.fetch.job,'.jak-search');
-            h.addJob.on('click',io.insert.job);
+            h.addJob.on('click',io.insert.job,null,'create');
             h.dt.get('contentBox').delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
             h.dt.get('contentBox').delegate('click',trigger.report,'.jak-rep',null,'duplicate');
             h.dt.get('contentBox').delegate('click',io.insert.job,'.jak-dup',null,'duplicate');

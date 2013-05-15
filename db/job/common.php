@@ -297,9 +297,9 @@ function job_setJob(&$i) {
         	        );
                 }
             }
-            
+                    
             if ($stmt = $mysqli->prepare(
-                'select pp.*,
+                "select pp.*,
                 		a.id as aId, a.question, a.seq as aSeq, a.detail,
                 		ppa.propPart, ppa.current, ppa.seq as ppaSeq 
                    from `propPart`		 as pp,
@@ -307,8 +307,11 @@ function job_setJob(&$i) {
                    		`propPartAnswer` as ppa	
                   where pp.id = ppa.propPart
                     and ppa.answer = a.id
-                    and pp.job = $jobId'
+                    and pp.job = ?"
             )) {
+				$stmt->bind_param('i'
+            		,$jobId
+            	);
                 $stmt->execute();
                 $propPartAnswer = \jak\fetch_result($stmt);
                 $stmt->close();
@@ -317,14 +320,13 @@ function job_setJob(&$i) {
 				$aArr  = array();
 
                 foreach ($propPartAnswer as $d) {
-
 					if (!array_key_exists($d->id, $ppArr)){
 				        if ($stmt = $mysqli->prepare(
                             "insert into `propPart`
                                     (job, propPartType, seq, indent, name)
                              values (?,?,?,?,?)"
                         )){
-                        	$stmt->bind_param('iiiis'
+							$stmt->bind_param('iiiis'
                 				,$jobNewId
                 				,$d->propPartType
                 				,$d->seq
@@ -381,72 +383,6 @@ function job_setJob(&$i) {
 			}
         }
     }
-
-/*
-
-        if (!$r->successInsert) {$r->log[] = 'job insert error'; return;}
-        $jobId = $rec->data->id;
-
-        //finish duplication
-        if (isset($rec->duplicate)) {
-
-
-            // propPart
-            if ($stmt = $mysqli->prepare(
-                "insert into propPart
-                       (job, propPartType, seq, indent, name)
-                 select job, propPartType, seq, indent, name
-                   from `propPart`
-                  where job = $jobId"
-            )) {
-                $r->success = $stmt->execute();
-                $r->rows = $mysqli->affected_rows;
-                $stmt->close();
-            }
-            $criteriaPropPart = new \stdClass;
-            $criteriaPropPart->jobIds = array($jobId);
-            $propParts = prop_getPropPart($criteriaPropPart);
-
-            //questionMatrix and propPart
-            if ($stmt = $mysqli->prepare(
-                "select qm.*
-                   from `propPart`       as pp,
-                        `questionMatrix` as qm
-                  where pp.propPartType = qm.propPartType"
-            )) {
-                $stmt->execute();
-                $qm = \jak\fetch_result($stmt);
-                $stmt->close();
-
-                //use qm
-
-
-
-            }
-
-            // answers and answers related to propPart propPartAnswer
-            $propPartIds = array();
-            $propPartIds = selectIds($propParts->data, 'id');
-            if (count($propPartIds) > 0) {
-                if ($stmt = $mysqli->prepare(
-                    "insert into `propPartAnswer`
-                           (propPart, answer, job)
-                     select propPart, answer, $jobId
-                       from `questionMatrix`
-                      where propPart in ($propPartIds)"
-                )) {
-                    $r->success = $stmt->execute();
-                    $r->rows = $mysqli->affected_rows;
-                    $stmt->close();
-                }
-            }
-        } else
-
-        //create plain job
-        {
-        }
-    }
-*/
 }
 
 function job_setPropPart(&$i) {

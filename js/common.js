@@ -189,7 +189,9 @@ YUI.add('jak-common',function(Y){
 
     //return string position and tag name for determining order for processing html tags
     //remove "<" from search string tag
-    Y.JAK.mergeIndicesOf=function(searchArr,str,obj){
+    Y.JAK.mergeIndicesOf=function(searchArr,str){
+        var arr=[]
+        ;
         str=str.toLowerCase();
         Y.each(searchArr,function(searchStr){
             var startIndex=0,
@@ -200,10 +202,12 @@ YUI.add('jak-common',function(Y){
             searchStr=searchStr.toLowerCase();
             tag=searchStr.substr(1);
             while((index=str.indexOf(searchStr,startIndex))>-1){
-                obj[index]=tag;
+                arr.push([index,tag]);
                 startIndex=index+searchStrLen;
             }
         });
+        //ensure indice order
+        return arr.sort(function(a,b){return a[0]-b[0];});
     };
 
     Y.JAK.removeOption=function(node){

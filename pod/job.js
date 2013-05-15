@@ -206,33 +206,38 @@ YUI.add('jak-pod-job',function(Y){
                     h.answerList.all('> li').each(function(a){
                         var answerValues=[],
                             cnt={button:0,input:0,select:0,textarea:0},
-                            indices={},
+                            indices=[],
                             nodes={
-                                button  :a.all('span > button'),
-                                input   :a.all('span > input'),
-                                select  :a.all('span > select'),
-                                textarea:a.all('span > textarea')
+                                button  :a.all('span button'),
+                                input   :a.all('span input'),
+                                select  :a.all('span select'),
+                                textarea:a.all('span textarea')
                             },
                             questionId=parseInt(a.one('.jak-data-question').get('value'),10),
                             q=JAK.data.question[questionId]
                         ;
-                        Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code,indices);
-
-                        Y.each(indices,function(tag,idx){
-                            var node=nodes[tag].item(cnt[tag]),
+                        indices=Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code);
+                        Y.each(indices,function(arr){
+                            var tag=arr[1],
+                                node=nodes[tag].item(cnt[tag]),
                                 nodeType=node.get('type'),
                                 selectMultiArr=[]
                             ;
                             //tag action
                                 switch(tag){
                                     case 'button':
+
+                                        //>>>>>>>>>>>>>>>>>>>>FINISH
+
                                         break;
                                     case 'input':
                                         if(nodeType==='text'){
+
+                                        //>>>>>>>>>>>>>>>>>>>>FINISH remove commas
+
                                             answerValues.push(node.get('value'));
                                         }else if(nodeType==='checkbox'){
                                             answerValues.push(node.get('checked')?node.get('value'):'');
-debugger;
                                         }
                                         break;
                                     case 'select':
@@ -247,13 +252,15 @@ debugger;
                                         }
                                         break;
                                     case 'textarea':
+
+                                        //>>>>>>>>>>>>>>>>>>>>FINISH remove commas
+
                                         answerValues.push(node.get('value'));
                                         break;
                                 }
                             //tag occurance
                                 cnt[tag]++;
                         });
-debugger;
                         post.answer.record.push({
                             data:{
                                 id      :parseInt(a.one('.jak-data-id').get('value'),10),
@@ -449,11 +456,11 @@ debugger;
             answer:function(){
                 Y.each(d.rs.answer.data,function(answer){
                     var cnt={button:0,input:0,select:0,textarea:0},
-                        indices={},
+                        indices=[],
                         nodes
                     ;
                     q=JAK.data.question[answer.question];
-                    Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code,indices);
+                    indices=Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code);
                     answerInfoCount=0;
                     Y.each(d.rs.answerInfo.data,function(i){
                         if(i.dbTable===JAK.data.dbTable['answer'].id && i.pk===answer.id){answerInfoCount++;}
@@ -469,14 +476,17 @@ debugger;
                     );
                     h.answerList.append(nn);
                     nodes={
-                        button  :nn.all('span > button'),
-                        input   :nn.all('span > input'),
-                        select  :nn.all('span > select'),
-                        textarea:nn.all('span > textarea')
+                        button  :nn.all('span button'),
+                        input   :nn.all('span input'),
+                        select  :nn.all('span select'),
+                        textarea:nn.all('span textarea')
                     };
-                    if(answer.detail!=='' && answer.detail!==null){
-                        Y.each(indices,function(tag,idx){
-                            var answerValue=answer.detail.split(';')[idx],
+                    //>>>EXCLUDE FOR NOW
+                    if(true===false && answer.detail!=='' && answer.detail!==null){
+                        //>>>>>>>>>>>FINISH sort order <<<<<<<<<<<
+                        Y.each(indices,function(arr,idx){
+                            var tag=arr[1],
+                                answerValue=answer.detail.split(';')[idx],
                                 node=nodes[tag].item(cnt[tag]),
                                 nodeType=node.get('type')
                             ;
@@ -489,7 +499,6 @@ debugger;
 
                                         }else
                                         if(nodeType==='checkbox'){
-                                            debugger;
                                             nodes[tag].item(cnt[tag]).set('checked',true);
                                         }
                                         break;

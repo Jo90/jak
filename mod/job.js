@@ -83,7 +83,7 @@ YUI.add('jak-mod-job',function(Y){
                     var post={}
                     ;
                     action==='duplicate'
-                        ?post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job').get('innerHTML'),10)
+                        ?post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job input').get('value'),10)
                         :post.create=true;
 
                     Y.io('/db/job/id.php',{

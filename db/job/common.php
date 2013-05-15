@@ -231,6 +231,7 @@ function job_setJob(&$i) {
         }
     }
 
+
     if (isset($i->duplicate)) {
         $jobId = $i->duplicate;
         $i->duplicate = new \stdClass;
@@ -240,11 +241,161 @@ function job_setJob(&$i) {
         $r->data->createdBy = $_SESSION['member'];
         $i->duplicate->log[] = 'duplicating';
 
-        $temp = job_getJob((object) array(criteria => array(jobIds => array($jobId))));
-        $r->data->ref     = $temp->data->{$jobId}->ref;
+        $temp = job_getJob((object) array('criteria' => array('jobIds' => array($jobId))));
         $r->data->address = $temp->data->{$jobId}->address;
-    }
+        $r->data->ref     = $temp->data->{$jobId}->ref;
+        $r->data->created = $temp->data->{$jobId}->created;
+        $r->data->createdBy = $temp->data->{$jobId}->createdBy;
+        $r->data->appointment = $temp->data->{$jobId}->appointment;
+        $r->data->confirmed = $temp->data->{$jobId}->confirmed;
+        $r->data->reminder = $temp->data->{$jobId}->reminder;
+        $r->data->weather = $temp->data->{$jobId}->weather;
 
+		// create new job
+        if ($stmt = $mysqli->prepare(
+            "insert into `job`
+                   (address, ref, created, createdBy, appointment, confirmed, reminder, weather)
+             values (?,?,?,?,?,?,?,?)"
+        )) {
+            $stmt->bind_param('iiisiiis'
+                ,$r->data->address
+                ,$r->data->ref
+        		,$r->data->created
+        		,$r->data->createdBy
+        		,$r->data->appointment
+        		,$r->data->confirmed
+        		,$r->data->reminder
+        		,$r->data->weather
+            );
+            $r->successInsert = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $r->successInsert
+                ?$r->data->id = $stmt->insert_id
+                :$r->errorInsert = $mysqli->error;
+            $stmt->close();
+        }
+        
+        //supporting data
+        if ($r->successInsert) {
+            $jobNewId = $r->data->id;
+            
+            // jobService
+            if ($stmt = $mysqli->prepare(
+                "select *
+                   from `jobService`
+                  where job = $jobId"
+            )) {
+                $stmt->execute();
+                $jobService = \jak\fetch_result($stmt);
+                $stmt->close();
+
+                foreach ($jobService as $d) {
+                    $mysqli->query(
+                        "insert into `jobService`
+	                            (job, service, fee)
+    	                 values ($jobNewId, $d->service, $d->fee)"
+        	        );
+                }
+            }
+            
+// get all propPartAnswer
+// initialise a propPart and an answer array
+// foreach row
+	// check if propPart has been inserted by scanning array
+	// if not then insert propPart
+	//		remember old and new propPart ids in array
+	// check if answer has been inserted by scanning answer array
+	// if not then insert answer
+	//		remember old and new answer ids in array
+	// get the corresponding propPart and answer ids from array
+	// insert into propPartAnswer
+
+			// propPart, answer, propPartAnswer
+/*
+            if ($stmt = $mysqli->prepare(
+                'select pp.*,
+                		a.id as aId, a.question, a.seq as aSeq, a.detail,
+                		ppa.propPart, ppa.current, ppa.seq as ppaSeq 
+                   from `propPart`		 as pp,
+                   		`answer`		 as a,
+                   		`propPartAnswer` as ppa	
+                  where pp.id = ppa.propPart
+                    and ppa.answer = a.id
+                    and pp.job = $jobId'
+            )) {
+                $stmt->execute();
+                $propPartAnswer = \jak\fetch_result($stmt);
+                $stmt->close();
+
+				$ppArr = array();
+				$aArr  = array();
+
+                foreach ($propPartAnswer as $d) {
+
+					if (!array_key_exists($d->id, $ppArr)){
+				        if ($stmt = $mysqli->prepare(
+                            "insert into `propPart`
+                                    (job, propPartType, seq, indent, name)
+                             values (?,?,?,?,?)"
+                        )){
+                        	$stmt->bind_param('iiiis'
+                				,$jobNewId
+                				,$d->propPartType
+                				,$d->seq
+                				,$d->indent
+                				,$d->name
+            				);
+            				$rpp = new \stdClass;
+           					$rpp->successInsert = $stmt->execute();
+	            			$rpp->successInsert
+                				?$ppArr[] = array($d->id => $stmt->insert_id)
+                				:$rpp->errorInsert = $mysqli->error;
+            				$stmt->close();
+        				}
+					}
+					$ppNewId = 0;
+					foreach($ppArr as $oldId => $newId){
+						if ($oldId == $d->)
+							$ppNewId = $newId;
+					}
+
+					if (!array_key_exists($d->aId, $aArr)){
+				        if ($stmt = $mysqli->prepare(
+                            "insert into `answer`
+                                    (question, job, seq, detail)
+                             values (?,?,?,?)"
+                        )){
+                        	$stmt->bind_param('iiis'
+                				,$d->question
+                				,$jobNewId
+                				,$d->aSeq
+                				,$d->detail
+            				);
+            				$ra = new \stdClass;
+           					$ra->successInsert = $stmt->execute();
+            				$ra->successInsert
+                				?$aArr[] = array($d->aId => $stmt->insert_id)
+                				:$ra->errorInsert = $mysqli->error;
+            				$stmt->close();
+        				}
+        			}	
+					$aNewId = 0;
+					foreach($aArr as $oldId => $newId){
+						if ($oldId == $d->aId)
+							$aNewId = $newId;
+					}
+
+					// insert into propPartAnswer 
+                    $mysqli->query(
+                        "insert into `propPartAnswer`
+	                            (propPart, answer, current, job, seq)
+    	                 values ($ppNewId, $aNewId, $d->current, $jobNewId, $d->ppaSeq)"
+        	        );
+                }
+			}
+        }
+    }
+*/
 /*
 
         if (!$r->successInsert) {$r->log[] = 'job insert error'; return;}
@@ -253,18 +404,6 @@ function job_setJob(&$i) {
         //finish duplication
         if (isset($rec->duplicate)) {
 
-            // jobService
-            if ($stmt = $mysqli->prepare(
-                "insert into jobService
-                       (job, service)
-                 select job, service
-                   from `jobService`
-                  where job = $jobId"
-            )) {
-                $r->success = $stmt->execute();
-                $r->rows = $mysqli->affected_rows;
-                $stmt->close();
-            }
 
             // propPart
             if ($stmt = $mysqli->prepare(
@@ -379,5 +518,5 @@ function job_setPropPart(&$i) {
             :$r->errorInsert = $mysqli->error;
         $stmt->close();
     }
-
 }
+

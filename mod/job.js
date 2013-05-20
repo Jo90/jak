@@ -361,7 +361,9 @@ YUI.add('jak-mod-job',function(Y){
                     job=d.rs.job.data[jobId],
                     address,
                     addressMessage='address not entered',
-                    statement=[]
+                    statement=[],
+                    indices=[],
+                    code
                 ;
                 if(job.address!==null){
                     address=d.rs.address.data[job.address];
@@ -369,8 +371,21 @@ YUI.add('jak-mod-job',function(Y){
                 }
                 //answers
                     Y.each(d.rs.answer.data,function(answer){
-                        if(answer.job!==jobId){return;}
-                        statement.push(JAK.data.question[answer.question].name+': '+answer.detail);
+                        var tagAnswers,
+                            tagAnswer,
+                            tagSnippet
+                        ;
+                        if(answer.job!==jobId || answer.detail===null || answer.detail===''){return;}
+                        tagAnswers=answer.detail.split(';');
+                        //
+                        code=JAK.data.question[answer.question].code;
+                        //replace tags in reverse order
+                        Y.each(Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],code).sort(function(a,b){return b[0]-a[0];}),function(tag){
+                            tagAnswer=tagAnswers.pop();
+                            //remove
+                            code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('</'+tag[1])+tag[1].length+3);
+                        });
+                        statement.push(JAK.data.question[answer.question].name+': '+code);
                     });
                 if(this.hasClass('jak-rep-summary')){
                     JAK.my.podRep.display({
@@ -395,9 +410,6 @@ YUI.add('jak-mod-job',function(Y){
                    this.hasClass('yui3-datatable-col-reminder')
                 ){
                     pod.display.job({job:parseInt(this.ancestor('tr').one('.yui3-datatable-col-job input').get('value'),10)});
-                }
-                if(this.hasClass('yui3-datatable-col-streetRef')||this.hasClass('yui3-datatable-col-streetName')||this.hasClass('yui3-datatable-col-location')){
-                    alert('address');
                 }
             }
         };

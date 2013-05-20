@@ -238,7 +238,6 @@ YUI.add('jak-pod-job',function(Y){
                     h.answerList.all('> li').each(function(a){
                         var answerValues=[],
                             cnt={button:0,input:0,select:0,textarea:0},
-                            indices=[],
                             nodes={
                                 button  :a.all('span button'),
                                 input   :a.all('span input'),
@@ -248,8 +247,7 @@ YUI.add('jak-pod-job',function(Y){
                             questionId=parseInt(a.one('.jak-data-question').get('value'),10),
                             q=JAK.data.question[questionId]
                         ;
-                        indices=Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code);
-                        Y.each(indices,function(arr){
+                        Y.each(Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code),function(arr){
                             var tag=arr[1],
                                 node=nodes[tag].item(cnt[tag]),
                                 nodeType=node.get('type'),
@@ -488,11 +486,9 @@ YUI.add('jak-pod-job',function(Y){
             answer:function(){
                 Y.each(d.rs.answer.data,function(answer){
                     var cnt={button:0,input:0,select:0,textarea:0},
-                        indices=[],
                         nodes
                     ;
                     q=JAK.data.question[answer.question];
-                    indices=Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code);
                     answerInfoCount=0;
                     Y.each(d.rs.answerInfo.data,function(i){
                         if(i.dbTable===JAK.data.dbTable['answer'].id && i.pk===answer.id){answerInfoCount++;}
@@ -514,8 +510,8 @@ YUI.add('jak-pod-job',function(Y){
                         textarea:nn.all('span textarea')
                     };
                     //>>>EXCLUDE FOR NOW
-                    if(true===false && answer.detail!=='' && answer.detail!==null){
-                        Y.each(indices,function(arr,idx){
+                    if(answer.detail!=='' && answer.detail!==null){
+                        Y.each(Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code),function(arr,idx){
                             var tag=arr[1],
                                 answerValue=answer.detail.split(';')[idx],
                                 node=nodes[tag].item(cnt[tag]),

@@ -382,8 +382,12 @@ YUI.add('jak-mod-job',function(Y){
                         //replace tags in reverse order
                         Y.each(Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],code).sort(function(a,b){return b[0]-a[0];}),function(tag){
                             tagAnswer=tagAnswers.pop();
-                            //remove
-                            code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('</'+tag[1])+tag[1].length+3);
+                            //replace tag with value
+                                if(tag[1]==='select'||tag[1]==='textarea'||tag[1]==='button'){
+                                    code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('</'+tag[1])+tag[1].length+3);
+                                }else if(tag[1]==='input'){
+                                    code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('/>')+2);
+                                }
                         });
                         statement.push(JAK.data.question[answer.question].name+': '+code);
                     });

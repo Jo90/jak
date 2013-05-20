@@ -90,7 +90,7 @@ function job_setJob(&$i) {
         !isset($i->duplicate) &&
         !isset($i->remove)) {return null;}
 
-    if (isset($i->remove)) {remove('job',$i);}
+    db::remove('job',$i);
 
     if (isset($i->record)) {
         foreach ($i->record as $rec) {
@@ -393,7 +393,7 @@ function job_setPropPart(&$i) {
     if (!isset($i->data) &&
         !isset($i->remove)) {return null;}
 
-    remove('propPart', $i);
+    db::remove('propPart', $i);
 
     if (isset($i->data->id)) {
         if ($stmt = $mysqli->prepare(

@@ -79,7 +79,7 @@ function addr_setAddress(&$i) {
     $cnd   = '';
     $limit = '';
 
-    remove('address', $i);
+    db::remove('address', $i);
 
     if (isset($criteria->data->id)) {
         if ($stmt = $mysqli->prepare(

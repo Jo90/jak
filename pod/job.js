@@ -146,11 +146,38 @@ YUI.add('jak-pod-job',function(Y){
                 }
             },
             remove:{
+                answer:function(){
+                    var row=this.ancestor('li'),
+                        answerId=parseInt(row.one('.jak-data-id').get('value'),10)
+                    ;
+                    if(!confirm('delete answer/statement')){return;}
+                    Y.io('/db/shared/d.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(){
+                            Y.each(d.rs.answer.data,function(answer){
+                                if(answer.id===answerId){
+                                    delete d.rs.answer.data[answer.id];
+                                }
+                            });
+                            row.remove();
+                        }},
+                        data:Y.JSON.stringify([{
+                            data:{
+                                answer:{
+                                    remove:[answerId]
+                                }
+                            },
+                            dataSet:'answer',
+                            usr:JAK.user.usr
+                        }])
+                    });
+                },
                 propPart:function(){
                     var row=this.ancestor('li'),
                         propPartId=parseInt(row.one('.jak-data-id').get('value'),10)
                     ;
-                    Y.io('/db/job/dPropPart.php',{
+                    Y.io('/db/shared/d.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){
@@ -162,8 +189,13 @@ YUI.add('jak-pod-job',function(Y){
                             row.remove();
                         }},
                         data:Y.JSON.stringify([{
-                            remove:[propPartId],
-                            member:JAK.user.usr
+                            data:{
+                                propPart:{
+                                    remove:[propPartId]
+                                }
+                            },
+                            dataSet:'propPart',
+                            usr:JAK.user.usr
                         }])
                     });
                 }
@@ -339,7 +371,7 @@ YUI.add('jak-pod-job',function(Y){
                 h.answerFilter.on('change',trigger.filter.answer);
                 h.answerList.delegate('click',trigger.focus.answer,'> li');
                 h.answerList.delegate('click',io.insert.answer,'.jak-dup');
-                h.answerList.delegate('click',function(){alert('remove not implemented yet');},'.jak-remove');
+                h.answerList.delegate('click',io.remove.answer,'.jak-remove');
             //save
                 h.save.on('click',io.save.job);
             //custom
@@ -483,7 +515,6 @@ YUI.add('jak-pod-job',function(Y){
                     };
                     //>>>EXCLUDE FOR NOW
                     if(true===false && answer.detail!=='' && answer.detail!==null){
-                        //>>>>>>>>>>>FINISH sort order <<<<<<<<<<<
                         Y.each(indices,function(arr,idx){
                             var tag=arr[1],
                                 answerValue=answer.detail.split(';')[idx],

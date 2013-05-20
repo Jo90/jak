@@ -138,109 +138,109 @@ function qa_getQuestionMatrix($criteria) {
 function qa_setAnswer(&$i) {
     global $mysqli;
 
-    remove('answer',$i);
+    db::remove('answer',$i);
 
-    foreach ($i->record as $rec) {
+    if (isset($i->record)) {foreach ($i->record as $rec) {
 
-	    $r = initResult($rec);
+        $r = initResult($rec);
 
         if (isset($rec->data->id) && $rec->data->id != '') {
-	        if ($stmt = $mysqli->prepare(
-    	        "update `answer`
-        	        set question = ?,
-            	        job      = ?,
-                	    seq   	 = ?,
-                    	detail   = ?
-              	  where id = ?"
-        	)) {
-            	$stmt->bind_param('iiisi'
-                	,$rec->data->question
-                	,$rec->data->job
-                	,$rec->data->seq
-                	,$rec->data->detail
-                	,$rec->data->id
-            	);
-            	$r->successUpdate = $stmt->execute();
-            	$r->rows = $mysqli->affected_rows;
-            	$r->successUpdate OR $r->errorUpdate = $mysqli->error;
-            	$stmt->close();
-        	}
-        	continue;
-    	}
+            if ($stmt = $mysqli->prepare(
+                "update `answer`
+                    set question = ?,
+                        job      = ?,
+                        seq      = ?,
+                        detail   = ?
+                  where id = ?"
+            )) {
+                $stmt->bind_param('iiisi'
+                    ,$rec->data->question
+                    ,$rec->data->job
+                    ,$rec->data->seq
+                    ,$rec->data->detail
+                    ,$rec->data->id
+                );
+                $r->successUpdate = $stmt->execute();
+                $r->rows = $mysqli->affected_rows;
+                $r->successUpdate OR $r->errorUpdate = $mysqli->error;
+                $stmt->close();
+            }
+            continue;
+        }
 
-    	if ($stmt = $mysqli->prepare(
-       		"insert into `answer`
-                	(question, job, detail)
-	         values (?,?,?)"
-    	)) {
-        	$stmt->bind_param('iii'
-           		,$rec->data->question
-           		,$rec->data->job
-           		,$rec->data->detail
-        	);
-        	$r->successInsert = $stmt->execute();
-        	$r->rows = $mysqli->affected_rows;
-        	$r->successInsert
-            	?$rec->data->id = $stmt->insert_id
-            	:$r->errorInsert = $mysqli->error;
-        	$stmt->close();
-    	}
-	}
+        if ($stmt = $mysqli->prepare(
+               "insert into `answer`
+                    (question, job, detail)
+             values (?,?,?)"
+        )) {
+            $stmt->bind_param('iii'
+                   ,$rec->data->question
+                   ,$rec->data->job
+                   ,$rec->data->detail
+            );
+            $r->successInsert = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $r->successInsert
+                ?$rec->data->id = $stmt->insert_id
+                :$r->errorInsert = $mysqli->error;
+            $stmt->close();
+        }
+    }}
 }
 
 function qa_setPropPartAnswer(&$i) {
     global $mysqli;
 
-    remove('propPartAnswer', $i);
+    db::remove('propPartAnswer',$i);
 
-    foreach ($i->record as $rec) {
+    if (isset($i->record)) {foreach ($i->record as $rec) {
 
-	    $r = initResult($rec);
+        $r = initResult($rec);
 
         if (isset($rec->data->id) && $rec->data->id != '') {
-	        if ($stmt = $mysqli->prepare(
-    	        "update `propPartAnswer`
-        	        set propPart = ?,
-            	        answer   = ?,
-                	    current  = ?,
-                    	job      = ?,
-                    	seq      = ?
-              	  where id = ?"
-        	)) {
-            	$stmt->bind_param('iiiiii'
-                	,$rec->data->propPart
-                	,$rec->data->answer
-                	,$rec->data->current
-                	,$rec->data->job
-                	,$rec->data->seq
-                	,$rec->data->id
-            	);
-            	$r->successUpdate = $stmt->execute();
-            	$r->rows = $mysqli->affected_rows;
-            	$r->successUpdate OR $r->errorUpdate = $mysqli->error;
-            	$stmt->close();
-        	}
-        	continue;
-    	}
+            if ($stmt = $mysqli->prepare(
+                "update `propPartAnswer`
+                    set propPart = ?,
+                        answer   = ?,
+                        current  = ?,
+                        job      = ?,
+                        seq      = ?
+                    where id = ?"
+            )) {
+                $stmt->bind_param('iiiiii'
+                    ,$rec->data->propPart
+                    ,$rec->data->answer
+                    ,$rec->data->current
+                    ,$rec->data->job
+                    ,$rec->data->seq
+                    ,$rec->data->id
+                );
+                $r->successUpdate = $stmt->execute();
+                $r->rows = $mysqli->affected_rows;
+                $r->successUpdate OR $r->errorUpdate = $mysqli->error;
+                $stmt->close();
+            }
+            continue;
+        }
 
-    	if ($stmt = $mysqli->prepare(
-        	"insert into `propPartAnswer`
-            	    (propPart, answer, current, job, seq)
-         	values (?,?,?,?,?)"
-    	)) {
-        	$stmt->bind_param('iiiii'
-           		,$rec->data->propPart
-           		,$rec->data->answer
-           		,$rec->data->current
-           		,$rec->data->job
-           		,$rec->data->seq
-        	);
-        	$r->successInsert = $stmt->execute();
-        	$r->rows = $mysqli->affected_rows;
-        	$r->successInsert
-            	?$rec->data->id = $stmt->insert_id
-            	:$r->errorInsert = $mysqli->error;
-        	$stmt->close();
-    	}
-	}
+        if ($stmt = $mysqli->prepare(
+            "insert into `propPartAnswer`
+                    (propPart, answer, current, job, seq)
+             values (?,?,?,?,?)"
+        )) {
+            $stmt->bind_param('iiiii'
+                   ,$rec->data->propPart
+                   ,$rec->data->answer
+                   ,$rec->data->current
+                   ,$rec->data->job
+                   ,$rec->data->seq
+            );
+            $r->successInsert = $stmt->execute();
+            $r->rows = $mysqli->affected_rows;
+            $r->successInsert
+                ?$rec->data->id = $stmt->insert_id
+                :$r->errorInsert = $mysqli->error;
+            $stmt->close();
+        }
+    }}
 }

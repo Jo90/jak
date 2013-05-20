@@ -130,7 +130,7 @@ YUI.add('jak-mod-job',function(Y){
             h.bd.delegate('click',io.fetch.job,'.jak-search');
             h.addJob.on('click',io.insert.job,null,'create');
             h.dt.get('contentBox').delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
-            h.dt.get('contentBox').delegate('click',trigger.report,'.jak-rep',null,'duplicate');
+            h.dt.get('contentBox').delegate('click',trigger.report,'.jak-rep');
             h.dt.get('contentBox').delegate('click',io.insert.job,'.jak-dup',null,'duplicate');
             h.dt.get('contentBox').delegate('click',io.remove.job,'.jak-remove');
             //custom
@@ -146,28 +146,22 @@ YUI.add('jak-mod-job',function(Y){
             },
             result:{
                 job:function(rs){
-                    
+
                 }
             }
         };
 
         populate={
             job:function(id,o){
-                var rs       =Y.JSON.parse(o.responseText)[0].result,
-                    addresses=rs.address.data,
-                    jobs     =rs.job.data,
-                    locations=rs.location.data,
-                    usrJobs  =rs.usrJob.data,
-                    usrs     =rs.usr.data
-                ;
+                d.rs=Y.JSON.parse(o.responseText)[0].result;
                 h.dt.set('data',null);
-                Y.each(jobs,function(job){
+                Y.each(d.rs.job.data,function(job){
                     var usrInfo=[]
                     ;
                     //usr
-                    Y.each(usrJobs,function(usrJob){
+                    Y.each(d.rs.usrJob.data,function(usrJob){
                         if(usrJob.job!==job.id){return;}
-                        Y.each(usrs,function(usr){
+                        Y.each(d.rs.usr.data,function(usr){
                             if(usr.id!==usrJob.usr){return;}
                             usrInfo.push(usr.firstName+'('+usrJob.purpose+')');
                         });
@@ -175,9 +169,9 @@ YUI.add('jak-mod-job',function(Y){
                     h.dt.addRow({
                         job        :'<input type="button" title="Job #'+job.id+' created '+moment.unix(job.created).format('DD MMM YYYY hh:mm a')+'" value="'+job.id+'" />',
                         ref        :job.ref,
-                        streetRef  :job.address===null?'':addresses[job.address].streetRef,
-                        streetName :job.address===null?'':addresses[job.address].streetName,
-                        location   :job.address===null?'':locations[addresses[job.address].location].full,
+                        streetRef  :job.address===null?'':d.rs.address.data[job.address].streetRef,
+                        streetName :job.address===null?'':d.rs.address.data[job.address].streetName,
+                        location   :job.address===null?'':d.rs.location.data[d.rs.address.data[job.address].location].full,
                         appointment:job.appointment===null
                                        ?''
                                        :'<span>'+moment.unix(job.appointment).format('DDMMMYY hh:mma')+'</span>',
@@ -362,9 +356,28 @@ YUI.add('jak-mod-job',function(Y){
 
         trigger={
             report:function(){
+                var rec=this.ancestor('tr'),
+                    jobId=parseInt(rec.one('.yui3-datatable-col-job input').get('value'),10),
+                    job=d.rs.job.data[jobId],
+                    address,
+                    addressMessage='address not entered',
+                    statement=[]
+                ;
+                if(job.address!==null){
+                    address=d.rs.address.data[job.address];
+                    addressMessage=address.streetRef+' '+address.streetName+' '+d.rs.location.data[address.location].name;
+                }
+                //answers
+                    Y.each(d.rs.answer.data,function(answer){
+                        if(answer.job!==jobId){return;}
+                        statement.push(JAK.data.question[answer.question].name+': '+answer.detail);
+                    });
                 if(this.hasClass('jak-rep-summary')){
                     JAK.my.podRep.display({
-                        html   :'<h2>summary</h2>blurb,.....',
+                        html   :'<h2>Job#'+jobId+' '+addressMessage+'</h2>'
+                               +'<ul>'
+                               +  '<li>'+statement.join('</li><li>')+'</li>'
+                               +'</ul>',
                         visible:true
                     });
                 }

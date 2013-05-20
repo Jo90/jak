@@ -90,7 +90,7 @@ function usr_setUsr(&$i) {
 
     $r = initResult($i);
 
-    remove('usr', $i);
+    db::remove('usr', $i);
 
     if (isset($i->data->id)) {
         if ($stmt = $mysqli->prepare(

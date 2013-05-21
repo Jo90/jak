@@ -16,7 +16,7 @@
 
 .jak-pod-job a.jak-btn.jak-info > span {font-size:0.8em;font-weight:bold;color:#8A0808;}
 
-.jak-pod-job .jak-section-propPart {clear:both;float:left;}
+.jak-pod-job .jak-section-answer {clear:both;float:left;width:35em;}
 .jak-pod-job .jak-section-propPartAnswer {float:left;width:4em;}
 
 .jak-pod-job ul {list-style-type:none;}

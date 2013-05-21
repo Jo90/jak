@@ -694,11 +694,12 @@ YUI.add('jak-pod-job',function(Y){
                             +  '<legend>services</legend>'
                             +'</fieldset>'
                         +'<div class="jak-section-details">'
-                        //property parts
-                            +  '<fieldset class="jak-section jak-section-propPart">'
+                        //question/answers
+                            +  '<fieldset class="jak-section jak-section-answer">'
                             +    '<legend>'
-                            +      Y.JAK.html('btn',{action:'eye',label:'property&nbsp;',title:'change view',classes:'jak-eye-open'})
+                            +      Y.JAK.html('btn',{action:'eye',label:'statement&nbsp;',title:'change view',classes:'jak-eye-open'})
                             +      '<select></select>'
+                            +      Y.JAK.html('btn',{action:'save',title:'save',label:'save'})
                             +    '</legend>'
                             +    '<ul></ul>'
                             +  '</fieldset>'
@@ -709,12 +710,11 @@ YUI.add('jak-pod-job',function(Y){
                             +    '</legend>'
                             +    '<ul></ul>'
                             +  '</fieldset>'
-                        //question/answers
-                            +  '<fieldset class="jak-section jak-section-answer">'
+                        //property parts
+                            +  '<fieldset class="jak-section jak-section-propPart">'
                             +    '<legend>'
-                            +      Y.JAK.html('btn',{action:'eye',label:'statement&nbsp;',title:'change view',classes:'jak-eye-open'})
+                            +      Y.JAK.html('btn',{action:'eye',label:'property&nbsp;',title:'change view',classes:'jak-eye-open'})
                             +      '<select></select>'
-                            +      Y.JAK.html('btn',{action:'save',title:'save',label:'save'})
                             +    '</legend>'
                             +    '<ul></ul>'
                             +  '</fieldset>'
@@ -797,6 +797,14 @@ YUI.add('jak-pod-job',function(Y){
                    +  '<span class="jak-showhide">'
                    +    Y.JAK.html('btn',{action:'info',title:'notes',label:(p.infoCount===0?' ':p.infoCount)})
                    +    '<input type="text"     class="jak-data jak-data-name" value="{name}" placeholder="detail" />'
+                   +    '<select>'
+                   +      '<option>Component..</option>'
+                   +      '<option>Wall</option>'
+                   +      '<option>Floor</option>'
+                   +      '<option>Ceiling</option>'
+                   +      '<option>Window</option>'
+                   +      '<option>Door</option>'
+                   +    '</select>'
                    +    Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
                    +    Y.JAK.html('btn',{action:'add',title:'add property parts'})
                    +  '</span>'
@@ -830,12 +838,15 @@ YUI.add('jak-pod-job',function(Y){
         trigger={
             filter:{
                 answer:function(){
-                    var answerFilterValue=parseInt(this.get('value'),10),
-                        hasService,
-                        serviceHasQuestion=function(service,question){
-                            var found=false;
+                    var answerFilterValue=this.get('value'),
+                        foundValue,
+                        questionHas=function(question,answerValue){
+                            var found=false,
+                                isCategory=isNaN(parseInt(answerValue,10))//services are numeric , categories are strings
+                            ;
                             Y.each(JAK.data.questionMatrix,function(qm){
-                                if(qm.service===service&&qm.question===question){found=true;}
+                                if(!isCategory){answerValue=parseInt(answerValue,10);}
+                                if(qm.question===question && answerValue===(isCategory?qm.category:qm.service)){found=true;}
                             });
                             return found;
                         },
@@ -848,9 +859,9 @@ YUI.add('jak-pod-job',function(Y){
                         });
                     }else{
                         h.answerList.all('li').each(function(row){
-                            hasService=serviceHasQuestion(answerFilterValue,parseInt(row.one('.jak-data-question').get('value'),10));
-                            row.setStyle('display',hasService?'':'none');
-                            if(!visibleAnswer && hasService){visibleAnswer=row;}
+                            foundValue=questionHas(parseInt(row.one('.jak-data-question').get('value'),10),answerFilterValue);
+                            row.setStyle('display',foundValue?'':'none');
+                            if(!visibleAnswer && foundValue){visibleAnswer=row;}
                         });
                     }
                     //focus on first displayed

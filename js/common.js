@@ -40,7 +40,7 @@ YUI.add('jak-common',function(Y){
         }
         /**
          *  convert resultSets.dataSet.data,meta to JAK.data.dataSet and JAK.meta.dataSet
-         *  arg[0] = result.dataSet.data and result.dataSet.meta
+         *  args[0] = result.dataSet.data and result.dataSet.meta
          *  args[1] = primary key field name i.e. 'id'
          *  args[2] = return type i.e. 'object'(default), 'array', 'raw'
          *  args[3] = alternative dataSet name
@@ -207,12 +207,25 @@ YUI.add('jak-common',function(Y){
             }
         });
         //ensure indice order
-        return arr.sort(function(a,b){return a[0]-b[0];});
+        return arr.sort(Y.JAK.sort.asc);
     };
 
     Y.JAK.removeOption=function(node){
         node.one('.jak-remove').remove();
         node.append(Y.JAK.html('removeCheckbox'));
+    };
+
+    Y.JAK.sort={
+        asc:function(a,b){
+            return Y.Lang.isArray(a)
+                ?a[0]-b[0]
+                :a-b;
+        },
+        desc:function(a,b){
+            return Y.Lang.isArray(a)
+                ?b[0]-a[0]
+                :b-a;
+        }
     };
 
     Y.JAK.whenAvailable={

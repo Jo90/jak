@@ -8,7 +8,7 @@ header('Content-type: text/css');
 
 include 'base.css';
 include 'jak.css';
-include 'jak-yui3.css'; //yui3 overrides
+include 'yui3.css'; //yui3 overrides
 
 //passed css files, also include specific device extensions
 foreach ($_GET as $k => $v) {

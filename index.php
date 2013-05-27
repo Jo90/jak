@@ -11,7 +11,7 @@ namespace jak;
 <title>JAK Inspection Application</title>
 <meta name="description" content="JAK" />
 <meta name="keywords" content="JAK" />
-<meta name="author" content="Amelita, et al" />
+<meta name="author" content="Joe and Amelita" />
 
 <?php echo YUI_CSS; ?>
 <link rel="stylesheet" type="text/css" href="css/combine.css.php">

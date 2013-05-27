@@ -484,11 +484,14 @@ YUI.add('jak-pod-job',function(Y){
 
         populate={
             answer:function(){
+                d.rs.answerRef={};
                 Y.each(d.rs.answer.data,function(answer){
                     var cnt={button:0,input:0,select:0,textarea:0},
+                        q=JAK.data.question[answer.question],
                         nodes
                     ;
-                    q=JAK.data.question[answer.question];
+                    //+question ref to answer
+                        d.rs.answerRef[q.ref]=answer;
                     answerInfoCount=0;
                     Y.each(d.rs.answerInfo.data,function(i){
                         if(i.dbTable===JAK.data.dbTable['answer'].id && i.pk===answer.id){answerInfoCount++;}
@@ -772,11 +775,15 @@ YUI.add('jak-pod-job',function(Y){
                     '<li>'
                    +  '<input type="hidden" class="jak-data jak-data-id" value="{id}" />'
                    +  '<input type="hidden" class="jak-data jak-data-question" value="{question}" />'
-                   +  '<em title="answer#{id}">{name}</em>'
+                   +  '<div title="#{id}">'
+                   +    '{name}'
+                   +    Y.JAK.html('btn',{action:'info',title:'notes',label:p.infoCount})
+                   +    '<span class="jak-actions">'
+                   +      Y.JAK.html('btn',{action:'dup',title:'duplicate'})
+                   +      Y.JAK.html('btn',{action:'remove',title:'remove'})
+                   +    '</span>'
+                   +  '</div>'
                    +  '<span>{code}</span>'
-                   +  Y.JAK.html('btn',{action:'remove',title:'remove'})
-                   +  Y.JAK.html('btn',{action:'dup',title:'duplicate'})
-                   +  Y.JAK.html('btn',{action:'info',title:'notes',label:p.infoCount})
                    +'</li>',
                 {
                     'id'      :p.id,
@@ -793,20 +800,21 @@ YUI.add('jak-pod-job',function(Y){
                    +  '<input type="hidden"   class="jak-data jak-data-seq" value="{seq}" />'
                    +  '<input type="hidden"   class="jak-data jak-data-indent" value="{indent}" />'
                    +  '<input type="hidden"   class="jak-data jak-data-category" value="{category}" />'
-                   +  '<span                  class="jak-data-propPartTypeName" title="propPart#{id}">{propPartTypeName}</span>'
-                   +  '<span class="jak-showhide">'
-                   +    Y.JAK.html('btn',{action:'info',title:'notes',label:(p.infoCount===0?' ':p.infoCount)})
-                   +    '<input type="text"     class="jak-data jak-data-name" value="{name}" placeholder="detail" />'
-                   +    '<select>'
-                   +      '<option>Component..</option>'
-                   +      '<option>Wall</option>'
-                   +      '<option>Floor</option>'
-                   +      '<option>Ceiling</option>'
-                   +      '<option>Window</option>'
-                   +      '<option>Door</option>'
-                   +    '</select>'
-                   +    Y.JAK.html('btn',{action:'remove',title:'remove all property parts'})
-                   +    Y.JAK.html('btn',{action:'add',title:'add property parts'})
+                   +  '<div class="jak-data-propPartTypeName" title="{propPartTypeName} part#{id}">{propPartTypeName}</div>'
+                   +  '<input type="text" class="jak-data jak-data-name" value="{name}" placeholder="detail" />'
+                   +  '<select class="jak-data jak-data-component">'
+                   +    '<option>Component..</option>'
+                   +    '<option>Wall</option>'
+                   +    '<option>Floor</option>'
+                   +    '<option>Ceiling</option>'
+                   +    '<option>Window</option>'
+                   +    '<option>Door</option>'
+                   +  '</select>'
+                   +  Y.JAK.html('btn',{action:'info'  ,title:'notes',label:(p.infoCount===0?' ':p.infoCount)})
+                   +  '<span class="jak-actions">'
+                   +    Y.JAK.html('btn',{action:'add'   ,title:'add property part'})
+                   +    Y.JAK.html('btn',{action:'dup'   ,title:'duplicate property part'})
+                   +    Y.JAK.html('btn',{action:'remove',title:'remove property part'})
                    +  '</span>'
                    +'</li>',
                 {
@@ -936,7 +944,8 @@ YUI.add('jak-pod-job',function(Y){
                 }
             },
             showHide:function(){
-                var section=this.ancestor('.jak-section')
+                var section=this.ancestor('.jak-section'),
+                    sectionList=section.one('ul')
                 ;
                 if(section.hasClass('jak-section-display')){
                     if(this.hasClass('jak-display-service')){
@@ -959,29 +968,39 @@ YUI.add('jak-pod-job',function(Y){
                 }else if(section.hasClass('jak-section-propPart')){
                     if(this.hasClass('jak-eye-open')){
                         this.replaceClass('jak-eye-open','jak-eye-squint');
-                        h.propPartList.all('.jak-btn').setStyle('display','none');
+                        sectionList.all('.jak-actions').setStyle('display','none');
+                        section.setStyle('width','27em');
                     }else if(this.hasClass('jak-eye-squint')){
                         this.replaceClass('jak-eye-squint','jak-eye-closed');
-                        h.propPartList.all('.jak-showhide').setStyle('display','none');
+                        sectionList.all('.jak-data-component,.jak-info').setStyle('display','none');
+                        section.setStyle('width','18em');
                     }else{
                         this.replaceClass('jak-eye-closed','jak-eye-open');
-                        h.propPartList.all('.jak-showhide,.jak-btn').setStyle('display','');
+                        section.setStyle('width','');
+                        section.setStyle('width','30em');
+                        sectionList.all('.jak-actions,.jak-data-component,.jak-info').setStyle('display','');
                     }
                 }else if(section.hasClass('jak-section-answer')){
                     if(this.hasClass('jak-eye-open')){
-                        this.replaceClass('jak-eye-open','jak-eye-closed');
-                        section.all('>ul .jak-btn').setStyle('display','none');
+                        this.replaceClass('jak-eye-open','jak-eye-squint');
+                        sectionList.all('.jak-actions').setStyle('display','none');
+                        section.setStyle('width','30em');
+                    }else if(this.hasClass('jak-eye-squint')){
+                        this.replaceClass('jak-eye-squint','jak-eye-closed');
+                        sectionList.all('li>span,.jak-info').setStyle('display','none');
+                        section.setStyle('width','26em');
                     }else{
                         this.replaceClass('jak-eye-closed','jak-eye-open');
-                        section.all('>ul .jak-btn').setStyle('display','');
+                        section.setStyle('width','35em');
+                        sectionList.all('.jak-actions,li>span,.jak-info').setStyle('display','');
                     }
                 }else if(section.hasClass('jak-section-propPartAnswer')){
                     if(this.hasClass('jak-eye-open')){
-                        this.replaceClass('jak-eye-open','jak-eye-closed');
-                        section.all('>ul .jak-btn').setStyle('display','none');
+                        this.replaceClass('jak-eye-open','jak-eye-squint');
+                        sectionList.all('.jak-info').setStyle('display','none');
                     }else{
                         this.replaceClass('jak-eye-closed','jak-eye-open');
-                        section.all('>ul .jak-btn').setStyle('display','');
+                        sectionList.all('.jak-info').setStyle('display','');
                     }
                 }
             }

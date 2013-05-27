@@ -420,10 +420,12 @@ YUI.add('jak-mod-job',function(Y){
         /**
          *  load & initialise
          */
+
         render.base();
         initialise();
         listeners();
         h.bd.one('.jak-search-last-jobs').simulate('click');
+
     };
 
 },'1.0 March 2013',{requires:['base','io','node']});

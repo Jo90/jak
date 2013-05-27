@@ -1,5 +1,5 @@
 <?php
-/** /index.js.php
+/** //index.js.php
  *
  */
 namespace jak;

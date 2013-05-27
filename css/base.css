@@ -4,7 +4,7 @@
 body {padding:0;margin:0;}
 body article,
 body header {width:99%;height:40px;background-color:#fefefe;margin-bottom:1.2em;}
-body section{padding:0 1.2em;}
+body section {padding:0 1.2em;}
 a {text-decoration:none;}
 
 label {display:inline-block; /* ensure label and contents do not wrap */}

@@ -49,6 +49,9 @@ if ($_SERVER['SERVER_ADMIN'] == 'joe@dargaville.net') {
 } else {
     $mysqli = new \mysqli('localhost', 'root', 'root', 'jak');
 }
+//else {
+//    $mysqli = new \mysqli('jakpest.db.11127692.hostedresource.com', 'jakpest', 'j@Kp35t01', 'jakpest');
+//}
 
 /**
  *  shared PHP functions

@@ -3,20 +3,20 @@
  *
  */
 namespace jak;
-require_once 'jak-config.php';
+require_once 'config.php';
 ?>
 
 //configurations
 JAK={
-    data:{},            //data stores
-    env:{               //environment
+    data:{},
+    env:{
         customEventSequence:0, //sequence to help generate unqiue custom events
         fileserver:'<?php echo JAK_FILESERVER; ?>',
         server    :'<?php echo JAK_SERVER; ?>'
     },
-    my:{},              //instantiated objects
-    rs:{},              //result sets
-    std:{               //standards
+    my:{},     //instantiated objects
+    rs:{},     //result sets
+    std:{      //standards
         format:{
             email   :/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/
         }
@@ -47,7 +47,7 @@ echo 'JAK.user.SALT="' , $_SESSION[JAK_SALT] , '";' , PHP_EOL;
 ?>
 
 //debug YUI({filter:'raw',
-YUI({<?php require 'jak-modules.inc'; ?>}).use(
+YUI({<?php require 'modules.inc'; ?>}).use(
     'jak-pod-userLogon',
     'jak-pod-info',
     'jak-pod-job',

@@ -25,7 +25,15 @@ YUI.add('jak-mod-job',function(Y){
         };
 
         var self=this,
-            d={},f={},h={},
+            d={
+                template:{}
+            },
+            f={},
+            h={
+                template:{
+                    PPI:new Y.Template()
+                }
+            },
             initialise={},
             io={},
             listeners,
@@ -75,6 +83,16 @@ YUI.add('jak-mod-job',function(Y){
                             criteria:criteria,
                             member  :JAK.user.usr
                         }])
+                    });
+                },
+                templates:function(){
+                    
+                    Y.io('/template/PPI.html',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            h.template.bindPPI=h.template.PPI.compile(o.responseText);
+                        }}
                     });
                 }
             },
@@ -129,10 +147,10 @@ YUI.add('jak-mod-job',function(Y){
         listeners=function(){
             h.bd.delegate('click',io.fetch.job,'.jak-search');
             h.addJob.on('click',io.insert.job,null,'create');
-            h.dt.get('contentBox').delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
-            h.dt.get('contentBox').delegate('click',trigger.report,'.jak-rep');
-            h.dt.get('contentBox').delegate('click',io.insert.job,'.jak-dup',null,'duplicate');
-            h.dt.get('contentBox').delegate('click',io.remove.job,'.jak-remove');
+            h.dtc.delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
+            h.dtc.delegate('click',trigger.report,'.jak-rep');
+            h.dtc.delegate('click',io.insert.job,'.jak-dup',null,'duplicate');
+            h.dtc.delegate('click',io.remove.job,'.jak-remove');
             //custom
                Y.on(JAK.my.podJob.customEvent.update,pod.result.job);
         };
@@ -183,8 +201,9 @@ YUI.add('jak-mod-job',function(Y){
                                        :'<span>'+moment.unix(job.reminder).format('DDMMMYY hh:mma')+'</span>',
                         usr        :usrInfo.join(','),
                         address    :job.address,
-                        report     :Y.JAK.html('btn',{action:'rep',title:'summary',classes:'jak-rep-summary'})
-                                   +Y.JAK.html('btn',{action:'rep',title:'details',classes:'jak-rep-detail'}),
+                        report     :Y.JAK.html('btn',{action:'rep',title:'summary'            ,classes:'jak-rep-summary'})
+                                   +Y.JAK.html('btn',{action:'rep',title:'details'            ,classes:'jak-rep-detail'})
+                                   +Y.JAK.html('btn',{action:'rep',title:'inspection report 1',classes:'jak-rep-1'}),
                         actions    :Y.JAK.html('btn',{action:'dup',title:'duplicate'})
                                    +Y.JAK.html('btn',{action:'remove',title:'remove'})
                     });
@@ -351,6 +370,7 @@ YUI.add('jak-mod-job',function(Y){
                     sortable:true,
                     summary :'jobs'
                 }).render(cfg.node);
+                h.dtc=h.dt.get('contentBox');
             }
         };
 
@@ -362,8 +382,11 @@ YUI.add('jak-mod-job',function(Y){
                     address,
                     addressMessage='address not entered',
                     statement=[],
+                    statementRef={},
                     indices=[],
-                    code
+                    micro=new Y.Template(),
+                    html='',
+                    width=800
                 ;
                 if(job.address!==null){
                     address=d.rs.address.data[job.address];
@@ -371,41 +394,78 @@ YUI.add('jak-mod-job',function(Y){
                 }
                 //answers
                     Y.each(d.rs.answer.data,function(answer){
+                        if(answer.job!==jobId || answer.detail===null || answer.detail===''){return;}
                         var tagAnswers,
                             tagAnswer,
-                            tagSnippet
+                            tagType,
+                            codeSnippet,
+                            posX,
+                            q=JAK.data.question[answer.question],
+                            code=q.code
                         ;
-                        if(answer.job!==jobId || answer.detail===null || answer.detail===''){return;}
                         tagAnswers=answer.detail.split(';');
-                        //
-                        code=JAK.data.question[answer.question].code;
                         //replace tags in reverse order
                         Y.each(Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],code).sort(function(a,b){return b[0]-a[0];}),function(tag){
                             tagAnswer=tagAnswers.pop();
                             //replace tag with value
-                                if(tag[1]==='select'||tag[1]==='textarea'||tag[1]==='button'){
+                                if(tag[1]==='select'){
+                                    //>>>>>>>>FINISH if array then multi select otherwise normal
+
+                                    //>>>>>>>>>>>>FINISH what happens if there are several select tags?  Need to search for last????? lastIndexOf
+                                    
                                     code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('</'+tag[1])+tag[1].length+3);
+
+
+                                }else if(tag[1]==='textarea'||tag[1]==='button'){
+
+                                    code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('</'+tag[1])+tag[1].length+3);
+
                                 }else if(tag[1]==='input'){
-                                    code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('/>')+2);
+                                    //find type
+                                    tagType=code.substring(code.indexOf('type=',tag[0])+6);
+                                    tagType=tagType.substring(0,tagType.indexOf('"'));
+                                    if(tagType.toLowerCase()==='checkbox'){
+                                        codeSnippet=code.substring(0,tag[0]);
+                                        posX=codeSnippet.lastIndexOf('<label');
+
+
+                                        
+                                        //>>>>>>>>>>>>>>FINISH
+
+
+                                        
+                                        codeSnippet=codeSnippet.substring(0,posX);
+
+
+
+
+                                        
+                                    }else{
+                                        code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('/>')+2);
+                                    }
                                 }
                         });
+                        statementRef[q.ref]=code;
                         statement.push(JAK.data.question[answer.question].name+': '+code);
                     });
                 if(this.hasClass('jak-rep-summary')){
-                    JAK.my.podRep.display({
-                        html   :'<h2>Job#'+jobId+' '+addressMessage+'</h2>'
-                               +'<ul>'
-                               +  '<li>'+statement.join('</li><li>')+'</li>'
-                               +'</ul>',
-                        visible:true
-                    });
-                }
+                    html='<h2>Job#'+jobId+' '+addressMessage+'</h2>'
+                        +'<ul>'
+                        +  '<li>'+statement.join('</li><li>')+'</li>'
+                        +'</ul>';
+                }else
                 if(this.hasClass('jak-rep-detail')){
-                    JAK.my.podRep.display({
-                        html   :'<h1>details</h1>',
-                        visible:true
-                    });
+                    html='<h1>details</h1>';
+                }else
+                if(this.hasClass('jak-rep-1')){
+                    //substitute final values
+
+                    //switch (statement) .... reformat the values for output ...
+
+                    html=h.template.bindPPI(statementRef);
+                    width=1000;
                 }
+                JAK.my.podRep.display({html:html,visible:true,width:width});
             },
             selectGridCell:function(e){
                 if(this.hasClass('yui3-datatable-col-job')||
@@ -421,6 +481,7 @@ YUI.add('jak-mod-job',function(Y){
          *  load & initialise
          */
 
+        io.fetch.templates();
         render.base();
         initialise();
         listeners();

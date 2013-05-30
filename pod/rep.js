@@ -10,7 +10,6 @@ YUI.add('jak-pod-rep',function(Y){
 
         cfg=Y.merge({
             title      :'reports',
-            categories :[],
             width      :800,
             visible    :false,
             zIndex     :99999
@@ -42,6 +41,7 @@ YUI.add('jak-pod-rep',function(Y){
                 h.ol.show();
                 self.set('visible',cfg.visible);
                 if(typeof p.title!=='undefined'){h.title.setContent(p.title);}
+                if(typeof p.width!=='undefined'){h.ol.set('width',cfg.width);}
                 h.dframeDoc.open();
                 h.dframeDoc.write(p.html);
                 h.dframeDoc.close();

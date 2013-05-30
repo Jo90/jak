@@ -12,7 +12,7 @@ YUI.add('jak-pod-job',function(Y){
 
         cfg=Y.merge({
             title   :'job',
-            width   :1000,
+            width   :1250,
             visible :true,
             xy      :[10,20],
             zIndex  :99999

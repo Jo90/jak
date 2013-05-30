@@ -3,7 +3,7 @@
  *  Combine css files
  */
 namespace jak;
-require_once 'jak-config.php';
+require_once 'config.php';
 header('Content-type: text/css');
 
 include 'base.css';

@@ -49,6 +49,7 @@ echo 'JAK.user.SALT="' , $_SESSION[JAK_SALT] , '";' , PHP_EOL;
 //debug YUI({filter:'raw',
 YUI({<?php require 'modules.inc'; ?>}).use(
     'jak-pod-userLogon',
+    'jak-pod-address',
     'jak-pod-info',
     'jak-pod-job',
     'jak-pod-rep',
@@ -111,9 +112,10 @@ YUI({<?php require 'modules.inc'; ?>}).use(
                     });
 
                 //reusable
-                    JAK.my.podInfo=new Y.JAK.pod.info({visible:false});
-                    JAK.my.podJob =new Y.JAK.pod.job({visible:false});
-                    JAK.my.podRep =new Y.JAK.pod.rep({visible:false});
+                    JAK.my.podAddress=new Y.JAK.pod.address({visible:false});
+                    JAK.my.podInfo   =new Y.JAK.pod.info({visible:false});
+                    JAK.my.podJob    =new Y.JAK.pod.job({visible:false});
+                    JAK.my.podRep    =new Y.JAK.pod.rep({visible:false});
 
                 //panels
                     my.panelBuild=function(){

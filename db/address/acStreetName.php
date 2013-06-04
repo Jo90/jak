@@ -6,8 +6,6 @@
  */
 namespace jak;
 
-require_once 'jak-config.php';
-
 $post = json_decode(file_get_contents('php://input'));
 if (!isset($_REQUEST['streetName'], $_REQUEST['location'])) {exit;}
 

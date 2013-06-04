@@ -23,42 +23,14 @@ YUI.add('jak-mod-calendar',function(Y){
             version    :'v1.0 March 2013'
         };
 
-        var self=this,
-            d={},
-            h={},
-            initialise={},
-            io={},
-            listeners,
-            populate={},
-            render={}
-        ;
-
-        this.customEvent={
-        };
-
-        this.get=function(what){
-        };
-        this.set=function(what,value){
-        };
-
-        this.my={}; //children
-
         /**
          * private
          */
 
-        initialise=function(){
-        };
-
-        io={
-            fetch:{
-            }
-        };
-
-        listeners=function(){
-        };
-
-        populate={
+        function listeners(){
+            Y.on(JAK.my.podJob.customEvent.save,function(){
+                JAK.my.fc.fullCalendar('refetchEvents');
+            });
         };
 
         render={
@@ -138,7 +110,6 @@ YUI.add('jak-mod-calendar',function(Y){
         ],function(){
 
             render.base();
-            initialise();
             listeners();
 
         });

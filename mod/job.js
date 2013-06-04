@@ -81,7 +81,7 @@ YUI.add('jak-mod-job',function(Y){
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
                             criteria:criteria,
-                            member  :JAK.user.usr
+                            usr     :JAK.user.usr
                         }])
                     });
                 },
@@ -102,20 +102,20 @@ YUI.add('jak-mod-job',function(Y){
                     ;
                     action==='duplicate'
                         ?post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job input').get('value'),10)
-                        :post.create=true;
+                        :post.record=[{data:{appointment:moment().day(7).unix()}}];
 
                     Y.io('/db/job/id.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var rs=Y.JSON.parse(o.responseText)[0].data.job[action].result
+                            var rs=Y.JSON.parse(o.responseText)[0].job.record[0]
                             ;
-                            if(!rs.successInsert){alert('insert failed');}
+                            if(!rs.result.successInsert){alert('insert failed');}
                             else{pod.display.job({job:rs.data.id});}
                         }},
                         data:Y.JSON.stringify([{
-                            data:{job:post},
-                            usr :JAK.user.usr
+                            job:post,
+                            usr:JAK.user.usr
                         }])
                     });
                 }
@@ -134,9 +134,9 @@ YUI.add('jak-mod-job',function(Y){
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){row.remove();}},
                         data:Y.JSON.stringify([{
-                            data:{job:{
+                            job:{
                                 remove:[jobId]
-                            }},
+                            },
                             usr:JAK.user.usr
                         }])
                     });
@@ -152,7 +152,7 @@ YUI.add('jak-mod-job',function(Y){
             h.dtc.delegate('click',io.insert.job,'.jak-dup',null,'duplicate');
             h.dtc.delegate('click',io.remove.job,'.jak-remove');
             //custom
-               Y.on(JAK.my.podJob.customEvent.update,pod.result.job);
+               Y.on(JAK.my.podJob.customEvent.save,pod.result.job);
         };
 
         pod={

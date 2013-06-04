@@ -37,16 +37,14 @@ YUI.add('jak-pod-job',function(Y){
         ;
 
         this.display=function(p){
+            if(typeof cfg.appointment!=='undefined'){delete cfg.appointment;}
+            cfg=Y.merge(cfg,p);
             trigger.reset.form();
             Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
             h.ol.show();
-            if(typeof p.job!=='undefined'){
-                d.jobId=p.job;
-                io.fetch.job();
-            }else{
-                h.answerFilter.simulate('change');
-                if(typeof p.appointment!=='undefined'){f.jobAppointment.set('value',moment.unix(p.appointment).format('DDMMMYY hh:mma'));}
-            }
+            typeof p.job!=='undefined'
+                ?io.fetch.job()
+                :io.insert.job();
         };
 
         this.get=function(what){
@@ -58,7 +56,7 @@ YUI.add('jak-pod-job',function(Y){
         };
 
         this.customEvent={
-            update:self.info.id+(++JAK.env.customEventSequence)+':update'
+            save:self.info.id+(++JAK.env.customEventSequence)+':save'
         };
 
         this.my={}; //children
@@ -111,7 +109,7 @@ YUI.add('jak-pod-job',function(Y){
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
-                            criteria:{jobIds:[d.jobId]},
+                            criteria:{jobIds:[cfg.job]},
                             member  :JAK.user.usr
                         }])
                     });
@@ -142,7 +140,28 @@ YUI.add('jak-pod-job',function(Y){
             },
             insert:{
                 answer:function(){
-                    alert('duplicate - to do - must create immediately to allow notes to be attached....')
+                    alert('duplicate - to do - must create immediately to allow notes to be attached....');
+                },
+                job:function(){
+                    Y.JAK.widget.busy.set('message','new job...');
+                    Y.io('/db/job/id.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            var rs=Y.JSON.parse(o.responseText)[0].job.record[0]
+                            ;
+                            cfg.job=rs.data.id;
+                            io.fetch.job();
+                        }},
+                        data:Y.JSON.stringify([{
+                            job:{record:[{
+                                data:{
+                                    appointment:cfg.appointment
+                                }
+                            }]},
+                            usr:JAK.user.usr
+                        }])
+                    });
                 }
             },
             remove:{
@@ -357,6 +376,7 @@ YUI.add('jak-pod-job',function(Y){
                 f.jobAddressDetail.on('click',pod.display.address);
             //all
                 h.bd.delegate('click',pod.display.info,'.jak-info');
+                h.hd.delegate('click',trigger.showHide,'.jak-eye');
                 h.bd.delegate('click',trigger.showHide,'.jak-eye');
             //property parts
                 h.propPartSection.delegate('click',pod.display.propPart,'.jak-add');
@@ -373,15 +393,14 @@ YUI.add('jak-pod-job',function(Y){
             //save
                 h.save.on('click',io.save.job);
             //custom
+                Y.on(JAK.my.podAddress.customEvent.select,pod.result.address);
                 Y.on(JAK.my.podInfo.customEvent.save,pod.result.info);
         };
 
         pod={
             display:{
                 address:function(){
-                    h.podInvoke=this;
-                    if(!self.my.podAddress){pod.load.address();return false;}
-                    self.my.podAddress.display({address:f.jobAddress.get('value')});
+                    JAK.my.podAddress.display({address:f.jobAddress.get('value')});
                 },
                 info:function(){
                     var config={
@@ -415,16 +434,6 @@ YUI.add('jak-pod-job',function(Y){
                 }
             },
             load:{
-                address:function(){
-                    Y.use('jak-pod-address',function(Y){
-                        self.my.podAddress=new Y.JAK.pod.address({});
-                        Y.JAK.whenAvailable.inDOM(self,'my.podAddress',function(){
-                            self.my.podAddress.set('zIndex',cfg.zIndex+10);
-                            h.podInvoke.simulate('click');
-                        });
-                        Y.on(self.my.podAddress.customEvent.select,pod.result.address);
-                    });
-                },
                 propPart:function(){
                     Y.use('jak-pod-propPart',function(Y){
                         self.my.podPropPart=new Y.JAK.pod.propPart({});
@@ -438,12 +447,12 @@ YUI.add('jak-pod-job',function(Y){
             },
             result:{
                 address:function(rs){
-                    f.jobAddress.set('value',rs.id);
+                    f.jobAddress.set('value',rs.data.id);
                     f.jobAddressDetail.set('innerHTML',
                         render.address({
-                            streetRef :rs.streetRef,
-                            streetName:rs.streetName,
-                            location  :rs.locationName
+                            streetRef :rs.data.streetRef,
+                            streetName:rs.data.streetName,
+                            location  :rs.data.locationName
                         })
                     );
                 },
@@ -590,6 +599,9 @@ YUI.add('jak-pod-job',function(Y){
                 });
                 h.answerFilter.simulate('change');
                 Y.JAK.widget.busy.set('message','');
+h.propPartSection.one('legend a').simulate('click');
+                Y.fire(self.customEvent.save,'hi');
+
             },
             propPart:function(){
                 Y.each(d.rs.propPart.data,function(propPart){
@@ -667,11 +679,19 @@ YUI.add('jak-pod-job',function(Y){
             base:function(){
                 h.ol=new Y.Overlay({
                     headerContent:
-                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAK">'+self.info.title+'</span> '
-                       +' #<input type="text" class="jak-data jak-data-id" title="job number" disabled="disabled" />'
-                       +'<input type="hidden" class="jak-data jak-data-address" />'
-                       +' &nbsp; [<span class="jak-display-address"></span>]'
-                       +Y.JAK.html('btn',{action:'close',title:'close pod'}),
+                         '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAK">'+self.info.title+'</span> '
+                        +' #<input type="text" class="jak-data jak-data-id" title="job number" disabled="disabled" />'
+                        +'<input type="hidden" class="jak-data jak-data-address" />'
+                        +' &nbsp; [<span class="jak-display-address"></span>]'
+                        //display
+                            +'<span class="jak-section jak-section-display">'
+                            +  ' &nbsp; ['
+                            +    Y.JAK.html('btn',{action:'eye',title:'change view',classes:'jak-eye-open jak-display-service',label:'services'})
+                            +    ' &nbsp;'
+                            +    Y.JAK.html('btn',{action:'eye',title:'change view',classes:'jak-eye-open jak-display-details',label:'details'})
+                            +  ']'
+                            +'</span>'
+                        +Y.JAK.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:
                         //job
                              'ref:<input type="text" class="jak-data jak-data-ref" title="old system reference" placeholder="ref#" />'
@@ -684,14 +704,6 @@ YUI.add('jak-pod-job',function(Y){
                             +  '<option>wet</option>'
                             +  '<option>dark</option>'
                             +'</select>'
-                        //display
-                            +'<span class="jak-section jak-section-display">'
-                            +  ' &nbsp; ['
-                            +    Y.JAK.html('btn',{action:'eye',title:'change view',classes:'jak-eye-open jak-display-service',label:'services'})
-                            +    ' &nbsp;'
-                            +    Y.JAK.html('btn',{action:'eye',title:'change view',classes:'jak-eye-open jak-display-details',label:'details'})
-                            +  ']'
-                            +'</span>'
                         //services
                             +'<fieldset class="jak-list-service">'
                             +  '<legend>services</legend>'
@@ -714,7 +726,7 @@ YUI.add('jak-pod-job',function(Y){
                             +    '<ul></ul>'
                             +  '</fieldset>'
                         //property parts
-                            +  '<fieldset class="jak-section jak-section-propPart">'
+                            +  '<fieldset class="jak-section jak-section-propPart jak-eye-open">'
                             +    '<legend>'
                             +      Y.JAK.html('btn',{action:'eye',label:'property&nbsp;',title:'change view',classes:'jak-eye-open'})
                             +      '<select></select>'
@@ -732,6 +744,7 @@ YUI.add('jak-pod-job',function(Y){
                     h.bd              =h.ol.bodyNode;
                     h.ft              =h.ol.footerNode;
                     h.bb              =h.ol.get('boundingBox');
+
                     h.close           =h.hd.one('.jak-close');
 
                     f.jobId           =h.hd.one('.jak-data-id');
@@ -811,11 +824,11 @@ YUI.add('jak-pod-job',function(Y){
                    +    '<option>Door</option>'
                    +  '</select>'
                    +  Y.JAK.html('btn',{action:'info'  ,title:'notes',label:(p.infoCount===0?' ':p.infoCount)})
-                   +  '<span class="jak-actions">'
+                   +  '<div class="jak-actions">'
                    +    Y.JAK.html('btn',{action:'add'   ,title:'add property part'})
                    +    Y.JAK.html('btn',{action:'dup'   ,title:'duplicate property part'})
                    +    Y.JAK.html('btn',{action:'remove',title:'remove property part'})
-                   +  '</span>'
+                   +  '</div>'
                    +'</li>',
                 {
                     'id'              :p.id,
@@ -969,15 +982,11 @@ YUI.add('jak-pod-job',function(Y){
                     if(this.hasClass('jak-eye-open')){
                         this.replaceClass('jak-eye-open','jak-eye-squint');
                         sectionList.all('.jak-actions').setStyle('display','none');
-                        section.setStyle('width','27em');
                     }else if(this.hasClass('jak-eye-squint')){
                         this.replaceClass('jak-eye-squint','jak-eye-closed');
                         sectionList.all('.jak-data-component,.jak-info').setStyle('display','none');
-                        section.setStyle('width','18em');
-                    }else{
+                    }else if(this.hasClass('jak-eye-closed')){
                         this.replaceClass('jak-eye-closed','jak-eye-open');
-                        section.setStyle('width','');
-                        section.setStyle('width','30em');
                         sectionList.all('.jak-actions,.jak-data-component,.jak-info').setStyle('display','');
                     }
                 }else if(section.hasClass('jak-section-answer')){

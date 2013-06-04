@@ -4,24 +4,29 @@
 .jak-pod-job .jak-close,
 .jak-pod-job .jak-save {float:right;}
 .jak-pod-job .yui3-widget-bd {overflow:hidden;}/*containment*/
+
+.jak-pod-job legend {height:2em;}
+
 .jak-pod-job ul {list-style-type:none;}
-.jak-pod-job li:nth-child(odd) {background:#ddd;line-height:1.8em;}
+.jak-pod-job li {line-height:2em;}
+.jak-pod-job li:nth-child(odd) {background:#ddd;}
+
 .jak-pod-job .jak-focus {font-weight:bold;color:#08088A;background-color:#DDF6CE !important;}
 .jak-pod-job a.jak-btn.jak-info > span {font-size:0.8em;font-weight:bold;color:#8A0808;}
 .jak-pod-job .jak-actions {float:right;}
-.jak-pod-job li .jak-add {clear:both;}
 
 /*job*/
-.jak-pod-job .jak-data-id {width:2em;}
+.jak-pod-job .jak-data-id,
+.jak-pod-job .jak-data-ref {width:2.5em;}
 .jak-pod-job .jak-data-jobService-fee {width:4em;}
 
 /*answer*/
-.jak-pod-job .jak-section-answer {clear:both;float:left;width:35em;}
-.jak-pod-job .jak-section-answer li {line-height:auto;}
-.jak-pod-job .jak-section-answer li > div {display:block;}
+.jak-pod-job .jak-section-answer {float:left;width:35em;}
+.jak-pod-job .jak-section-answer li {line-height:auto;} /*override*/
 
 /*propPart*/
-.jak-pod-job .jak-section-propPart li .jak-data-propPartTypeName {float:left;max-height:1.8em;width:11em;overflow:hidden;}
+.jak-pod-job .jak-section-propPart {float:left;}
+.jak-pod-job .jak-section-propPart li .jak-data-propPartTypeName {float:left;width:11em;overflow:hidden;}
 .jak-pod-job .jak-section-propPart li .jak-data-name {width:7em;font-size:0.8em;}
 .jak-pod-job .jak-section-propPart li .jak-data-component {font-size:0.8em;}
 

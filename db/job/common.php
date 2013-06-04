@@ -88,149 +88,81 @@ function job_setJob(&$i) {
     if (!isset($i->record) &&
         !isset($i->create) &&
         !isset($i->duplicate) &&
-        !isset($i->remove)) {return null;}
+        !isset($i->remove)) {$i->error = 'invalid parameters'; return null;}
 
     db::remove('job',$i);
 
     if (isset($i->record)) {
+
         foreach ($i->record as $rec) {
 
-            $r = initResult($rec);
+            if (!db::update('job',$rec)) {
 
-            if (isset($rec->data->id) && $rec->data->id != '') {
-                if ($stmt = $mysqli->prepare(
-                "update `job`
-                        set ref         = ?,
-                            appointment = ?,
-                            address     = ?,
-                            confirmed   = ?,
-                            reminder    = ?,
-                            weather     = ?
-                    where id = ?"
-                )) {
-                    $stmt->bind_param('iiiiisi'
-                        ,$rec->data->ref
-                        ,$rec->data->appointment
-                        ,$rec->data->address
-                        ,$rec->data->confirmed
-                        ,$rec->data->reminder
-                        ,$rec->data->weather
-                        ,$rec->data->id
-                    );
-                    $r->successUpdate = $stmt->execute();
-                    $r->rows = $mysqli->affected_rows;
-                    $r->successUpdate OR $r->errorUpdate = $mysqli->error;
-                    $stmt->close();
-                }
-                continue;
-            }
-            if ($stmt = $mysqli->prepare(
-                "insert into `job`
-                        (ref, created, createdBy, appointment, address, confirmed, reminder, weather)
-                values (?,unix_timestamp(now()),?,?,?,?,?,?)"
-            )) {
-                $stmt->bind_param('isiiiis'
-                    ,$rec->data->ref
-                    ,$_SESSION['member']
-                    ,$rec->data->appointment
-                    ,$rec->data->address
-                    ,$rec->data->confirmed
-                    ,$rec->data->reminder
-                    ,$rec->data->weather
+                //insert
+                $rec->data->created = time();
+                $rec->data->createdBy = $_SESSION['member'];
+                db::insert('job',$rec);
+                //insert supporting data
+
+                $jobId = $rec->data->id;
+                //default property propPart
+                $mysqli->query(
+                    "insert into `propPart`
+                            (job, propPartType, seq, indent, name)
+                    values ($jobId,1,0,0,'')"
                 );
-                $r->successInsert = $stmt->execute();
-                $r->rows = $mysqli->affected_rows;
-                $r->successInsert
-                    ?$rec->data->id = $stmt->insert_id
-                    :$r->errorInsert = $mysqli->error;
-                $stmt->close();
-            }
-        }
-    }
+                $rec->log[] = 'insert into `propPart`';
+                //use propTemplate.def
+                if ($stmt = $mysqli->prepare(
+                    'select ptp.*,
+                            pt.name  as propTemplateName,
+                            ppt.name as propPartTypeName
+                    from `propTemplatePart` as ptp,
+                            `propTemplate`     as pt,
+                            `propPartType`     as ppt
+                    where ptp.propTemplate = pt.id
+                        and ptp.propPartType = ppt.id
+                        and pt.def           = 1'
+                )) {
+                    $stmt->execute();
+                    $propPartDef = \jak\fetch_result($stmt);
+                    $stmt->close();
 
-    if (isset($i->create)) {
-        $i->create = new \stdClass;
-        $r = initResult($i->create);
-        $r->data = new \stdClass;
-        $r->data->created = time();
-        $r->data->createdBy = $_SESSION['member'];
-        if ($stmt = $mysqli->prepare(
-            "insert into `job`
-                   (created, createdBy)
-             values (?,?)"
-        )) {
-            $stmt->bind_param('is'
-                ,$r->data->created
-                ,$r->data->createdBy
-            );
-            $r->successInsert = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successInsert
-                ?$r->data->id = $stmt->insert_id
-                :$r->errorInsert = $mysqli->error;
-            $stmt->close();
-        }
-        //supporting data
-        if ($r->successInsert) {
-            $jobId = $r->data->id;
-            //default property propPart
-            $mysqli->query(
-                "insert into `propPart`
-                        (job, propPartType, seq, indent, name)
-                 values ($jobId,1,0,0,'')"
-            );
-            $i->create->log[] = 'insert into `propPart`';
-            //use propTemplate.def
-            if ($stmt = $mysqli->prepare(
-                'select ptp.*,
-                        pt.name  as propTemplateName,
-                        ppt.name as propPartTypeName
-                   from `propTemplatePart` as ptp,
-                        `propTemplate`     as pt,
-                        `propPartType`     as ppt
-                  where ptp.propTemplate = pt.id
-                    and ptp.propPartType = ppt.id
-                    and pt.def           = 1'
-            )) {
-                $stmt->execute();
-                $propPartDef = \jak\fetch_result($stmt);
-                $stmt->close();
-
-                foreach ($propPartDef as $d) {
-                    for ($j = 0; $j < $d->defaultRecs; $j++) {
-                        $mysqli->query(
-                            "insert into `propPart`
-                                    (job, propPartType, seq, indent, name)
-                             values ($jobId, $d->propPartType, 0, 0, '')"
-                        );
+                    foreach ($propPartDef as $d) {
+                        for ($j = 0; $j < $d->defaultRecs; $j++) {
+                            $mysqli->query(
+                                "insert into `propPart`
+                                        (job, propPartType, seq, indent, name)
+                                values ($jobId, $d->propPartType, 0, 0, '')"
+                            );
+                        }
                     }
                 }
+                $rec->log[] = 'insert into `answer`';
+                //questions/answers
+                $mysqli->query(
+                    "insert into `answer`
+                            (question, job, detail)
+                    select id, $jobId, def
+                    from `question`"
+                );
+                //>>>>>>>>>>>>>>>FIX used distinct because of duplicate - why?
+                $rec->log[] = 'insert into `propPartAnswer`';
+                $mysqli->query(
+                    "insert into `propPartAnswer`
+                            (propPart, answer, job, seq)
+                    select distinct pp.id, a.id, $jobId, qm.seq
+                    from `questionMatrix` as qm,
+                            `answer`         as a,
+                            `propPart`       as pp
+                    where qm.question     = a.question
+                        and qm.propPartType = pp.propPartType
+                        and a.job           = $jobId
+                        and pp.job          = $jobId"
+                );
             }
-            $i->create->log[] = 'insert into `answer`';
-            //questions/answers
-            $mysqli->query(
-                "insert into `answer`
-                        (question, job, detail)
-                 select id, $jobId, def
-                   from `question`"
-            );
-            //>>>>>>>>>>>>>>>FIX used distinct because of duplicate - why?
-            $i->create->log[] = 'insert into `propPartAnswer`';
-            $mysqli->query(
-                "insert into `propPartAnswer`
-                        (propPart, answer, job, seq)
-                 select distinct pp.id, a.id, $jobId, qm.seq
-                   from `questionMatrix` as qm,
-                        `answer`         as a,
-                        `propPart`       as pp
-                  where qm.question     = a.question
-                    and qm.propPartType = pp.propPartType
-                    and a.job           = $jobId
-                    and pp.job          = $jobId"
-            );
         }
     }
-
 
     if (isset($i->duplicate)) {
         $jobId = $i->duplicate;

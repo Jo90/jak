@@ -2,9 +2,9 @@
  *
  */
 
-#jak-calendar .jak-date {width:7em;}
+#ja-calendar .ja-date {width:7em;}
 
-#jak-calendar .yui3-calendar, #jak-calendar {
+#ja-calendar .yui3-calendar, #ja-calendar {
   position:absolute;
   top:30px;
   left:30px;
@@ -12,6 +12,6 @@
   width:20em;
 }
 
-#jak-calendar .jak-calendar-time {width:17em;margin:0 auto;}
+#ja-calendar .ja-calendar-time {width:17em;margin:0 auto;}
 
-#jak-calendar .yui3-calendar-pane {clear:both;}
+#ja-calendar .yui3-calendar-pane {clear:both;}

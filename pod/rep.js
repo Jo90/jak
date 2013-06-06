@@ -1,9 +1,9 @@
 /** //pod/rep.js
  *
  */
-YUI.add('jak-pod-rep',function(Y){
+YUI.add('ja-pod-rep',function(Y){
 
-    Y.namespace('JAK.pod').rep=function(cfg){
+    Y.namespace('JA.pod').rep=function(cfg){
 
         if(typeof cfg==='undefined'
         ){cfg={};}
@@ -37,7 +37,7 @@ YUI.add('jak-pod-rep',function(Y){
             //init
                 cfg=Y.merge(cfg,p);
             //display
-                Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
+                Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
                 h.ol.show();
                 self.set('visible',cfg.visible);
                 if(typeof p.title!=='undefined'){h.title.setContent(p.title);}
@@ -66,7 +66,7 @@ YUI.add('jak-pod-rep',function(Y){
          */
 
         initialise=function(){
-            h.bb.addClass('jak-pod-'+self.info.id);
+            h.bb.addClass('ja-pod-'+self.info.id);
             new Y.DD.Drag({node:h.bb,handles:[h.hd]});
         };
 
@@ -79,9 +79,9 @@ YUI.add('jak-pod-rep',function(Y){
                        ,on:{complete:trigger.close}
                        ,data:Y.JSON.stringify([{
                            criteria:{
-                               email  :'admin@jak.com.au'
+                               email  :'admin@ja.com.au'
                               ,message:h.dframeDoc.body.innerHTML
-                              ,subject:'JAK Inspections'
+                              ,subject:'JA Inspections'
                             }
                         }])
                     });
@@ -90,7 +90,7 @@ YUI.add('jak-pod-rep',function(Y){
         };
 
         listeners=function(){
-            h.close.on('click',function(){h.ol.hide();Y.JAK.widget.dialogMask.hide();});
+            h.close.on('click',function(){h.ol.hide();Y.JA.widget.dialogMask.hide();});
             h.email.on('click',io.send.email);
             //>>>>FINISH print xbrowser?
             h.print.on('click',function(){h.dframe.contentWindow.print();return false;});
@@ -100,11 +100,11 @@ YUI.add('jak-pod-rep',function(Y){
             base:function(){
                 h.ol=new Y.Overlay({
                     headerContent:
-                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAK"><em>'+self.info.title+'</em></span> '
+                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JA"><em>'+self.info.title+'</em></span> '
                        +'<input type="text" placeholder="email address" title="email address" >'
-                       +'<button class="jak-email">Email</button>'
-                       +'<button class="jak-print">Print</button>'
-                       +Y.JAK.html('btn',{action:'close',title:'close pod'}),
+                       +'<button class="ja-email">Email</button>'
+                       +'<button class="ja-print">Print</button>'
+                       +Y.JA.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:'<ul></ul>',
                     align   :{points:[Y.WidgetPositionAlign.TC,Y.WidgetPositionAlign.TC]},
                     visible :cfg.visible,
@@ -122,12 +122,12 @@ YUI.add('jak-pod-rep',function(Y){
                     h.bd    =h.ol.bodyNode;
                     h.bb    =h.ol.get('boundingBox');
                     h.title =h.hd.one('em');
-                    h.close =h.hd.one('.jak-close');
-                    h.email =h.hd.one('.jak-email');
-                    h.print =h.hd.one('.jak-print');
+                    h.close =h.hd.one('.ja-close');
+                    h.email =h.hd.one('.ja-email');
+                    h.print =h.hd.one('.ja-print');
 
                     h.dframe       =document.createElement('iframe');
-                    h.dframe.id    ='jak-displayFrame';
+                    h.dframe.id    ='ja-displayFrame';
                     h.dframe.width =800;
                     h.dframe.height=600;
                     h.dframe.src   ='about:blank';

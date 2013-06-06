@@ -5,9 +5,9 @@
  *  http://www.webtoolkit.info/
  *
  **/
-YUI.add('jak-js-sha1',function(Y){
+YUI.add('ja-js-sha1',function(Y){
 
-    Y.namespace('JAK.js').SHA1=function(msg){
+    Y.namespace('JA.js').SHA1=function(msg){
 
     function rotate_left(n,s) {
         var t4 = ( n<<s ) | (n>>>(32-s));

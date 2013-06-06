@@ -1,9 +1,9 @@
 /** //pod/address.js
  *
  */
-YUI.add('jak-pod-address',function(Y){
+YUI.add('ja-pod-address',function(Y){
 
-    Y.namespace('JAK.pod').address=function(cfg){
+    Y.namespace('JA.pod').address=function(cfg){
 
         if(typeof cfg==='undefined'
         ){cfg={};}
@@ -34,7 +34,7 @@ YUI.add('jak-pod-address',function(Y){
         this.display=function(p){
             cfg=Y.merge(cfg,p);
             h.ol.set('visible',cfg.visible);
-            Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
+            Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
             h.ol.show();
             trigger.resetForm();
             if(typeof p.address!=='undefined' && p.address!=='' && p.address!==null && !isNaN(p.address)){
@@ -51,7 +51,7 @@ YUI.add('jak-pod-address',function(Y){
         };
 
         this.customEvent={
-            select:self.info.id+(++JAK.env.customEventSequence)+':select'
+            select:self.info.id+(++JA.env.customEventSequence)+':select'
         };
 
         this.my={}; //children
@@ -61,14 +61,14 @@ YUI.add('jak-pod-address',function(Y){
          */
 
         initialise=function(){
-            h.bb.addClass('jak-pod-'+self.info.id);
+            h.bb.addClass('ja-pod-'+self.info.id);
             new Y.DD.Drag({node:h.bb,handles:[h.hd,h.ft]});
         };
 
         io={
             fetch:{
                 address:function(){
-                    Y.JAK.widget.busy.set('message','getting address(s)...');
+                    Y.JA.widget.busy.set('message','getting address(s)...');
                     Y.io('/db/address/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
@@ -82,39 +82,39 @@ YUI.add('jak-pod-address',function(Y){
                                 f.streetRef   .set('value',address.streetRef);
                             });
                             trigger.options.display();
-                            Y.JAK.widget.busy.set('message','');
+                            Y.JA.widget.busy.set('message','');
                         }},
                         data:Y.JSON.stringify([{
                             address:{criteria:{addressIds:[cfg.address]}},
-                            usr    :JAK.user.usr
+                            usr    :JA.user.usr
                         }])
                     });
                 }
             },
             select:function(){
-                Y.JAK.widget.busy.set('message','returning address');
+                Y.JA.widget.busy.set('message','returning address');
                 delete cfg.address;
                 Y.io('/db/address/siud.php',{
                     method:'POST',
                     headers:{'Content-Type':'application/json'},
                     on:{complete:function(id,o){
                         Y.fire(self.customEvent.select,Y.JSON.parse(o.responseText)[0].address.record[0]);
-                        Y.JAK.widget.busy.set('message','');
+                        Y.JA.widget.busy.set('message','');
                         h.close.simulate('click');
                     }},
                     data:Y.JSON.stringify([{
                         address:{
                             record:[{data:trigger.addressData()}]
                         },
-                        usr :JAK.user.usr
+                        usr :JA.user.usr
                     }])
                 });
             }
         };
 
         listeners=function(){
-            h.close.on('click',function(){h.ol.hide();Y.JAK.widget.dialogMask.hide();});
-            h.bd.delegate('change',trigger.addressChanged,'.jak-data-state,.jak-data-locationName,.jak-data-streetName');
+            h.close.on('click',function(){h.ol.hide();Y.JA.widget.dialogMask.hide();});
+            h.bd.delegate('change',trigger.addressChanged,'.ja-data-state,.ja-data-locationName,.ja-data-streetName');
             f.streetRef.on('keyup',trigger.options.display);
             h.addressSelect.on('click',io.select);
         };
@@ -123,15 +123,15 @@ YUI.add('jak-pod-address',function(Y){
             base:function(){
                 h.ol=new Y.Overlay({
                     headerContent:
-                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAKPS">'+self.info.title+'</span> '
-                       +Y.JAK.html('btn',{action:'close',title:'close pod'}),
+                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAPS">'+self.info.title+'</span> '
+                       +Y.JA.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:
-                        '<select class="jak-data-state"><option>NSW</option><option>VIC</option><option>QLD</option><option>ACT</option><option>NT</option><option>TAS</option><option>WA</option></select>'
-                       +'<input type="hidden" class="jak-data-location" />'
-                       +'<input type="text"   class="jak-data-locationName" title="suburb/city" placeholder="suburb" />'
-                       +'<input type="text"   class="jak-data-streetName"   title="street" placeholder="street" />'
-                       +'<input type="text"   class="jak-data-streetRef"    title="unit/street number" placeholder="#" />'
-                       +'<button class="jak-action-select">select</button>',
+                        '<select class="ja-data-state"><option>NSW</option><option>VIC</option><option>QLD</option><option>ACT</option><option>NT</option><option>TAS</option><option>WA</option></select>'
+                       +'<input type="hidden" class="ja-data-location" />'
+                       +'<input type="text"   class="ja-data-locationName" title="suburb/city" placeholder="suburb" />'
+                       +'<input type="text"   class="ja-data-streetName"   title="street" placeholder="street" />'
+                       +'<input type="text"   class="ja-data-streetRef"    title="unit/street number" placeholder="#" />'
+                       +'<button class="ja-action-select">select</button>',
                     centered:true,
                     visible :cfg.visible,
                     width   :cfg.width,
@@ -142,13 +142,13 @@ YUI.add('jak-pod-address',function(Y){
                     h.bd           =h.ol.bodyNode;
                     h.ft           =h.ol.footerNode;
                     h.bb           =h.ol.get('boundingBox');
-                    h.close        =h.hd.one('.jak-close');
-                    f.state        =h.bd.one('.jak-data-state');
-                    f.location     =h.bd.one('.jak-data-location');
-                    f.locationName =h.bd.one('.jak-data-locationName');
-                    f.streetName   =h.bd.one('.jak-data-streetName');
-                    f.streetRef    =h.bd.one('.jak-data-streetRef');
-                    h.addressSelect=h.bd.one('.jak-action-select');
+                    h.close        =h.hd.one('.ja-close');
+                    f.state        =h.bd.one('.ja-data-state');
+                    f.location     =h.bd.one('.ja-data-location');
+                    f.locationName =h.bd.one('.ja-data-locationName');
+                    f.streetName   =h.bd.one('.ja-data-streetName');
+                    f.streetRef    =h.bd.one('.ja-data-streetRef');
+                    h.addressSelect=h.bd.one('.ja-action-select');
 
                 //auto complete
                 f.locationName.plug(Y.Plugin.AutoComplete,{
@@ -203,9 +203,9 @@ YUI.add('jak-pod-address',function(Y){
         trigger={
             addressChanged:function(){
                 delete cfg.address;
-                if(this.hasClass('jak-data-state')){
+                if(this.hasClass('ja-data-state')){
                     trigger.resetForm();
-                }else if(this.hasClass('jak-data-locationName')){
+                }else if(this.hasClass('ja-data-locationName')){
                     f.streetName.set('value','');
                     f.streetRef .set('value','');
                 }
@@ -242,7 +242,7 @@ YUI.add('jak-pod-address',function(Y){
         /**
          *  load & initialise
          */
-        Y.JAK.dataSet.fetch([
+        Y.JA.dataSet.fetch([
         ],function(){
 
             render.base();

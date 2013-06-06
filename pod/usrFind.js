@@ -1,9 +1,9 @@
 /** //pod/usrFind.js
  *
  */
-YUI.add('jak-pod-usrFind',function(Y){
+YUI.add('ja-pod-usrFind',function(Y){
 
-    Y.namespace('JAK.pod').usrFind=function(cfg){
+    Y.namespace('JA.pod').usrFind=function(cfg){
 
         if(typeof cfg==='undefined'
         ){cfg={};}
@@ -35,9 +35,9 @@ YUI.add('jak-pod-usrFind',function(Y){
 
         this.display=function(p){
             d.pod=Y.merge(d.pod,p);
-            Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
+            Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
             h.ol.show();
-            JAK.db.usrFind.fetch();
+            JA.db.usrFind.fetch();
         };
 
         this.get=function(what){
@@ -55,7 +55,7 @@ YUI.add('jak-pod-usrFind',function(Y){
          */
 
         initialise=function(){
-            h.bb.addClass('jak-pod-'+self.info.id);
+            h.bb.addClass('ja-pod-'+self.info.id);
             new Y.DD.Drag({node:h.bb,handles:[h.hd,h.ft]});
         };
 
@@ -70,10 +70,10 @@ YUI.add('jak-pod-usrFind',function(Y){
         listeners=function(){
             h.close.on('click',function(){
                 h.ol.hide();
-                Y.JAK.widget.dialogMask.hide();
+                Y.JA.widget.dialogMask.hide();
             });
             //custom
-                Y.on('jak-db-usrFind:s',populate.usr);
+                Y.on('ja-db-usrFind:s',populate.usr);
         };
 
         populate={
@@ -85,10 +85,10 @@ YUI.add('jak-pod-usrFind',function(Y){
             base:function(){
                 h.ol=new Y.Overlay({
                     headerContent:
-                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAKPS">'+self.info.title+'</span> '
-                       +Y.JAK.html('btn',{action:'close',title:'close pod'}),
+                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAPS">'+self.info.title+'</span> '
+                       +Y.JA.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:'',
-                    footerContent:Y.JAK.html('btn',{action:'save',title:'return',label:'return'}),
+                    footerContent:Y.JA.html('btn',{action:'save',title:'return',label:'return'}),
                     width  :cfg.width,
                     xy     :cfg.xy,
                     zIndex :cfg.zIndex
@@ -98,7 +98,7 @@ YUI.add('jak-pod-usrFind',function(Y){
                     h.bd     =h.ol.bodyNode;
                     h.ft     =h.ol.footerNode;
                     h.bb     =h.ol.get('boundingBox');
-                    h.close  =h.hd.one('.jak-close');
+                    h.close  =h.hd.one('.ja-close');
             }
         };
 
@@ -108,7 +108,7 @@ YUI.add('jak-pod-usrFind',function(Y){
         /**
          *  load & initialise
          */
-        Y.JAK.dataSet.fetch([
+        Y.JA.dataSet.fetch([
         ],function(){
 
             render.base();

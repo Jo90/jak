@@ -1,34 +1,34 @@
 /** //css/pod/job.css
  *
  */
-.jak-pod-job .jak-close,
-.jak-pod-job .jak-save {float:right;}
-.jak-pod-job .yui3-widget-bd {overflow:hidden;}/*containment*/
+.ja-pod-job .ja-close,
+.ja-pod-job .ja-save {float:right;font-weight:bold;font-size:1.2em;}
+.ja-pod-job .yui3-widget-bd {overflow:hidden;}/*containment*/
 
-.jak-pod-job legend {height:2em;}
+.ja-pod-job legend {height:2em;}
 
-.jak-pod-job ul {list-style-type:none;}
-.jak-pod-job li {line-height:2em;}
-.jak-pod-job li:nth-child(odd) {background:#ddd;}
+.ja-pod-job ul {list-style-type:none;}
+.ja-pod-job li {line-height:2em;}
+.ja-pod-job li:nth-child(odd) {background:#ddd;}
 
-.jak-pod-job .jak-focus {font-weight:bold;color:#08088A;background-color:#DDF6CE !important;}
-.jak-pod-job a.jak-btn.jak-info > span {font-size:0.8em;font-weight:bold;color:#8A0808;}
-.jak-pod-job .jak-actions {float:right;}
+.ja-pod-job .ja-focus {font-weight:bold;color:#08088A;background-color:#DDF6CE !important;}
+.ja-pod-job a.ja-btn.ja-info > span {font-size:0.8em;font-weight:bold;color:#8A0808;}
+.ja-pod-job .ja-actions {float:right;}
 
 /*job*/
-.jak-pod-job .jak-data-id,
-.jak-pod-job .jak-data-ref {width:2.5em;}
-.jak-pod-job .jak-data-jobService-fee {width:4em;}
+.ja-pod-job .ja-data-id,
+.ja-pod-job .ja-data-ref {width:2.5em;}
+.ja-pod-job .ja-data-jobService-fee {width:4em;}
 
 /*answer*/
-.jak-pod-job .jak-section-answer {float:left;width:35em;}
-.jak-pod-job .jak-section-answer li {line-height:auto;} /*override*/
+.ja-pod-job .ja-section-answer {float:left;width:35em;}
+.ja-pod-job .ja-section-answer li {line-height:auto;} /*override*/
 
 /*propPart*/
-.jak-pod-job .jak-section-propPart {float:left;}
-.jak-pod-job .jak-section-propPart li .jak-data-propPartTypeName {float:left;width:11em;overflow:hidden;}
-.jak-pod-job .jak-section-propPart li .jak-data-name {width:7em;font-size:0.8em;}
-.jak-pod-job .jak-section-propPart li .jak-data-component {font-size:0.8em;}
+.ja-pod-job .ja-section-propPart {float:left;}
+.ja-pod-job .ja-section-propPart li .ja-data-propPartTypeName {float:left;width:11em;overflow:hidden;}
+.ja-pod-job .ja-section-propPart li .ja-data-name {width:7em;font-size:0.8em;}
+.ja-pod-job .ja-section-propPart li .ja-data-component {font-size:0.8em;}
 
 /*propPartAnswer*/
-.jak-pod-job .jak-section-propPartAnswer {float:left;width:3.5em;}
+.ja-pod-job .ja-section-propPartAnswer {float:left;width:4em;}

@@ -4,7 +4,7 @@
  *  used by
  *  - /mod/job.js
  */
-namespace jak;
+namespace ja;
 
 $post = json_decode(file_get_contents('php://input'));
 if (!isset($_REQUEST['state'], $_REQUEST['location'])) {exit;}
@@ -28,7 +28,7 @@ if ($stmt = $mysqli->prepare(
         $location
     );
     $stmt->execute();
-    $data = \jak\fetch_result($stmt,null,false);
+    $data = \ja\fetch_result($stmt,null,false);
     $stmt->close();
 }
 $mysqli->close();

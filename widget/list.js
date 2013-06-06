@@ -1,13 +1,13 @@
 /** //widget/list.js
  *
  */
-YUI().add('jak-widget-list',function(Y){
+YUI().add('ja-widget-list',function(Y){
 
     var List=function(config){
         List.superclass.constructor.apply(this,arguments);
     };
 
-    List.NAME='jak-list';
+    List.NAME='ja-list';
 
     List.ATTRS={
         current:{
@@ -139,6 +139,6 @@ YUI().add('jak-widget-list',function(Y){
         }
     });
 
-    Y.namespace('JAK.widget').List=List;
+    Y.namespace('JA.widget').List=List;
 
 },"1.0",{ requires:['widget','simulate']});

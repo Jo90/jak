@@ -2,7 +2,7 @@
 /** //db/address/siud.php
  *
  */
-namespace jak;
+namespace ja;
 
 require_once '../shared/common.php';
 require_once 'common.php';
@@ -37,9 +37,7 @@ foreach ($post as $i) {
         $r->usrJob = usr_getUsrJob($address->criteria);
 
     } else {
-
         db::remove('address', $address);
-
         if (isset($address->record)) {
             foreach ($address->record as $rec) {
                 db::update('address',$rec) or db::insert('address',$rec);

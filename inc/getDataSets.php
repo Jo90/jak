@@ -2,7 +2,7 @@
 /** //inc/getDataSets.php?d[]=dataSet1&[]=dataSet2&...
  *
  */
-namespace jak;
+namespace ja;
 
 require 'dataSets.php';
 header('Content-type: application/json');

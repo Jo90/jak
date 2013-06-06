@@ -1,32 +1,32 @@
 /** //widget/calendar.js
  *
  */
-YUI.add('jak-widget-calendar',function(Y){
+YUI.add('ja-widget-calendar',function(Y){
 
     Y.one('body').addClass('yui3-skin-sam');
     Y.one('body').append(
-        '<div id="jak-calendar-container"><div id="jak-calendar">'
-       +  '<button class="jak-calendar-today" title="return to today">today</button>'
-       +  '<button class="jak-calendar-clear" title="clear date field">clear</button>'
-       +  Y.JAK.html('btn',{action:'close',title:'close pod',classes:'jak-calendar-close'})
-       +  '<div class="jak-calendar-time">'
-       +    '<select class="jak-widget-calendar-hour">'
+        '<div id="ja-calendar-container"><div id="ja-calendar">'
+       +  '<button class="ja-calendar-today" title="return to today">today</button>'
+       +  '<button class="ja-calendar-clear" title="clear date field">clear</button>'
+       +  Y.JA.html('btn',{action:'close',title:'close pod',classes:'ja-calendar-close'})
+       +  '<div class="ja-calendar-time">'
+       +    '<select class="ja-widget-calendar-hour">'
        +      '<option value="0">midnight</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option selected="selected">9</option><option>10</option><option>11</option>'
        +    '</select>'
-       +    ':<select class="jak-widget-calendar-minute">'
+       +    ':<select class="ja-widget-calendar-minute">'
        +      '<option>00</option><option>05</option><option>10</option><option>15</option><option>20</option><option>25</option><option>30</option><option>35</option><option>40</option><option>45</option><option>50</option><option>55</option>'
        +    '</select>'
-       +    '<select class="jak-widget-calendar-ampm">'
+       +    '<select class="ja-widget-calendar-ampm">'
        +      '<option selected="selected">am</option>'
        +      '<option>pm</option>'
        +    '</select>'
-       +    '<button class="jak-widget-calendar-setTime">set</button>'
+       +    '<button class="ja-widget-calendar-setTime">set</button>'
        +  '</div>'
        +'</div></div>'
     );
 
     var cal=new Y.Calendar({
-            contentBox:'#jak-calendar',
+            contentBox:'#ja-calendar',
             date:new Date(),
             showNextMonth:true,
             showPrevMonth:true,
@@ -36,11 +36,11 @@ YUI.add('jak-widget-calendar',function(Y){
         callingNode,
         bb         =cal.get('boundingBox'),
         date_format='DDMMMYY h:mma',
-        fHr        =bb.one('.jak-widget-calendar-hour'),
-        fMin       =bb.one('.jak-widget-calendar-minute'),
-        fAm        =bb.one('.jak-widget-calendar-ampm'),
+        fHr        =bb.one('.ja-widget-calendar-hour'),
+        fMin       =bb.one('.ja-widget-calendar-minute'),
+        fAm        =bb.one('.ja-widget-calendar-ampm'),
         fHr0       =fHr.one('option'),
-        fTimeSet   =bb.one('.jak-widget-calendar-setTime'),
+        fTimeSet   =bb.one('.ja-widget-calendar-setTime'),
         fmtTime    =function(){
             var hr=fHr.get('value')
             ;
@@ -48,15 +48,15 @@ YUI.add('jak-widget-calendar',function(Y){
         }
     ;
 
-    Y.one('.jak-calendar-today').on('click',function(){
+    Y.one('.ja-calendar-today').on('click',function(){
         cal.set('date',new Date());
         cal.deselectDates();
         cal.selectDates(new Date());
     });
-    Y.one('.jak-calendar-clear').on('click',function(){
+    Y.one('.ja-calendar-clear').on('click',function(){
         callingNode.set('value','');}
     );
-    Y.one('.jak-calendar-close').on('click',function(){
+    Y.one('.ja-calendar-close').on('click',function(){
         cal.hide();
     });
     cal.on('dateClick',function(e){
@@ -98,11 +98,11 @@ YUI.add('jak-widget-calendar',function(Y){
                 cal.set('date',nodeDate);
             }
         //set time
-            Y.JAK.matchSelect(fHr,soonHr);
-            Y.JAK.matchSelect(fAm,soonAm);
+            Y.JA.matchSelect(fHr,soonHr);
+            Y.JA.matchSelect(fAm,soonAm);
             fAm.simulate('change');
         cal.selectDates(nodeDate);
-    },'.jak-date');
+    },'.ja-date');
 
     bb.on('clickoutside',function(e){
         if(e.target!==callingNode){cal.hide();}

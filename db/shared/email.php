@@ -2,7 +2,7 @@
 /** //db/shared/email.php
  *
  */
-namespace jak;
+namespace ja;
 
 require_once 'common.php';
 

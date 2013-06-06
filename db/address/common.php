@@ -2,7 +2,7 @@
 /** //db/address/common.php
  *
  */
-namespace jak;
+namespace ja;
 
 require_once '../shared/common.php';
 
@@ -35,7 +35,7 @@ function addr_getAddress($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->data = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;
@@ -65,7 +65,7 @@ function addr_getLocation($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->data = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;
@@ -73,54 +73,10 @@ function addr_getLocation($criteria) {
 
 function addr_setAddress(&$i) {
     global $mysqli;
-
-    $r = initResult($i);
-
-    $cnd   = '';
-    $limit = '';
-
     db::remove('address', $i);
-
-    if (isset($criteria->data->id)) {
-        if ($stmt = $mysqli->prepare(
-            "update `address`
-                set location = ?,
-                    streetName = ?,
-                    streetRef = ?,
-                    postcode = ?
-            where id = ?"
-        )) {
-            $stmt->bind_param('ssssi'
-                ,$criteria->data->location
-                ,$criteria->data->streetName
-                ,$criteria->data->streetRef
-                ,$criteria->data->postcode
-                ,$criteria->data->id
-            );
-            $r->successUpdate = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successUpdate OR $r->errorUpdate = $mysqli->error;
-            $stmt->close();
+    if (isset($i->record)) {
+        foreach ($i->record as $rec) {
+            db::update('address',$rec) or db::insert('address',$rec);
         }
-        return $r;
     }
-    if ($stmt = $mysqli->prepare(
-        "insert into `address`
-                (location,streetName,streetRef,postcode)
-        values (?,?,?,?)"
-    )) {
-        $stmt->bind_param('ssss'
-            ,$criteria->data->location
-            ,$criteria->data->streetName
-            ,$criteria->data->streetRef
-            ,$criteria->data->postcode
-        );
-        $r->successInsert = $stmt->execute();
-        $r->rows = $mysqli->affected_rows;
-        $r->successInsert
-            ?$criteria->data->id = $stmt->insert_id
-            :$r->errorInsert = $mysqli->error;
-        $stmt->close();
-    }
-    return $r;
 }

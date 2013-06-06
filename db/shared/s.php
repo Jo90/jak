@@ -1,11 +1,10 @@
 <?php
-/** //db/prop/sPropPart.php
+/** //db/shared/s.php
  *
  */
 namespace ja;
 
 require_once 'common.php';
-require_once '../shared/common.php';
 
 $post = json_decode(file_get_contents('php://input'));
 
@@ -14,10 +13,13 @@ foreach ($post as $i) {
     $r = initResult($i);
 
     if (!isset($i->criteria) &&
-        !isset($i->criteria->propPartIds)) {$r->log[] = 'parameter error'; continue;}
+        !isset($i->criteria->dataSet)) {$r->log[] = 'invalid parameters'; continue;}
 
-    $r->propPart = prop_getPropPart($i->criteria);
-
+    switch ($i->criteria->dataSet) {
+        case 'info':
+            $r->info = shared_getInfo($i->criteria);
+            break;
+    }
 }
 header('Content-type: text/plain');
 echo json_encode($post);

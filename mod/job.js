@@ -1,9 +1,9 @@
 /** //mod/job.js
  *
  */
-YUI.add('jak-mod-job',function(Y){
+YUI.add('ja-mod-job',function(Y){
 
-    Y.namespace('JAK.mod').job=function(cfg){
+    Y.namespace('JA.mod').job=function(cfg){
 
         if(typeof cfg=='undefined' ||
            typeof cfg.node=='undefined'
@@ -21,7 +21,7 @@ YUI.add('jak-mod-job',function(Y){
             description:'job search',
             file       :'/mod/job.js',
             version    :'v1.0 March 2013',
-            css        :'jak-mod-job'
+            css        :'ja-mod-job'
         };
 
         var self=this,
@@ -58,21 +58,21 @@ YUI.add('jak-mod-job',function(Y){
                 job:function(e){
                     var criteria={rowLimit:parseInt(f.rowLimit.get('value'),10)}
                     ;
-                    Y.JAK.widget.busy.set('message','getting job(s)...');
-                    if(this.hasClass('jak-search-address')){
+                    Y.JA.widget.busy.set('message','getting job(s)...');
+                    if(this.hasClass('ja-search-address')){
                         criteria.streetRef =f.streetRef .get('value');
                         criteria.streetName=f.streetName.get('value');
                         criteria.location  =parseInt(f.location.get('value'),10);
                     }else
-                    if(this.hasClass('jak-search-name')){
+                    if(this.hasClass('ja-search-name')){
                         criteria.firstName=f.firstName.get('value');
                         criteria.lastName =f.lastName .get('value');
                     }else
-                    if(this.hasClass('jak-search-job')){
+                    if(this.hasClass('ja-search-job')){
                         if(f.job.get('value')===''){alert('requires job number');return false;}
                         criteria.jobIds=[parseInt(f.job.get('value'),10)];
                     }else
-                    if(this.hasClass('jak-search-last-jobs')){
+                    if(this.hasClass('ja-search-last-jobs')){
                         criteria.lastJob=true;
                     }
                     Y.io('/db/job/s.php',{
@@ -81,7 +81,7 @@ YUI.add('jak-mod-job',function(Y){
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
                             criteria:criteria,
-                            usr     :JAK.user.usr
+                            usr     :JA.user.usr
                         }])
                     });
                 },
@@ -104,7 +104,7 @@ YUI.add('jak-mod-job',function(Y){
                         ?post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job input').get('value'),10)
                         :post.record=[{data:{appointment:moment().day(7).unix()}}];
 
-                    Y.io('/db/job/id.php',{
+                    Y.io('/db/shared/iud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
@@ -115,7 +115,7 @@ YUI.add('jak-mod-job',function(Y){
                         }},
                         data:Y.JSON.stringify([{
                             job:post,
-                            usr:JAK.user.usr
+                            usr:JA.user.usr
                         }])
                     });
                 }
@@ -129,7 +129,7 @@ YUI.add('jak-mod-job',function(Y){
                             +row.one('.yui3-datatable-col-location').get('innerHTML')
                     ;
                     if(!confirm('remove job #'+jobId+' for \n'+address+'?')){return;}
-                    Y.io('/db/job/id.php',{
+                    Y.io('/db/shared/iud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){row.remove();}},
@@ -137,7 +137,7 @@ YUI.add('jak-mod-job',function(Y){
                             job:{
                                 remove:[jobId]
                             },
-                            usr:JAK.user.usr
+                            usr:JA.user.usr
                         }])
                     });
                 }
@@ -145,21 +145,21 @@ YUI.add('jak-mod-job',function(Y){
         };
 
         listeners=function(){
-            h.bd.delegate('click',io.fetch.job,'.jak-search');
+            h.bd.delegate('click',io.fetch.job,'.ja-search');
             h.addJob.on('click',io.insert.job,null,'create');
             h.dtc.delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
-            h.dtc.delegate('click',trigger.report,'.jak-rep');
-            h.dtc.delegate('click',io.insert.job,'.jak-dup',null,'duplicate');
-            h.dtc.delegate('click',io.remove.job,'.jak-remove');
+            h.dtc.delegate('click',trigger.report,'.ja-rep');
+            h.dtc.delegate('click',io.insert.job,'.ja-dup',null,'duplicate');
+            h.dtc.delegate('click',io.remove.job,'.ja-remove');
             //custom
-               Y.on(JAK.my.podJob.customEvent.save,pod.result.job);
+               Y.on(JA.my.podJob.customEvent.save,pod.result.job);
         };
 
         pod={
             display:{
                 job:function(p){
-                    JAK.my.podJob.display(p);
-                    JAK.my.podJob.set('visible',true);
+                    JA.my.podJob.display(p);
+                    JA.my.podJob.set('visible',true);
                 }
             },
             result:{
@@ -201,14 +201,14 @@ YUI.add('jak-mod-job',function(Y){
                                        :'<span>'+moment.unix(job.reminder).format('DDMMMYY hh:mma')+'</span>',
                         usr        :usrInfo.join(','),
                         address    :job.address,
-                        report     :Y.JAK.html('btn',{action:'rep',title:'summary'            ,classes:'jak-rep-summary'})
-                                   +Y.JAK.html('btn',{action:'rep',title:'details'            ,classes:'jak-rep-detail'})
-                                   +Y.JAK.html('btn',{action:'rep',title:'inspection report 1',classes:'jak-rep-1'}),
-                        actions    :Y.JAK.html('btn',{action:'dup',title:'duplicate'})
-                                   +Y.JAK.html('btn',{action:'remove',title:'remove'})
+                        report     :Y.JA.html('btn',{action:'rep',title:'summary'            ,classes:'ja-rep-summary'})
+                                   +Y.JA.html('btn',{action:'rep',title:'details'            ,classes:'ja-rep-detail'})
+                                   +Y.JA.html('btn',{action:'rep',title:'inspection report 1',classes:'ja-rep-1'}),
+                        actions    :Y.JA.html('btn',{action:'dup',title:'duplicate'})
+                                   +Y.JA.html('btn',{action:'remove',title:'remove'})
                     });
                 });
-                Y.JAK.widget.busy.set('message','');
+                Y.JA.widget.busy.set('message','');
             }
         };
 
@@ -217,11 +217,11 @@ YUI.add('jak-mod-job',function(Y){
                 cfg.node.append(
                     '<fieldset>'
                    +  '<legend>search &nbsp; '
-                   +  Y.JAK.html('btn',{action:'add',label:'add job',title:'new job',classes:'jak-add-job'})
+                   +  Y.JA.html('btn',{action:'add',label:'add job',title:'new job',classes:'ja-add-job'})
                    +  '</legend>'
-                   +  '<button class="jak-search jak-search-last-jobs">last jobs</button>'
+                   +  '<button class="ja-search ja-search-last-jobs">last jobs</button>'
                    +  '&nbsp; Address:'
-                   +  '<select class="jak-data-state">'
+                   +  '<select class="ja-data-state">'
                    +    '<option>NSW</option>'
                    +    '<option>VIC</option>'
                    +    '<option>QLD</option>'
@@ -230,32 +230,32 @@ YUI.add('jak-mod-job',function(Y){
                    +    '<option>TAS</option>'
                    +    '<option>WA</option>'
                    +  '</select>'
-                   +  '<input type="hidden" class="jak-data-location" />'
-                   +  '<input type="text"   class="jak-data-locationName" title="suburb/city" placeholder="suburb" />'
-                   +  '<input type="text"   class="jak-data-streetName"   title="street" placeholder="street" />'
-                   +  '<input type="text"   class="jak-data-streetRef"    title="unit/street number" placeholder="#" />'
-                   +  Y.JAK.html('btn',{action:'find',title:'search for address',classes:'jak-search jak-search-address'})
+                   +  '<input type="hidden" class="ja-data-location" />'
+                   +  '<input type="text"   class="ja-data-locationName" title="suburb/city" placeholder="suburb" />'
+                   +  '<input type="text"   class="ja-data-streetName"   title="street" placeholder="street" />'
+                   +  '<input type="text"   class="ja-data-streetRef"    title="unit/street number" placeholder="#" />'
+                   +  Y.JA.html('btn',{action:'find',title:'search for address',classes:'ja-search ja-search-address'})
                    +  '&nbsp; Name:'
-                   +  '<input type="text"   class="jak-data-firstName" title="first name" placeholder="first" />'
-                   +  '<input type="text"   class="jak-data-lastName"  title="last name"  placeholder="last" />'
-                   +  Y.JAK.html('btn',{action:'find',title:'search for name',classes:'jak-search jak-search-name'})
+                   +  '<input type="text"   class="ja-data-firstName" title="first name" placeholder="first" />'
+                   +  '<input type="text"   class="ja-data-lastName"  title="last name"  placeholder="last" />'
+                   +  Y.JA.html('btn',{action:'find',title:'search for name',classes:'ja-search ja-search-name'})
                    +  '&nbsp; Job:'
-                   +  '<input type="text"   class="jak-data-job" title="job number" placeholder="#" />'
-                   +  Y.JAK.html('btn',{action:'find',title:'search for specific job',classes:'jak-search jak-search-job'})
-                   +  '&nbsp; row limit<input type="text" class="jak-data-row-limit"  title="maximum number of records to fetch"  placeholder="rows" value="20" />'
+                   +  '<input type="text"   class="ja-data-job" title="job number" placeholder="#" />'
+                   +  Y.JA.html('btn',{action:'find',title:'search for specific job',classes:'ja-search ja-search-job'})
+                   +  '&nbsp; row limit<input type="text" class="ja-data-row-limit"  title="maximum number of records to fetch"  placeholder="rows" value="20" />'
                    +'</fieldset>'
                 );
                 h.bd          =cfg.node.one('fieldset');
-                f.state       =h.bd.one('.jak-data-state'       );
-                f.streetRef   =h.bd.one('.jak-data-streetRef'   );
-                f.streetName  =h.bd.one('.jak-data-streetName'  );
-                f.location    =h.bd.one('.jak-data-location'    );
-                f.locationName=h.bd.one('.jak-data-locationName');
-                f.firstName   =h.bd.one('.jak-data-firstName'   );
-                f.lastName    =h.bd.one('.jak-data-lastName'    );
-                f.job         =h.bd.one('.jak-data-job'         );
-                f.rowLimit    =h.bd.one('.jak-data-row-limit'   );
-                h.addJob      =h.bd.one('.jak-add-job'          );
+                f.state       =h.bd.one('.ja-data-state'       );
+                f.streetRef   =h.bd.one('.ja-data-streetRef'   );
+                f.streetName  =h.bd.one('.ja-data-streetName'  );
+                f.location    =h.bd.one('.ja-data-location'    );
+                f.locationName=h.bd.one('.ja-data-locationName');
+                f.firstName   =h.bd.one('.ja-data-firstName'   );
+                f.lastName    =h.bd.one('.ja-data-lastName'    );
+                f.job         =h.bd.one('.ja-data-job'         );
+                f.rowLimit    =h.bd.one('.ja-data-row-limit'   );
+                h.addJob      =h.bd.one('.ja-add-job'          );
             //auto complete
                 f.locationName.plug(Y.Plugin.AutoComplete,{
                     activateFirstItem:true,
@@ -352,7 +352,7 @@ YUI.add('jak-mod-job',function(Y){
                 });
 
                 h.dt=new Y.DataTable({
-                    caption :'JAK Inspections Job Log',
+                    caption :'JA Inspections Job Log',
                     columns:[
                         {key:'job'        ,label:'Job'        ,allowHTML:true},
                         {key:'ref'        ,label:'Ref'        },
@@ -400,12 +400,12 @@ YUI.add('jak-mod-job',function(Y){
                             tagType,
                             codeSnippet,
                             posX,
-                            q=JAK.data.question[answer.question],
+                            q=JA.data.question[answer.question],
                             code=q.code
                         ;
                         tagAnswers=answer.detail.split(';');
                         //replace tags in reverse order
-                        Y.each(Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],code).sort(function(a,b){return b[0]-a[0];}),function(tag){
+                        Y.each(Y.JA.mergeIndicesOf(['<button','<input','<select','<textarea'],code).sort(function(a,b){return b[0]-a[0];}),function(tag){
                             tagAnswer=tagAnswers.pop();
                             //replace tag with value
                                 if(tag[1]==='select'){
@@ -446,18 +446,18 @@ YUI.add('jak-mod-job',function(Y){
                                 }
                         });
                         statementRef[q.ref]=code;
-                        statement.push(JAK.data.question[answer.question].name+': '+code);
+                        statement.push(JA.data.question[answer.question].name+': '+code);
                     });
-                if(this.hasClass('jak-rep-summary')){
+                if(this.hasClass('ja-rep-summary')){
                     html='<h2>Job#'+jobId+' '+addressMessage+'</h2>'
                         +'<ul>'
                         +  '<li>'+statement.join('</li><li>')+'</li>'
                         +'</ul>';
                 }else
-                if(this.hasClass('jak-rep-detail')){
+                if(this.hasClass('ja-rep-detail')){
                     html='<h1>details</h1>';
                 }else
-                if(this.hasClass('jak-rep-1')){
+                if(this.hasClass('ja-rep-1')){
                     //substitute final values
 
                     //switch (statement) .... reformat the values for output ...
@@ -465,7 +465,7 @@ YUI.add('jak-mod-job',function(Y){
                     html=h.template.bindPPI(statementRef);
                     width=1000;
                 }
-                JAK.my.podRep.display({html:html,visible:true,width:width});
+                JA.my.podRep.display({html:html,visible:true,width:width});
             },
             selectGridCell:function(e){
                 if(this.hasClass('yui3-datatable-col-job')||
@@ -485,7 +485,7 @@ YUI.add('jak-mod-job',function(Y){
         render.base();
         initialise();
         listeners();
-        h.bd.one('.jak-search-last-jobs').simulate('click');
+        h.bd.one('.ja-search-last-jobs').simulate('click');
 
     };
 

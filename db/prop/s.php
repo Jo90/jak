@@ -2,7 +2,7 @@
 /** //db/prop/s.php
  *
  */
-namespace jak;
+namespace ja;
 
 require_once 'common.php';
 require_once '../shared/common.php';

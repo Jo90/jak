@@ -1,7 +1,7 @@
 /** //widget/message.js
  *
  */
-YUI().add('jak-widget-message',function(Y){
+YUI().add('ja-widget-message',function(Y){
 
     var Message=function(config){
         Message.superclass.constructor.apply(this,arguments);
@@ -31,12 +31,12 @@ YUI().add('jak-widget-message',function(Y){
 
     Y.extend(Message,Y.Widget,{
         initializer:function(config){
-            this.get('ol').get('contentBox').addClass('jak-message');
+            this.get('ol').get('contentBox').addClass('ja-message');
         }
     });
 
-    Y.namespace('JAK.widget').Message=Message;
+    Y.namespace('JA.widget').Message=Message;
 
-    Y.JAK.widget.busy=new Y.JAK.widget.Message();
+    Y.JA.widget.busy=new Y.JA.widget.Message();
 
 },"1.0",{ requires:['overlay','widget']});

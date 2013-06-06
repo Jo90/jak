@@ -1,2 +1,2 @@
 //db/base.js
-if(typeof JAK.db==='undefined'){JAK.db={};}
+if(typeof JA.db==='undefined'){JA.db={};}

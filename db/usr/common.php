@@ -2,7 +2,7 @@
 /** /db/usr/common.php
  *
  */
-namespace jak;
+namespace ja;
 
 require_once ROOT . '/db/shared/common.php';
 
@@ -40,7 +40,7 @@ function usr_getUsr($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->data = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;
@@ -79,7 +79,7 @@ function usr_getUsrJob($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->data = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;
@@ -88,51 +88,11 @@ function usr_getUsrJob($criteria) {
 function usr_setUsr(&$i) {
     global $mysqli;
 
-    $r = initResult($i);
-
     db::remove('usr', $i);
-
-    if (isset($i->data->id)) {
-        if ($stmt = $mysqli->prepare(
-            "update `usr`
-                set firstName = ?,
-                    lastName = ?,
-                    spouse = ?,
-                    title = ?
-            where id = ?"
-        )) {
-            $stmt->bind_param('ssssi'
-                ,$i->data->firstName
-                ,$i->data->lastName
-                ,$i->data->spouse
-                ,$i->data->title
-                ,$i->data->id
-            );
-            $r->successUpdate = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successUpdate OR $r->errorUpdate = $mysqli->error;
-            $stmt->close();
+    if (isset($i->record)) {
+        foreach ($i->record as $rec) {
+            db::update('usr',$rec) or db::insert('usr',$rec);
         }
-        return $r;
     }
-    if ($stmt = $mysqli->prepare(
-        "insert into `usr`
-                (firstName,lastName,spouse,title)
-        values (?,?,?,?)"
-    )) {
-        $stmt->bind_param('ss'
-            ,$i->data->firstName
-            ,$i->data->lastName
-            ,$i->data->spouse
-            ,$i->data->title
-        );
-        $r->successInsert = $stmt->execute();
-        $r->rows = $mysqli->affected_rows;
-        $r->successInsert
-            ?$i->data->id = $stmt->insert_id
-            :$r->errorInsert = $mysqli->error;
-        $stmt->close();
-    }
-    return $r;
 }
 

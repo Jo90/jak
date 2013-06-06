@@ -4,12 +4,12 @@
  * //>>>>FINISH
  *  attempt counter. 3 fails wait 15mins
  */
-namespace jak;
+namespace ja;
 ?>
 
-YUI.add('jak-pod-userLogon',function(Y){
+YUI.add('ja-pod-userLogon',function(Y){
 
-    Y.namespace('JAK.pod').userLogon=function(cfg){
+    Y.namespace('JA.pod').userLogon=function(cfg){
 
         if(typeof cfg==='undefined' ||
            typeof cfg.node==='undefined'
@@ -22,7 +22,7 @@ YUI.add('jak-pod-userLogon',function(Y){
 
         var d={
                 COOKIE:{
-                    REMEMBER:'<?php echo JAK_USERLOGON_REMEMBER; ?>'
+                    REMEMBER:'<?php echo JA_USERLOGON_REMEMBER; ?>'
                    ,USERNAME:'userLogon-username'
                 }
             }
@@ -39,7 +39,7 @@ YUI.add('jak-pod-userLogon',function(Y){
          */
 
         initialise=function(){
-            cfg.node.addClass('jak-userLogon');
+            cfg.node.addClass('ja-userLogon');
             new Y.DD.Drag({node:h.bb,handles:[h.hd]});
         };
 
@@ -66,8 +66,8 @@ YUI.add('jak-pod-userLogon',function(Y){
                 Y.io('/inc/userLogon.php',{
                     method:'POST'
                    ,on:{success:function(){
-                        delete JAK.user.usr;
-                        Y.fire('jak:logout');
+                        delete JA.user.usr;
+                        Y.fire('ja:logout');
                     }}
                    ,data:'logout=yes'
                 });
@@ -90,7 +90,7 @@ YUI.add('jak-pod-userLogon',function(Y){
                         ;
                         h.submit.set('disabled',!ok);
                         if(ok && e.keyCode===13){h.submit.simulate('click');}
-                    },'.jak-logon .jak-data-username,.jak-logon .jak-data-password');
+                    },'.ja-logon .ja-data-username,.ja-logon .ja-data-password');
                 //username
                     h.bd.delegate('blur',function(){
                         var nextMonth=new Date();
@@ -100,7 +100,7 @@ YUI.add('jak-pod-userLogon',function(Y){
                         }else{
                             Y.Cookie.remove(d.COOKIE.USERNAME);
                         }
-                    },'.jak-logon .jak-data-username');
+                    },'.ja-logon .ja-data-username');
                 //remember
                     h.bd.delegate('click',function(){
                         var nextMonth=new Date();
@@ -112,10 +112,10 @@ YUI.add('jak-pod-userLogon',function(Y){
                             Y.Cookie.remove(d.COOKIE.REMEMBER);
                             Y.Cookie.remove(d.COOKIE.USERNAME);
                         }
-                    },'.jak-logon .jak-data-remember');
+                    },'.ja-logon .ja-data-remember');
             h.submit.on('click',trigger.submit);
             //custom
-                Y.on('jak:logout',function(){
+                Y.on('ja:logout',function(){
                     h.ol.hide();
                     h.usLogon .setStyle('display','');
                     h.usLogout.setStyle('display','none');
@@ -126,15 +126,15 @@ YUI.add('jak-pod-userLogon',function(Y){
                     }
                     clearInterval(h.heartbeat);
                 });
-                Y.on('jak:logon',function(){
+                Y.on('ja:logon',function(){
                     h.ol.hide();
                     h.usLogon .setStyle('display','none');
                     h.usLogout.setStyle('display','');
                     h.usForgot.setStyle('display','none');
                     h.usName.setContent(
-                        JAK.user.usr.knownAs===null||JAK.user.usr.knownAs===''
-                            ?JAK.user.usr.firstName
-                            :JAK.user.usr.knownAs
+                        JA.user.usr.knownAs===null||JA.user.usr.knownAs===''
+                            ?JA.user.usr.firstName
+                            :JA.user.usr.knownAs
                     );
                     h.heartbeat=setInterval(io.heartbeat,300000); //5mins
                 });
@@ -145,9 +145,9 @@ YUI.add('jak-pod-userLogon',function(Y){
                 //options
                     cfg.node.setContent(
                         '<a class="userLogon-name">Visitor</a>'
-                       +'<a class="jak-loggedOut userLogon-logon">[logon]</a>'
-                       +'<a class="jak-loggedIn  userLogon-logout">[logout]</a>'
-                       +'<a class="jak-forgot    userLogon-forgot">[forgot]</a>'
+                       +'<a class="ja-loggedOut userLogon-logon">[logon]</a>'
+                       +'<a class="ja-loggedIn  userLogon-logout">[logout]</a>'
+                       +'<a class="ja-forgot    userLogon-forgot">[forgot]</a>'
                     );
                 //shortcuts
                     h.usOption=cfg.node.all('a');
@@ -161,18 +161,18 @@ YUI.add('jak-pod-userLogon',function(Y){
                     h.ol=new Y.Overlay({
                         headerContent:
                             '<em>logon</em>'
-                           +Y.JAK.html('btn',{action:'remove'})
+                           +Y.JA.html('btn',{action:'remove'})
                        ,bodyContent:
-                            '<div class="jak-logon">'
+                            '<div class="ja-logon">'
                            +  'user<br />'
-                           +  '<input type="text" class="jak-data jak-data-username" placeholder="user name" />'
-                           +  '<input type="checkbox" class="jak-data jak-data-remember" title="remember user name" /><br />'
+                           +  '<input type="text" class="ja-data ja-data-username" placeholder="user name" />'
+                           +  '<input type="checkbox" class="ja-data ja-data-remember" title="remember user name" /><br />'
                            +  'password<br />'
-                           +  '<input type="password" class="jak-data jak-data-password" placeholder="password" /><br />'
+                           +  '<input type="password" class="ja-data ja-data-password" placeholder="password" /><br />'
                            +'</div>'
-                           +'<div class="jak-forgot">'
+                           +'<div class="ja-forgot">'
                            +  'forgot? enter user id or email<br />'
-                           +  '<input type="text" class="jak-data jak-data-forgot-who" placeholder="user id or email" /><br />'
+                           +  '<input type="text" class="ja-data ja-data-forgot-who" placeholder="user id or email" /><br />'
                            +'</div>'
                        ,footerContent:'<input type="button" value="submit" />'
                        ,visible:false
@@ -184,15 +184,15 @@ YUI.add('jak-pod-userLogon',function(Y){
                     h.ft             =h.ol.footerNode;
                     h.bb             =h.ol.get('boundingBox');
                     h.forgotBtn      =h.hd.one('button');
-                    h.close          =h.hd.one('.jak-remove');
+                    h.close          =h.hd.one('.ja-remove');
                     h.logon          ={};
-                    h.logon.bb       =h.bd.one('.jak-logon');
-                    h.logon.username =h.logon.bb.one('.jak-data-username');
-                    h.logon.password =h.logon.bb.one('.jak-data-password');
-                    h.logon.remember =h.logon.bb.one('.jak-data-remember');
+                    h.logon.bb       =h.bd.one('.ja-logon');
+                    h.logon.username =h.logon.bb.one('.ja-data-username');
+                    h.logon.password =h.logon.bb.one('.ja-data-password');
+                    h.logon.remember =h.logon.bb.one('.ja-data-remember');
                     h.forgot         ={};
-                    h.forgot.bb      =h.bd.one('.jak-forgot');
-                    h.forgot.who     =h.forgot.bb.one('.jak-data-forgot-who');
+                    h.forgot.bb      =h.bd.one('.ja-forgot');
+                    h.forgot.who     =h.forgot.bb.one('.ja-data-forgot-who');
                     h.submit         =h.ft.one('input');
             }
         };
@@ -219,7 +219,7 @@ YUI.add('jak-pod-userLogon',function(Y){
                         method:'POST'
                        ,on:{complete:function(id,o){
                             var rs
-                               ,SALT=JAK.user.SALT //remember
+                               ,SALT=JA.user.SALT //remember
                             ;
                             //sentry
                                 if(o.responseText===''){
@@ -232,13 +232,13 @@ YUI.add('jak-pod-userLogon',function(Y){
                                     return false;
                                 }
                             //data
-                                JAK.user.usr=Y.JAK.firstRecord(rs.data);
-                                JAK.user.SALT=SALT; //restore
+                                JA.user.usr=Y.JA.firstRecord(rs.data);
+                                JA.user.SALT=SALT; //restore
                             //
-                            Y.fire('jak:logon');
+                            Y.fire('ja:logon');
                         }}
                        ,data:'logon='+logonValue
-                            +'&hash='+Y.JAK.js.SHA1(passwordValue+Y.JAK.js.SHA1(JAK.user.SALT))
+                            +'&hash='+Y.JA.js.SHA1(passwordValue+Y.JA.js.SHA1(JA.user.SALT))
                     });
                 }
                 if(h.forgot.bb.getStyle('display')!=='none'){
@@ -249,7 +249,7 @@ YUI.add('jak-pod-userLogon',function(Y){
                         alert('please enter for email address');
                         return false;
                     }
-                    if(!Y.JAK.fn.checkEmail(emailValue)){
+                    if(!Y.JA.fn.checkEmail(emailValue)){
                         email.focus();
                         alert('invalid email format');
                         return false;
@@ -302,7 +302,7 @@ YUI.add('jak-pod-userLogon',function(Y){
         listeners();
 
         //if logged on
-            if(typeof JAK.user.usr!=='undefined'){Y.fire('jak:logon');}
+            if(typeof JA.user.usr!=='undefined'){Y.fire('ja:logon');}
 
     };
 

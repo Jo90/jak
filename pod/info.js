@@ -1,9 +1,9 @@
 /** //pod/info.js
  *
  */
-YUI.add('jak-pod-info',function(Y){
+YUI.add('ja-pod-info',function(Y){
 
-    Y.namespace('JAK.pod').info=function(cfg){
+    Y.namespace('JA.pod').info=function(cfg){
 
         if(typeof cfg==='undefined'
         ){cfg={};}
@@ -46,7 +46,7 @@ YUI.add('jak-pod-info',function(Y){
                 h.infoList.setContent('');
                 h.remove=[];
             //display
-                Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
+                Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
                 h.ol.show();
                 self.set('title',cfg.title);
                 self.set('visible',cfg.visible);
@@ -66,7 +66,7 @@ YUI.add('jak-pod-info',function(Y){
         };
 
         this.customEvent={
-            save:self.info.id+(++JAK.env.customEventSequence)+':save'
+            save:self.info.id+(++JA.env.customEventSequence)+':save'
         };
 
         this.my={};
@@ -76,24 +76,25 @@ YUI.add('jak-pod-info',function(Y){
          */
 
         initialise=function(){
-            h.bb.addClass('jak-pod-'+self.info.id);
+            h.bb.addClass('ja-pod-'+self.info.id);
             new Y.DD.Drag({node:h.bb,handles:[h.hd,h.ft]});
         };
 
         io={
             fetch:{
                 info:function(p){
-                    Y.JAK.widget.busy.set('message','getting information...');
-                    Y.io('/db/shared/sInfo.php',{
+                    Y.JA.widget.busy.set('message','getting information...');
+                    Y.io('/db/shared/s.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.info},
                         data:Y.JSON.stringify([{
                             criteria:{
+                                dataSet:'info',
                                 dbTable:p.dbTable,
                                 pks    :[p.pk]
                             },
-                            member:JAK.user.usr
+                            usr:JA.user.usr
                         }])
                     });
                 }
@@ -111,11 +112,11 @@ YUI.add('jak-pod-info',function(Y){
                     h.infoList.all('li').each(function(row){
                         var info={
                                 data:{
-                                    id      :row.one('.jak-data-info-id').get('value'),
+                                    id      :row.one('.ja-data-info-id').get('value'),
                                     dbTable :cfg.dbTable,
                                     pk      :(d.action==='fetch'?cfg.pk:null),
-                                    category:row.one('.jak-data-info-category').get('value'),
-                                    detail  :row.one('.jak-data-info-detail'  ).get('value'),
+                                    category:row.one('.ja-data-info-category').get('value'),
+                                    detail  :row.one('.ja-data-info-detail'  ).get('value'),
                                     seq     :++seq
                                 }
                             }
@@ -130,7 +131,7 @@ YUI.add('jak-pod-info',function(Y){
                         Y.fire(self.customEvent.save,d.saveData);
                         h.close.simulate('click');
                     }else{
-                        Y.io('/db/shared/iudInfo.php',{
+                        Y.io('/db/shared/iud.php',{
                             method:'POST',
                             headers:{'Content-Type':'application/json'},
                             on:{complete:function(id,o){
@@ -138,8 +139,8 @@ YUI.add('jak-pod-info',function(Y){
                                 h.close.simulate('click');
                             }},
                             data:Y.JSON.stringify([{
-                                data:d.saveData,
-                                usr :JAK.user.usr
+                                info:d.saveData.info,
+                                usr :JA.user.usr
                             }])
                         });
                     }
@@ -149,9 +150,9 @@ YUI.add('jak-pod-info',function(Y){
 
         listeners=function(){
             h.add.on('click',function(){h.infoList.prepend(render.info());});
-            h.close.on('click',function(){h.ol.hide();Y.JAK.widget.dialogMask.hide();});
-            h.infoList.delegate('click',trigger.record.add,'.jak-add');
-            h.infoList.delegate('click',trigger.record.remove,'.jak-remove');
+            h.close.on('click',function(){h.ol.hide();Y.JA.widget.dialogMask.hide();});
+            h.infoList.delegate('click',trigger.record.add,'.ja-add');
+            h.infoList.delegate('click',trigger.record.remove,'.ja-remove');
             h.save.on('click',io.save.info);
         };
 
@@ -176,13 +177,13 @@ YUI.add('jak-pod-info',function(Y){
                         })
                     );
                     h.infoList.append(nn);
-                    Y.JAK.matchSelect(nn.one('.jak-data-info-category'),info.category);
+                    Y.JA.matchSelect(nn.one('.ja-data-info-category'),info.category);
                     infoExists=true;
                 });
                 if(!infoExists){
                     h.infoList.append(render.info());
                 }
-                Y.JAK.widget.busy.set('message','');
+                Y.JA.widget.busy.set('message','');
             }
         };
 
@@ -190,12 +191,12 @@ YUI.add('jak-pod-info',function(Y){
             base:function(){
                 h.ol=new Y.Overlay({
                     headerContent:
-                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAK">'+self.info.title+'</span> '
-                       +Y.JAK.html('btn',{action:'add',title:'add'})
-                       +Y.JAK.html('btn',{action:'close',title:'close pod'}),
+                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JA">'+self.info.title+'</span> '
+                       +Y.JA.html('btn',{action:'add',title:'add'})
+                       +Y.JA.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:'<ul></ul>',
                     footerContent:
-                        Y.JAK.html('btn',{action:'save'}),
+                        Y.JA.html('btn',{action:'save'}),
                     centered:true,
                     visible :cfg.visible,
                     width   :cfg.width,
@@ -206,18 +207,18 @@ YUI.add('jak-pod-info',function(Y){
                     h.bd      =h.ol.bodyNode;
                     h.ft      =h.ol.footerNode;
                     h.bb      =h.ol.get('boundingBox');
-                    h.add     =h.hd.one('.jak-add');
-                    h.close   =h.hd.one('.jak-close');
+                    h.add     =h.hd.one('.ja-add');
+                    h.close   =h.hd.one('.ja-close');
                     h.infoList=h.bd.one('> ul');
-                    h.save    =h.ft.one('.jak-save');
+                    h.save    =h.ft.one('.ja-save');
             },
             info:function(p){
                 var html='<li>'
-                        +  '<input type="hidden" class="jak-data jak-data-info-id" value="{id}" />'
+                        +  '<input type="hidden" class="ja-data ja-data-info-id" value="{id}" />'
                         +  '{category}'
-                        +  '<textarea class="jak-data jak-data-info-detail">{detail}</textarea>'
-                        +  Y.JAK.html('btn',{action:'remove',title:'remove'})
-                        +  Y.JAK.html('btn',{action:'add',title:'add'})
+                        +  '<textarea class="ja-data ja-data-info-detail">{detail}</textarea>'
+                        +  Y.JA.html('btn',{action:'remove',title:'remove'})
+                        +  Y.JA.html('btn',{action:'add',title:'add'})
                         +'</li>',
                     categoryStr='',
                     params=typeof p!=='undefined'
@@ -227,7 +228,7 @@ YUI.add('jak-pod-info',function(Y){
                     Y.each(cfg.categories,function(category){
                         categoryStr+='<option>'+category+'</option>';
                     });
-                    categoryStr='<select class="jak-data jak-data-info-category">'+categoryStr+'</select><br/>';
+                    categoryStr='<select class="ja-data ja-data-info-category">'+categoryStr+'</select><br/>';
                 }
                 return Y.Lang.sub(html,{
                         'id'      :(params?(typeof p.id==='undefined'?'':p.id):''),
@@ -245,7 +246,7 @@ YUI.add('jak-pod-info',function(Y){
                 },
                 remove:function(){
                     var row=this.ancestor('li'),
-                        infoId=row.one('.jak-data-info-id').get('value')
+                        infoId=row.one('.ja-data-info-id').get('value')
                     ;
                     if(infoId!==''){h.remove.push(parseInt(infoId,10));}
                     row.remove();

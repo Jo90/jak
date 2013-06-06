@@ -10,7 +10,7 @@
  * environment (error logging, DB connections)
  * 
  */
-namespace jak;
+namespace ja;
 
 if (!isset($_SESSION)) {session_start();}
 //php session timeout 30 mins
@@ -19,28 +19,28 @@ ini_set('session.gc_maxlifetime',30*60);
 /**
  * NAMED CONSTANTS
  */
-define('JAK_COMPANY'            , 'JAK');
-define('JAK_SLOGON'             , 'Pest Control');
-define('JAK_ADMIN_EMAIL'        , 'john@jakinspections.com');
-define('JAK_ADMIN_ADMINISTRATOR', 'John Krok');
-define('JAK_QUERY_LIMIT_OFFSET' , 0);
-define('JAK_QUERY_LIMIT_ROWS'   , 30);
-define('JAK_COOKIE_DEVICE'      , 'jak-device'); //>>>>FUTURE
-define('JAK_COOKIE_THEME'       , 'jak-theme');  //>>>>FUTURE
-if (isset($_COOKIE[JAK_COOKIE_DEVICE],$_COOKIE[JAK_COOKIE_THEME])) {
-    define('JAK_ENV_DEVICE', $_COOKIE[JAK_COOKIE_DEVICE]);
-    define('JAK_ENV_THEME' , $_COOKIE[JAK_COOKIE_THEME]);
+define('JA_COMPANY'            , 'JAK');
+define('JA_SLOGON'             , 'Pest Control');
+define('JA_ADMIN_EMAIL'        , 'john@jainspections.com');
+define('JA_ADMIN_ADMINISTRATOR', 'John Krok');
+define('JA_QUERY_LIMIT_OFFSET' , 0);
+define('JA_QUERY_LIMIT_ROWS'   , 30);
+define('JA_COOKIE_DEVICE'      , 'ja-device'); //>>>>FUTURE
+define('JA_COOKIE_THEME'       , 'ja-theme');  //>>>>FUTURE
+if (isset($_COOKIE[JA_COOKIE_DEVICE],$_COOKIE[JA_COOKIE_THEME])) {
+    define('JA_ENV_DEVICE', $_COOKIE[JA_COOKIE_DEVICE]);
+    define('JA_ENV_THEME' , $_COOKIE[JA_COOKIE_THEME]);
 }
 //old
 //<link rel="stylesheet" type="text/css" id="yuibasecss" href="http://yui.yahooapis.com/3.10.1/build/cssfonts/fonts-min.css?3.10.1/build/cssreset/reset-min.css&3.10.1/build/cssbase/base-min.css">
 define('YUI_CSS'                ,'<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.10.1/build/cssnormalize/cssnormalize-min.css">');
 define('YUI_JS'                 ,'<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.10.1/build/yui/yui-min.js&3.10.1/build/loader/loader-min.js"></script>');
-define('JAK_SALT'                ,'SALT'); //userLogon Challenge Handshake AP - salt initializer
-define('JAK_MEMBER'              ,'member'); //refer userLogon
-define('JAK_USERLOGON_REMEMBER'  , 'userLogon-remember');
+define('JA_SALT'                ,'SALT'); //userLogon Challenge Handshake AP - salt initializer
+define('JA_MEMBER'              ,'member'); //refer userLogon
+define('JA_USERLOGON_REMEMBER'  , 'userLogon-remember');
 
-define('JAK_FILESERVER','jak');
-define('JAK_SERVER','jak');
+define('JA_FILESERVER','jak');
+define('JA_SERVER','jak');
 
 define('ROOT', realpath(dirname(__FILE__) . '/..'));
 
@@ -52,14 +52,14 @@ if ($_SERVER['SERVER_ADMIN'] == 'joe@dargaville.net') {
     $mysqli = new \mysqli('localhost', 'root', 'root', 'jak');
 }
 //else {
-//    $mysqli = new \mysqli('jakpest.db.11127692.hostedresource.com', 'jakpest', 'j@Kp35t01', 'jakpest');
+//    $mysqli = new \mysqli('japest.db.11127692.hostedresource.com', 'japest', 'j@Kp35t01', 'japest');
 //}
 
 /**
  *  shared PHP functions
  */
 function exitIfNotConnected() {
-    if (!isset($_SESSION[JAK_MEMBER])) {exit('{connected:false,error:"not connected"}');}
+    if (!isset($_SESSION[JA_MEMBER])) {exit('{connected:false,error:"not connected"}');}
 }
 /**
  *

@@ -2,7 +2,7 @@
 /** /db/prop/common.php
  *
  */
-namespace jak;
+namespace ja;
 
 function prop_getPropPartType($criteria) {
     global $mysqli;
@@ -27,7 +27,7 @@ function prop_getPropPartType($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->data = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;
@@ -56,7 +56,7 @@ function prop_getPropTemplate($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->data = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;
@@ -95,7 +95,7 @@ function prop_getPropTemplatePart($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->data = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;

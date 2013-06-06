@@ -1,6 +1,6 @@
-/* JAK Modules */
+/* JA Modules */
 modules:{
-    'jak-common':{
+    'ja-common':{
         fullpath:'/js/common.js',
         requires:[
             'anim',
@@ -18,7 +18,7 @@ modules:{
             'datatable-sort',
             'dd',
             'event-outside',
-            'jak-yui3-sugar',
+            'ja-yui3-sugar',
             'node-event-simulate',
             'overlay',
             'recordset',
@@ -39,158 +39,158 @@ modules:{
     /**
      * css
      */
-    'jak-css-mod-job':{
+    'ja-css-mod-job':{
         fullpath:'/css/mod/job.css',
         type:'css'
     },
-    'jak-css-pod-address':{
+    'ja-css-pod-address':{
         fullpath:'/css/pod/address.css',
         type:'css'
     },
-    'jak-css-pod-info':{
+    'ja-css-pod-info':{
         fullpath:'/css/pod/info.css',
         type:'css'
     },
-    'jak-css-pod-job':{
+    'ja-css-pod-job':{
         fullpath:'/css/pod/job.css',
         type:'css'
     },
-    'jak-css-pod-propPart':{
+    'ja-css-pod-propPart':{
         fullpath:'/css/pod/propPart.css',
         type:'css'
     },
-    'jak-css-pod-rep':{
+    'ja-css-pod-rep':{
         fullpath:'/css/pod/rep.css',
         type:'css'
     },
-    'jak-css-pod-usr':{
+    'ja-css-pod-usr':{
         fullpath:'/css/pod/usr.css',
         type:'css'
     },
-    'jak-css-pod-usrFind':{
+    'ja-css-pod-usrFind':{
         fullpath:'/css/pod/usrFind.css',
         type:'css'
     },
-    'jak-css-pod-userLogon':{
+    'ja-css-pod-userLogon':{
         fullpath:'/css/pod/userLogon.css',
         type:'css'
     },
-    'jak-css-calendar':{
+    'ja-css-calendar':{
         fullpath:'/css/widget/calendar.css',
         type:'css'
     },
-    'jak-css-dialogMask':{
+    'ja-css-dialogMask':{
         fullpath:'/css/widget/dialogMask.css',
         type:'css'
     },
     /**
      * data
      */
-    'jak-db':{
+    'ja-db':{
         fullpath:'/db/base.js',
-        requires:['jak-db-grp']
+        requires:['ja-db-grp']
     },
-    'jak-db-grp':{
+    'ja-db-grp':{
         fullpath:'/db/grp/grp.js',
-        requires:['jak-common']
+        requires:['ja-common']
     },
     /**
      * modules
      */
-    'jak-mod-calendar':{
+    'ja-mod-calendar':{
         fullpath:'/mod/calendar.js',
-        requires:['jak-common','jak-pod-job']
+        requires:['ja-common','ja-pod-job']
     },
-    'jak-mod-dashboard':{
+    'ja-mod-dashboard':{
         fullpath:'/mod/dashboard.js',
-        requires:['jak-common']
+        requires:['ja-common']
     },
-    'jak-mod-job':{
+    'ja-mod-job':{
         fullpath:'/mod/job.js',
-        requires:['jak-common','jak-css-mod-job','jak-pod-rep']
+        requires:['ja-common','ja-css-mod-job','ja-pod-rep']
     },
     /**
      * plugins
      */
-    'jak-plugin-ckEditor':{
+    'ja-plugin-ckEditor':{
         fullpath:'/js/plugin/ckeditor/ckeditor.js'
     },
-    'jak-plugin-tabViewRemovable':{
+    'ja-plugin-tabViewRemovable':{
         fullpath:'/mod/tabView/pluginRemovable.js',
         requires:['tabview']
     },
     /**
      * pods (independent overlays)
      */
-    'jak-pod-address':{
+    'ja-pod-address':{
         fullpath:'/pod/address.js',
-        requires:['jak-common','jak-css-pod-address']
+        requires:['ja-common','ja-css-pod-address']
     },
-    'jak-pod-info':{
+    'ja-pod-info':{
         fullpath:'/pod/info.js',
-        requires:['jak-common','jak-css-pod-info']
+        requires:['ja-common','ja-css-pod-info']
     },
-    'jak-pod-job':{
+    'ja-pod-job':{
         fullpath:'/pod/job.js',
-        requires:['jak-common','jak-css-pod-job']
+        requires:['ja-common','ja-css-pod-job']
     },
-    'jak-pod-propPart':{
+    'ja-pod-propPart':{
         fullpath:'/pod/propPart.js',
-        requires:['jak-common','jak-css-pod-propPart']
+        requires:['ja-common','ja-css-pod-propPart']
     },
-    'jak-pod-userLogon':{
+    'ja-pod-userLogon':{
         fullpath:'/pod/userLogon.php',
-        requires:['jak-common','jak-css-pod-userLogon','jak-js-sha1']
+        requires:['ja-common','ja-css-pod-userLogon','ja-js-sha1']
     },
-    'jak-pod-rep':{
+    'ja-pod-rep':{
         fullpath:'/pod/rep.js',
-        requires:['jak-common','jak-css-pod-rep']
+        requires:['ja-common','ja-css-pod-rep']
     },
-    'jak-pod-usr':{
+    'ja-pod-usr':{
         fullpath:'/pod/usr.php',
-        requires:['jak-common','jak-css-pod-usr']
+        requires:['ja-common','ja-css-pod-usr']
     },
-    'jak-pod-usrFind':{
+    'ja-pod-usrFind':{
         fullpath:'/pod/usrFind.php',
-        requires:['jak-common','jak-css-pod-usrFind']
+        requires:['ja-common','ja-css-pod-usrFind']
     },
     /**
      * utilities
      */
-    'jak-js-sha1':{ //secure hash algorithym
+    'ja-js-sha1':{ //secure hash algorithym
         fullpath:'/js/sha1.js'
     },
-    'jak-yui3-sugar': {
+    'ja-yui3-sugar': {
          fullpath: '/js/yui3-sugar.js',
          requires:['node','transition']
     },
     /**
      * widgets
      */
-    'jak-widget':{
+    'ja-widget':{
         fullpath:'/widget/base.js',
         requires:[
-            'jak-common',
-            'jak-widget-calendar',
-            'jak-widget-dialogMask',
-            'jak-widget-list',
-            'jak-widget-message'
+            'ja-common',
+            'ja-widget-calendar',
+            'ja-widget-dialogMask',
+            'ja-widget-list',
+            'ja-widget-message'
         ]
     },
-    'jak-widget-calendar':{
+    'ja-widget-calendar':{
          fullpath:'/widget/calendar.js',
-         requires:['calendar','moment','jak-common','jak-css-calendar']
+         requires:['calendar','moment','ja-common','ja-css-calendar']
     },
-    'jak-widget-dialogMask':{
+    'ja-widget-dialogMask':{
          fullpath:'/widget/dialogMask.js',
-         requires:['base','node','jak-css-dialogMask']
+         requires:['base','node','ja-css-dialogMask']
     },
-    'jak-widget-list':{
+    'ja-widget-list':{
         fullpath:'/widget/list.js',
-        requires:['jak-common']
+        requires:['ja-common']
     },
-    'jak-widget-message':{
+    'ja-widget-message':{
         fullpath:'/widget/message.js',
-        requires:['jak-common']
+        requires:['ja-common']
     }
 }

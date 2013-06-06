@@ -2,6 +2,6 @@
 /** //inc/heartbeat.php
  *
  */
-namespace jak;
+namespace ja;
 
 //extend session

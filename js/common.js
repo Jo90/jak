@@ -2,23 +2,23 @@
  *
  *
  */
-YUI.add('jak-common',function(Y){
+YUI.add('ja-common',function(Y){
 
-    Y.namespace('JAK');
+    Y.namespace('JA');
 
-    Y.JAK.checkEmail=function(email){
+    Y.JA.checkEmail=function(email){
         var filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i
         return filter.test(email);
     };
 
-    Y.JAK.dataSet={ //table, pk field, field
+    Y.JA.dataSet={ //table, pk field, field
         fetch:function(dataSets,callback){
             var i=dataSets.length
                ,missing=[]
                ,missingDatasets=[]
             ;
             while(i--){
-                if(!JAK.data[dataSets[i][0]]){
+                if(!JA.data[dataSets[i][0]]){
                     missing.push(dataSets[i][0]);
                     missingDatasets.push(dataSets[i]);
                 }
@@ -28,7 +28,7 @@ YUI.add('jak-common',function(Y){
                     method:'POST'
                    ,on:{
                         complete:function(id,o){
-                            Y.JAK.dataSet.reformat(Y.JSON.parse(o.responseText),missingDatasets);
+                            Y.JA.dataSet.reformat(Y.JSON.parse(o.responseText),missingDatasets);
                             callback();
                         }
                     }
@@ -39,7 +39,7 @@ YUI.add('jak-common',function(Y){
             }
         }
         /**
-         *  convert resultSets.dataSet.data,meta to JAK.data.dataSet and JAK.meta.dataSet
+         *  convert resultSets.dataSet.data,meta to JA.data.dataSet and JA.meta.dataSet
          *  args[0] = result.dataSet.data and result.dataSet.meta
          *  args[1] = primary key field name i.e. 'id'
          *  args[2] = return type i.e. 'object'(default), 'array', 'raw'
@@ -52,8 +52,8 @@ YUI.add('jak-common',function(Y){
                ,newRec
                ,rsDS //result data set
             ;
-            if(!JAK.data){JAK.data={};};
-            if(!JAK.meta){JAK.meta={};};
+            if(!JA.data){JA.data={};};
+            if(!JA.meta){JA.meta={};};
             //critera
             while(i--){
                 dsName=dataSets[i][3] || dataSets[i][0];
@@ -61,14 +61,14 @@ YUI.add('jak-common',function(Y){
                 dsRecordType=dataSets[i][2] || 'object';
                 rsDS=rs[dataSets[i][0]];
                 if(rsDS){
-                    if(rsDS.meta){JAK.meta[dsName]=rsDS.meta;}
+                    if(rsDS.meta){JA.meta[dsName]=rsDS.meta;}
                     //if pk then object else array
-                    JAK.data[dsName]=dsPK===''?[]:{};
+                    JA.data[dsName]=dsPK===''?[]:{};
                     //data
                     if(typeof rsDS.meta==='undefined'
                         || dsPK===''
                         || dsRecordType==='raw'){
-                        JAK.data[dsName]=rsDS.data;
+                        JA.data[dsName]=rsDS.data;
                     }else{
                         newRec=dsRecordType==='object'?{}:[];
                         Y.each(rsDS.data,function(n){
@@ -81,8 +81,8 @@ YUI.add('jak-common',function(Y){
                                 c++;
                             });
                             dsPK===''
-                                ?JAK.data[dsName].push(Y.clone(newRec,true))
-                                :JAK.data[dsName][dsPKvalue]=Y.clone(newRec,true);
+                                ?JA.data[dsName].push(Y.clone(newRec,true))
+                                :JA.data[dsName][dsPKvalue]=Y.clone(newRec,true);
                         });
                     }
                 }
@@ -90,7 +90,7 @@ YUI.add('jak-common',function(Y){
         }
     };
 
-    Y.JAK.date={
+    Y.JA.date={
         toUTC:function(d){
             return d===''
                 ?null
@@ -98,11 +98,11 @@ YUI.add('jak-common',function(Y){
         }
     };
 
-    Y.JAK.firstRecord=function(o){
+    Y.JA.firstRecord=function(o){
         for(r in o){if(o.hasOwnProperty(r)){return o[r];}}
     };
 
-    Y.JAK.html=function(template,tags,inc){
+    Y.JA.html=function(template,tags,inc){
         var self=this
            ,tpl=this.html['TEMPLATE'][template]
            ,html=''
@@ -136,32 +136,32 @@ YUI.add('jak-common',function(Y){
             html=Y.Lang.sub(html,this.html['TAG']);
         return html;
     };
-    Y.JAK.html['TEMPLATE']={
-        'button'            :'{prefix}<a class="button jak-{action} {classes} {showOnFocus}" name="{name}" title="{title}"><span>{label}</span></a>{suffix}'
-       ,'jak-icon'           :'{prefix}<span class="jak-icon jak-{action} {classes} {showOnFocus}" title="{title}"><em></em><span>{label}</span></span>{suffix}'
-       ,'btn'               :'{prefix}<a class="jak-btn jak-{action} {classes} {showOnFocus}" title="{title}"><em></em><span>{label}</span><span class="jak-flag">{flag}</span></a>{suffix}'
-       ,'btn-tag'           :'{prefix}<a class="button {classes} {showOnFocus}" title="{title}"><em></em><span>{label}</span><span class="jak-flag">{flag}</span></a>{suffix}'
-       ,'btn-gen'           :'{prefix}<a class="jak-btn-gen jak-{action} {classes} {showOnFocus}" title="{title}"><em></em><span>{label}</span></a>{suffix}'
-       ,'btn-toggleShowHide':'<a class="jak-btn-gen jak-toggleShowHide {show}" title="show/hide"><em></em></a>'
+    Y.JA.html['TEMPLATE']={
+        'button'            :'{prefix}<a class="button ja-{action} {classes} {showOnFocus}" name="{name}" title="{title}"><span>{label}</span></a>{suffix}'
+       ,'ja-icon'           :'{prefix}<span class="ja-icon ja-{action} {classes} {showOnFocus}" title="{title}"><em></em><span>{label}</span></span>{suffix}'
+       ,'btn'               :'{prefix}<a class="ja-btn ja-{action} {classes} {showOnFocus}" title="{title}"><em></em><span>{label}</span><span class="ja-flag">{flag}</span></a>{suffix}'
+       ,'btn-tag'           :'{prefix}<a class="button {classes} {showOnFocus}" title="{title}"><em></em><span>{label}</span><span class="ja-flag">{flag}</span></a>{suffix}'
+       ,'btn-gen'           :'{prefix}<a class="ja-btn-gen ja-{action} {classes} {showOnFocus}" title="{title}"><em></em><span>{label}</span></a>{suffix}'
+       ,'btn-toggleShowHide':'<a class="ja-btn-gen ja-toggleShowHide {show}" title="show/hide"><em></em></a>'
        ,'switch'            :'<label class="{classes}" title="{title}">{prefix}<input type="checkbox" checked="{checked}" value="{value}">{label}{suffix}</label>'
-       ,'toggleCheckbox'    :'<label><input type="checkbox" class="jak-toggleChecked" checked="{value}" title="check/uncheck" />{label}</label>'
+       ,'toggleCheckbox'    :'<label><input type="checkbox" class="ja-toggleChecked" checked="{value}" title="check/uncheck" />{label}</label>'
        ,'selectCheckbox'    :'<label><input type="checkbox" class="{classes}"  title="check/uncheck" />{label}</label>'
        ,'radio'             :'<label><input type="radio" name="{name}" class="{classes}"  title="select" />{label}</label>'
-       ,'removeCheckbox'    :'<label><input type="checkbox" class="jak-remove" />remove</label>'
-       ,'textIcon'          :'<label class="jak-text jak-{icon}"><em></em><span>{text}</span></label>'
+       ,'removeCheckbox'    :'<label><input type="checkbox" class="ja-remove" />remove</label>'
+       ,'textIcon'          :'<label class="ja-text ja-{icon}"><em></em><span>{text}</span></label>'
     };
     //device dependant
         //phone overrides
-        if(JAK.env.device==='phone'){
+        if(JA.env.device==='phone'){
             //>>>>>>>>>>>>>>>FINISH what html to use for phone alternative to checkbox?
-            Y.JAK.html['TEMPLATE']['switch']='<label><input type="text" value="{value}">{label}</label>';
-            Y.JAK.html['TEMPLATE']['toggleCheckbox']='<!--sort this out-->';
+            Y.JA.html['TEMPLATE']['switch']='<label><input type="text" value="{value}">{label}</label>';
+            Y.JA.html['TEMPLATE']['toggleCheckbox']='<!--sort this out-->';
         }
-    Y.JAK.html['SNIPPET']={
+    Y.JA.html['SNIPPET']={
         'showOnFocus' :'hide on-record-hover-show on-record-focus-show'
     };
     //i.e. for action==='add' set missing label and title
-    Y.JAK.html['DEFAULT']=[
+    Y.JA.html['DEFAULT']=[
         {
             _id   :'action'
            ,add   :{label:'',title:'add record'}
@@ -172,9 +172,9 @@ YUI.add('jak-common',function(Y){
            ,save  :{label:'save',title:'save data'}
         }
     ];
-    Y.JAK.html['TAG']={action:'',checked:'',classes:'',flag:'',label:'',prefix:'',show:'',showOnFocus:'',suffix:'',title:'',value:''};
+    Y.JA.html['TAG']={action:'',checked:'',classes:'',flag:'',label:'',prefix:'',show:'',showOnFocus:'',suffix:'',title:'',value:''};
 
-    Y.JAK.matchSelect=function(node,value){
+    Y.JA.matchSelect=function(node,value){
         var isNumber=Y.Lang.isNumber(value),
             val,
             fn=function(n){
@@ -189,7 +189,7 @@ YUI.add('jak-common',function(Y){
 
     //return string position and tag name for determining order for processing html tags
     //remove "<" from search string tag
-    Y.JAK.mergeIndicesOf=function(searchArr,str){
+    Y.JA.mergeIndicesOf=function(searchArr,str){
         var arr=[]
         ;
         str=str.toLowerCase();
@@ -207,15 +207,15 @@ YUI.add('jak-common',function(Y){
             }
         });
         //ensure indice order
-        return arr.sort(Y.JAK.sort.asc);
+        return arr.sort(Y.JA.sort.asc);
     };
 
-    Y.JAK.removeOption=function(node){
-        node.one('.jak-remove').remove();
-        node.append(Y.JAK.html('removeCheckbox'));
+    Y.JA.removeOption=function(node){
+        node.one('.ja-remove').remove();
+        node.append(Y.JA.html('removeCheckbox'));
     };
 
-    Y.JAK.sort={
+    Y.JA.sort={
         asc:function(a,b){
             return Y.Lang.isArray(a)
                 ?a[0]-b[0]
@@ -228,10 +228,10 @@ YUI.add('jak-common',function(Y){
         }
     };
 
-    Y.JAK.whenAvailable={
+    Y.JA.whenAvailable={
         timer:null
        ,listener:function(){
-            var q=Y.JAK.whenAvailable.queue
+            var q=Y.JA.whenAvailable.queue
                ,i=q.length-1
                ,defined
                ,objStem
@@ -266,17 +266,17 @@ YUI.add('jak-common',function(Y){
             }
             //if empty stop
                 if(q.length===0){
-                    clearInterval(Y.JAK.whenAvailable.timer);
-                    Y.JAK.whenAvailable.timer=null;
+                    clearInterval(Y.JA.whenAvailable.timer);
+                    Y.JA.whenAvailable.timer=null;
                 }
         }
        ,queue:[] //{objBranch:'WB.pod.something',callback:function,objBase:objBase}
        ,status:function(){
-            alert(Y.JAK.whenAvailable.queue.toString());
+            alert(Y.JA.whenAvailable.queue.toString());
         }
        ,inDOM:function(objBase,objBranch,callback,args){ //str,fn,obj,obj
             //push to queue
-            Y.JAK.whenAvailable.queue.push({
+            Y.JA.whenAvailable.queue.push({
                 objBranch:objBranch
                ,callback:callback
                ,objBase:objBase
@@ -284,8 +284,8 @@ YUI.add('jak-common',function(Y){
                ,args:args
             });
             //kickoff listener
-            if(Y.JAK.whenAvailable.timer===null){
-                Y.JAK.whenAvailable.timer=setInterval(Y.JAK.whenAvailable.listener,200); //every 0.2 sec
+            if(Y.JA.whenAvailable.timer===null){
+                Y.JA.whenAvailable.timer=setInterval(Y.JA.whenAvailable.listener,200); //every 0.2 sec
             }
         }
     };

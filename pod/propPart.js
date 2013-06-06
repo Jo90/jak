@@ -1,9 +1,9 @@
 /** //pod/propPart.js
  *
  */
-YUI.add('jak-pod-propPart',function(Y){
+YUI.add('ja-pod-propPart',function(Y){
 
-    Y.namespace('JAK.pod').propPart=function(cfg){
+    Y.namespace('JA.pod').propPart=function(cfg){
 
         if(typeof cfg==='undefined'
         ){cfg={};}
@@ -33,7 +33,7 @@ YUI.add('jak-pod-propPart',function(Y){
 
         this.display=function(p){
             d.params=Y.merge(d.params,p);
-            Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
+            Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
             h.ol.show();
         };
 
@@ -46,7 +46,7 @@ YUI.add('jak-pod-propPart',function(Y){
         };
 
         this.customEvent={
-            select:self.info.id+(++JAK.env.customEventSequence)+':select'
+            select:self.info.id+(++JA.env.customEventSequence)+':select'
         };
 
         this.my={}; //children
@@ -56,21 +56,21 @@ YUI.add('jak-pod-propPart',function(Y){
          */
 
         initialise=function(){
-            h.bb.addClass('jak-pod-'+self.info.id);
+            h.bb.addClass('ja-pod-'+self.info.id);
             new Y.DD.Drag({node:h.bb,handles:[h.hd,h.ft]});
         };
 
         io={
             fetch:{
                 propPart:function(){
-                    Y.JAK.widget.busy.set('message','getting property parts(s)...');
+                    Y.JA.widget.busy.set('message','getting property parts(s)...');
                     Y.io('/db/propPart/s.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.propPart},
                         data:Y.JSON.stringify([{
                             criteria:{propPartIds:[d.params.propPart]},
-                            member  :JAK.user.usr
+                            member  :JA.user.usr
                         }])
                     });
                 }
@@ -80,15 +80,15 @@ YUI.add('jak-pod-propPart',function(Y){
         listeners=function(){
             h.close.on('click',function(){
                 h.ol.hide();
-                Y.JAK.widget.dialogMask.hide();
+                Y.JA.widget.dialogMask.hide();
             });
             h.checkAll.on('click',function(){
                 h.list.all('input[type="checkbox"]').set('checked',this.get('checked'));
             });
             h.selectLists.on('change',function(){
                 var propTemplateId   =parseInt(this.get('value'),10),
-                    propPartTypes    =JAK.data.propPartType,
-                    propTemplateParts=JAK.data.propTemplatePart
+                    propPartTypes    =JA.data.propPartType,
+                    propTemplateParts=JA.data.propTemplatePart
                 ;
                 h.list.setContent('');
                 h.checkAll.set('checked',true);
@@ -121,17 +121,17 @@ YUI.add('jak-pod-propPart',function(Y){
             base:function(){
                 h.ol=new Y.Overlay({
                     headerContent:
-                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAKPS">'+self.info.title+'</span> '
-                       +Y.JAK.html('btn',{action:'close',title:'close pod'}),
+                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAPS">'+self.info.title+'</span> '
+                       +Y.JA.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:
-                        '<input type="checkbox" class="jak-checkall" checked="checked" />'
-                       +'<select class="jak-select-lists">'
+                        '<input type="checkbox" class="ja-checkall" checked="checked" />'
+                       +'<select class="ja-select-lists">'
                        +  '<option value="0">Specific Property Parts</option>'
                        +  '<optgroup label="Templates"></optgroup>'
                        +'</select>'
                        +'<ul></ul>',
                     footerContent:
-                        Y.JAK.html('btn',{action:'save',title:'return property items',label:'return selection'}),
+                        Y.JA.html('btn',{action:'save',title:'return property items',label:'return selection'}),
                     width  :cfg.width,
                     xy     :cfg.xy,
                     zIndex :cfg.zIndex
@@ -141,12 +141,12 @@ YUI.add('jak-pod-propPart',function(Y){
                     h.bd         =h.ol.bodyNode;
                     h.ft         =h.ol.footerNode;
                     h.bb         =h.ol.get('boundingBox');
-                    h.close      =h.hd.one('.jak-close');
-                    h.checkAll   =h.bd.one('.jak-checkall');
-                    h.selectLists=h.bd.one('.jak-select-lists');
+                    h.close      =h.hd.one('.ja-close');
+                    h.checkAll   =h.bd.one('.ja-checkall');
+                    h.selectLists=h.bd.one('.ja-select-lists');
                     h.list       =h.bd.one('ul');
-                    h.save       =h.ft.one('.jak-save');
-                Y.each(JAK.data.propTemplate,function(propTemplate){
+                    h.save       =h.ft.one('.ja-save');
+                Y.each(JA.data.propTemplate,function(propTemplate){
                     h.selectLists.one('optgroup').append('<option value="'+propTemplate.id+'">'+propTemplate.name+'</option>');
                 });
             }
@@ -161,7 +161,7 @@ YUI.add('jak-pod-propPart',function(Y){
         /**
          *  load & initialise
          */
-        Y.JAK.dataSet.fetch([
+        Y.JA.dataSet.fetch([
             ['propTemplate','id'],
             ['propTemplatePart','id'],
             ['propPartType','id']

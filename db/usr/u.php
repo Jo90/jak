@@ -1,11 +1,8 @@
 <?php
-/** /db/grp/u.php
- *
- *  JAK
+/** //db/usr/u.php
  *
  */
-namespace kc;
-require_once 'functions.php';
+namespace ja;
 require_once 'common.php';
 require_once '../shared/common.php';
 
@@ -17,7 +14,6 @@ foreach ($post as $i) {
     foreach ($i->criteria->usr as $ix) {
         if (!isset($ix->data)) {continue;}
         usr_setUsr($ix);
-        foreach ($ix->children->usrInfo as $ic) {usr_setUsrInfo($ic);}
     }
 }
 $mysqli->close();

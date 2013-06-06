@@ -1,7 +1,7 @@
 /** /css/pod/userLogon.css
  *
  */
-.jak-userLogon {
+.ja-userLogon {
   position:absolute;
   top:3px;
   right:3px;
@@ -21,11 +21,11 @@
   filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#45484d', endColorstr='#000000',GradientType=0 );
   padding:0.4em 0.535em;
 }
-.jak-userLogon .jak-remove {float:right;}
-.jak-userLogon a {color:#fff;text-decoration:none;}
-.jak-userLogon a.userLogon-name {font-weight:bold;margin:0.435em 0.635em;}
-.jak-userLogon a:hover {color:#990A2C;text-decoration:none;cursor:pointer;}
+.ja-userLogon .ja-remove {float:right;}
+.ja-userLogon a {color:#fff;text-decoration:none;}
+.ja-userLogon a.userLogon-name {font-weight:bold;margin:0.435em 0.635em;}
+.ja-userLogon a:hover {color:#990A2C;text-decoration:none;cursor:pointer;}
 /* overlay */
-.jak-userLogon .yui3-widget-ft {padding:2px;text-align:right;}
-/* jak-userLogon-info */
-.jak-userLogon-info {color:#111;position:absolute;top:23px;right:3px;}
+.ja-userLogon .yui3-widget-ft {padding:2px;text-align:right;}
+/* ja-userLogon-info */
+.ja-userLogon-info {color:#111;position:absolute;top:23px;right:3px;}

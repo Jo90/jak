@@ -1,7 +1,7 @@
 /** //widget/dialogMask.js
  *
  *  adds to body
- *      <iframe id="jak-dialogMask">
+ *      <iframe id="ja-dialogMask">
  *
  *  concept
  *      When the mask is invoked, the invoking object needs to set it's z-index high enough to ensure it is to the front.
@@ -11,9 +11,9 @@
  *      Or if the stack is empty the mask is hidden.
  *
  */
-YUI.add('jak-widget-dialogMask',function(Y){
+YUI.add('ja-widget-dialogMask',function(Y){
 
-    Y.namespace('JAK.widget').dialogMask={
+    Y.namespace('JA.widget').dialogMask={
         //data
         iframeMask:'',
         stack:[], //used z-indexes
@@ -24,9 +24,9 @@ YUI.add('jak-widget-dialogMask',function(Y){
             this.iframeMask.setStyle('zIndex',zIndex);
         },
         init:function(zIndex){
-            if(!Y.one('#jak-dialogMask')){
+            if(!Y.one('#ja-dialogMask')){
                 //create iframeMask
-                    this.iframeMask=Y.Node.create('<iframe id="jak-dialogMask"></div>');
+                    this.iframeMask=Y.Node.create('<iframe id="ja-dialogMask"></div>');
                     Y.one('body').append(this.iframeMask);
                 //style
                     this.iframeMask.setStyles({zIndex:zIndex});
@@ -43,7 +43,7 @@ YUI.add('jak-widget-dialogMask',function(Y){
                 bdh=(dsh>dch)?dsh:dch,
                 bdw=(dsw>dcw)?dsw:dcw
             ;
-            Y.JAK.widget.dialogMask.iframeMask.setStyles({
+            Y.JA.widget.dialogMask.iframeMask.setStyles({
                 height:bdh+'px',
                 width:bdw+'px'
             });

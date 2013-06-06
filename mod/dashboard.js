@@ -1,9 +1,9 @@
 /** //mod/dashboard.js
  *
  */
-YUI.add('jak-mod-dashboard',function(Y){
+YUI.add('ja-mod-dashboard',function(Y){
 
-    Y.namespace('JAK.mod').dashboard=function(cfg){
+    Y.namespace('JA.mod').dashboard=function(cfg){
 
         if(typeof cfg=='undefined' ||
            typeof cfg.node=='undefined'
@@ -71,11 +71,11 @@ YUI.add('jak-mod-dashboard',function(Y){
                    +'<center>'
                    +'<h3>Development Roadmap and Milestones</h3>'
                    //inline style move to css
-                   +'<div class="jak-topics" style="position:relative;overflow:auto;height:20em;">'
+                   +'<div class="ja-topics" style="position:relative;overflow:auto;height:20em;">'
                    +    '<ul>'
                    +        '<li><h2>Important considerations</h2></li>'
                    +        '<li>The long term requirements indicate this would be best built as an APPLICATION rather than a series of web pages.  see http://www.tonymarston.net/php-mysql/web-site-vs-web-application.html also http://stackoverflow.com/questions/1959910/web-site-vs-web-application</li>'
-                   +        '<li>Fundamentally what is required is not just a series of pages.  Currently JAK is running at the application level by utilising software such as Google Drive/Docs.</li>'
+                   +        '<li>Fundamentally what is required is not just a series of pages.  Currently JA is running at the application level by utilising software such as Google Drive/Docs.</li>'
                    +    '</ul>'
                    +    '<ul>'
                    +        '<li>'
@@ -130,7 +130,7 @@ YUI.add('jak-mod-dashboard',function(Y){
         /**
          *  load & initialise
          */
-        Y.JAK.dataSet.fetch([
+        Y.JA.dataSet.fetch([
         ],function(){
 
             render.base();

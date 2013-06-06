@@ -1,0 +1,26 @@
+/**
+ *  //css/ja.css
+ */
+
+/* background */
+body {background-color:#669CE8;}
+img.ja-bg-bl {position:fixed;z-index:-1;bottom:0;left:0}
+img.ja-bg-br {position:fixed;z-index:-1;bottom:0;right:0}
+
+.ja-date, .ja-time {width:8em;}
+
+.yui3-tabview-panel {
+  overflow:auto;width:98%; /* ensure containment */
+}
+
+.ja-title {font-size:1.6em;font-weight:bold;text-align:center;color:#800;}
+
+div.ja-topics {display:block;width:900px;margin:0 auto;}
+div.ja-topics > div {float:left;padding:1em;margin:1em;border:1px solid #ddd;}
+div.ja-topics > div > img {display:block;margin:0 auto;}
+div.ja-topics > div > h1 {font-size:2em;color:#800;text-align:center;}
+div.ja-topics > div > h3 {font-size:1.4em;color:#600;text-align:center;}
+div.ja-topics > div > ul > li {font-size:1.2em;color:#880;text-align:center;}
+div.ja-topics > div > ul > li:hover {font-size:1.4em;color:#660;text-decoration:underline;}
+
+.ja-btn-involved {clear:both;display:block;margin:0 auto;font-size:2em;}

@@ -3,9 +3,9 @@
  *  client/server sync DOM: propPart, answer; d.rs:propPartAnswer
  *
  */
-YUI.add('jak-pod-job',function(Y){
+YUI.add('ja-pod-job',function(Y){
 
-    Y.namespace('JAK.pod').job=function(cfg){
+    Y.namespace('JA.pod').job=function(cfg){
 
         if(typeof cfg==='undefined'
         ){cfg={};}
@@ -40,7 +40,7 @@ YUI.add('jak-pod-job',function(Y){
             if(typeof cfg.appointment!=='undefined'){delete cfg.appointment;}
             cfg=Y.merge(cfg,p);
             trigger.reset.form();
-            Y.JAK.widget.dialogMask.mask(h.ol.get('zIndex'));
+            Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
             h.ol.show();
             typeof p.job!=='undefined'
                 ?io.fetch.job()
@@ -56,7 +56,7 @@ YUI.add('jak-pod-job',function(Y){
         };
 
         this.customEvent={
-            save:self.info.id+(++JAK.env.customEventSequence)+':save'
+            save:self.info.id+(++JA.env.customEventSequence)+':save'
         };
 
         this.my={}; //children
@@ -70,13 +70,13 @@ YUI.add('jak-pod-job',function(Y){
                 jobServiceArr=[],
                 propPartTypeCategory={}
             ;
-            h.bb.addClass('jak-pod-'+self.info.id);
+            h.bb.addClass('ja-pod-'+self.info.id);
             new Y.DD.Drag({node:h.bb,handles:[h.hd,h.ft]});
             //prop part filter
                 //ensure display order
-                    propPartTypeCategory['All']=1;
-                    propPartTypeCategory['General']=1;
-                Y.each(JAK.data.propPartType,function(propPartType){
+                    propPartTypeCategory.All=1;
+                    propPartTypeCategory.General=1;
+                Y.each(JA.data.propPartType,function(propPartType){
                     propPartTypeCategory[propPartType.category]=1;
                 });
                 Y.each(propPartTypeCategory,function(category,id){
@@ -84,16 +84,16 @@ YUI.add('jak-pod-job',function(Y){
                 });
             //answer filter and non general services
                 h.answerFilter.append('<option value="0">All</option>');
-                Y.each(JAK.data.service,function(service){
+                Y.each(JA.data.service,function(service){
                     answerArr.push('<option value="'+service.id+'">'+service.name+'</option>');
                     //exclude general from job services
                         if(service.name!=='General'){
-                            jobServiceArr.push('<label><input type="checkbox" value="'+service.id+'"><em>'+service.name+'</em></label> $<input type="text" class="jak-data jak-data-jobService-fee" value="'+service.fee+'" placeholder="service fee" title="service fee" />');
+                            jobServiceArr.push('<label><input type="checkbox" value="'+service.id+'"><em>'+service.name+'</em></label> $<input type="text" class="ja-data ja-data-jobService-fee" value="'+service.fee+'" placeholder="service fee" title="service fee" />');
                         }
                 });
                 h.answerFilter.append('<optgroup label="Services">'+answerArr.join(',')+'</optgroup>');
                 answerArr=[];
-                Y.each(JAK.data.questionMatrix,function(qm){
+                Y.each(JA.data.questionMatrix,function(qm){
                     answerArr.push('<option>'+qm.category+'</option>');
                 });
                 h.answerFilter.append('<optgroup label="Categories">'+Y.Array.dedupe(answerArr).join(',')+'</optgroup>');
@@ -103,14 +103,14 @@ YUI.add('jak-pod-job',function(Y){
         io={
             fetch:{
                 job:function(){
-                    Y.JAK.widget.busy.set('message','getting job(s)...');
+                    Y.JA.widget.busy.set('message','getting job(s)...');
                     Y.io('/db/job/s.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
                             criteria:{jobIds:[cfg.job]},
-                            member  :JAK.user.usr
+                            member  :JA.user.usr
                         }])
                     });
                 },
@@ -121,7 +121,7 @@ YUI.add('jak-pod-job',function(Y){
                     Y.each(rs,function(rec){
                         propPartIds.push(parseInt(rec.criteria.data.id,10));
                     });
-                    Y.JAK.widget.busy.set('message','getting property parts...');
+                    Y.JA.widget.busy.set('message','getting property parts...');
                     Y.io('/db/prop/sPropPart.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
@@ -133,7 +133,7 @@ YUI.add('jak-pod-job',function(Y){
                         }},
                         data:Y.JSON.stringify([{
                             criteria:{propPartIds:propPartIds},
-                            member  :JAK.user.usr
+                            member  :JA.user.usr
                         }])
                     });
                 }
@@ -143,8 +143,8 @@ YUI.add('jak-pod-job',function(Y){
                     alert('duplicate - to do - must create immediately to allow notes to be attached....');
                 },
                 job:function(){
-                    Y.JAK.widget.busy.set('message','new job...');
-                    Y.io('/db/job/id.php',{
+                    Y.JA.widget.busy.set('message','new job...');
+                    Y.io('/db/shared/iud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
@@ -159,7 +159,7 @@ YUI.add('jak-pod-job',function(Y){
                                     appointment:cfg.appointment
                                 }
                             }]},
-                            usr:JAK.user.usr
+                            usr:JA.user.usr
                         }])
                     });
                 }
@@ -167,10 +167,10 @@ YUI.add('jak-pod-job',function(Y){
             remove:{
                 answer:function(){
                     var row=this.ancestor('li'),
-                        answerId=parseInt(row.one('.jak-data-id').get('value'),10)
+                        answerId=parseInt(row.one('.ja-data-id').get('value'),10)
                     ;
                     if(!confirm('delete answer/statement')){return;}
-                    Y.io('/db/shared/d.php',{
+                    Y.io('/db/shared/iud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){
@@ -182,21 +182,18 @@ YUI.add('jak-pod-job',function(Y){
                             row.remove();
                         }},
                         data:Y.JSON.stringify([{
-                            data:{
-                                answer:{
-                                    remove:[answerId]
-                                }
+                            answer:{
+                                remove:[answerId]
                             },
-                            dataSet:'answer',
-                            usr:JAK.user.usr
+                            usr:JA.user.usr
                         }])
                     });
                 },
                 propPart:function(){
                     var row=this.ancestor('li'),
-                        propPartId=parseInt(row.one('.jak-data-id').get('value'),10)
+                        propPartId=parseInt(row.one('.ja-data-id').get('value'),10)
                     ;
-                    Y.io('/db/shared/d.php',{
+                    Y.io('/db/shared/iud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){
@@ -208,13 +205,10 @@ YUI.add('jak-pod-job',function(Y){
                             row.remove();
                         }},
                         data:Y.JSON.stringify([{
-                            data:{
-                                propPart:{
-                                    remove:[propPartId]
-                                }
+                            propPart:{
+                                remove:[propPartId]
                             },
-                            dataSet:'propPart',
-                            usr:JAK.user.usr
+                            usr:JA.user.usr
                         }])
                     });
                 }
@@ -250,7 +244,8 @@ YUI.add('jak-pod-job',function(Y){
                             },
                             propPartAnswer:{
                                 record:[]
-                            }
+                            },
+                            usr:JA.user.usr
                         },
                         answerSeq=1
                     ;
@@ -263,10 +258,10 @@ YUI.add('jak-pod-job',function(Y){
                                 select  :a.all('span select'),
                                 textarea:a.all('span textarea')
                             },
-                            questionId=parseInt(a.one('.jak-data-question').get('value'),10),
-                            q=JAK.data.question[questionId]
+                            questionId=parseInt(a.one('.ja-data-question').get('value'),10),
+                            q=JA.data.question[questionId]
                         ;
-                        Y.each(Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code),function(arr){
+                        Y.each(Y.JA.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code),function(arr){
                             var tag=arr[1],
                                 node=nodes[tag].item(cnt[tag]),
                                 nodeType=node.get('type'),
@@ -312,8 +307,8 @@ YUI.add('jak-pod-job',function(Y){
                         });
                         post.answer.record.push({
                             data:{
-                                id      :parseInt(a.one('.jak-data-id').get('value'),10),
-                                question:parseInt(a.one('.jak-data-question').get('value'),10),
+                                id      :parseInt(a.one('.ja-data-id').get('value'),10),
+                                question:parseInt(a.one('.ja-data-question').get('value'),10),
                                 job     :jobId,
                                 detail  :answerValues.join(';'),
                                 seq     :answerSeq++
@@ -321,17 +316,15 @@ YUI.add('jak-pod-job',function(Y){
                         });
                     });
                     h.propPartList.all('> li').each(function(pp){
-                        //merge
-                        post.propPartAnswer.record.push.apply(post.propPartAnswer.record,pp.getData('propPartAnswer'));
+                        Y.each(pp.getData('propPartAnswer'),function(data){
+                            post.propPartAnswer.record.push({data:data});
+                        });
                     });
-                    Y.io('/db/job/u.php',{
+                    Y.io('/db/shared/iud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:io.fetch.job},
-                        data:Y.JSON.stringify([{
-                            data:post,
-                            usr :JAK.user.usr
-                        }])
+                        data:Y.JSON.stringify([post])
                     });
                 }
             },
@@ -342,15 +335,15 @@ YUI.add('jak-pod-job',function(Y){
                         propPartId
                     ;
                     h.propPartList.all('li').each(function(row,idx){
-                        propPartId=row.one('.jak-data-id').get('value');
+                        propPartId=row.one('.ja-data-id').get('value');
                         rec={
                             criteria:{
                                 data:{
                                     job         :parseInt(f.jobId.get('value'),10),
-                                    propPartType:parseInt(row.one('.jak-data-propPartType').get('value'),10),
+                                    propPartType:parseInt(row.one('.ja-data-propPartType').get('value'),10),
                                     seq         :idx,
                                     indent      :0, //>>>>>>>>FINISH LATER
-                                    name        :row.one('.jak-data-name').get('value')
+                                    name        :row.one('.ja-data-name').get('value')
                                 }
                             }
                         };
@@ -370,62 +363,62 @@ YUI.add('jak-pod-job',function(Y){
         listeners=function(){
             h.close.on('click',function(){
                 h.ol.hide();
-                Y.JAK.widget.dialogMask.hide();
+                Y.JA.widget.dialogMask.hide();
             });
             //job
                 f.jobAddressDetail.on('click',pod.display.address);
             //all
-                h.bd.delegate('click',pod.display.info,'.jak-info');
-                h.hd.delegate('click',trigger.showHide,'.jak-eye');
-                h.bd.delegate('click',trigger.showHide,'.jak-eye');
+                h.bd.delegate('click',pod.display.info,'.ja-info');
+                h.hd.delegate('click',trigger.showHide,'.ja-eye');
+                h.bd.delegate('click',trigger.showHide,'.ja-eye');
             //property parts
-                h.propPartSection.delegate('click',pod.display.propPart,'.jak-add');
+                h.propPartSection.delegate('click',pod.display.propPart,'.ja-add');
                 h.propPartFilter.on('change',trigger.filter.propPart);
-                h.propPartList.delegate('click',io.remove.propPart,'.jak-remove');
+                h.propPartList.delegate('click',io.remove.propPart,'.ja-remove');
                 h.propPartList.delegate('click',trigger.focus.propPart,'> li');
             //property part answers
-                h.propPartAnswerList.delegate('click',trigger.set.propPartAnswer,'input.jak-data-id');
+                h.propPartAnswerList.delegate('click',trigger.set.propPartAnswer,'input.ja-data-id');
             //answers
                 h.answerFilter.on('change',trigger.filter.answer);
                 h.answerList.delegate('click',trigger.focus.answer,'> li');
-                h.answerList.delegate('click',io.insert.answer,'.jak-dup');
-                h.answerList.delegate('click',io.remove.answer,'.jak-remove');
+                h.answerList.delegate('click',io.insert.answer,'.ja-dup');
+                h.answerList.delegate('click',io.remove.answer,'.ja-remove');
             //save
                 h.save.on('click',io.save.job);
             //custom
-                Y.on(JAK.my.podAddress.customEvent.select,pod.result.address);
-                Y.on(JAK.my.podInfo.customEvent.save,pod.result.info);
+                Y.on(JA.my.podAddress.customEvent.select,pod.result.address);
+                Y.on(JA.my.podInfo.customEvent.save,pod.result.info);
         };
 
         pod={
             display:{
                 address:function(){
-                    JAK.my.podAddress.display({address:f.jobAddress.get('value')});
+                    JA.my.podAddress.display({address:f.jobAddress.get('value')});
                 },
                 info:function(){
                     var config={
                             visible:true
                         },
-                        section=this.ancestor('.jak-section')
+                        section=this.ancestor('.ja-section')
                     ;
                     h.podInvoke=this;
-                    if(section.hasClass('jak-section-answer')){
+                    if(section.hasClass('ja-section-answer')){
                         config.title     ='Answers';
                         config.categories=['General','Feedback','Clarify','Warning'];
-                        config.dbTable   =JAK.data.dbTable['answer'].id;
+                        config.dbTable   =JA.data.dbTable['answer'].id;
                     }else
-                    if(section.hasClass('jak-section-propPart')){
+                    if(section.hasClass('ja-section-propPart')){
                         config.title     ='Property Parts';
                         config.categories=['General','Unique','Multi'];
-                        config.dbTable   =JAK.data.dbTable['propPart'].id;
+                        config.dbTable   =JA.data.dbTable['propPart'].id;
                     }else
-                    if(section.hasClass('jak-section-propPartAnswer')){
+                    if(section.hasClass('ja-section-propPartAnswer')){
                         config.title     ='Property Parts/Answer';
                         config.categories=['Joint focus','Property Part Focus','Answer Focus'];
-                        config.dbTable   =JAK.data.dbTable['propPartAnswer'].id;
+                        config.dbTable   =JA.data.dbTable['propPartAnswer'].id;
                     }
-                    config.pk=parseInt(this.ancestor('li').one('.jak-data-id').get('value'),10);
-                    JAK.my.podInfo.display(config);
+                    config.pk=parseInt(this.ancestor('li').one('.ja-data-id').get('value'),10);
+                    JA.my.podInfo.display(config);
                 },
                 propPart:function(){
                     h.podInvoke=this;
@@ -435,9 +428,9 @@ YUI.add('jak-pod-job',function(Y){
             },
             load:{
                 propPart:function(){
-                    Y.use('jak-pod-propPart',function(Y){
-                        self.my.podPropPart=new Y.JAK.pod.propPart({});
-                        Y.JAK.whenAvailable.inDOM(self,'my.podPropPart',function(){
+                    Y.use('ja-pod-propPart',function(Y){
+                        self.my.podPropPart=new Y.JA.pod.propPart({});
+                        Y.JA.whenAvailable.inDOM(self,'my.podPropPart',function(){
                             self.my.podPropPart.set('zIndex',cfg.zIndex+10);
                             h.podInvoke.simulate('click');
                         });
@@ -459,13 +452,13 @@ YUI.add('jak-pod-job',function(Y){
                 info:function(rs){
                     var cnt=rs.info.record.length,
                         li=h.podInvoke.ancestor('li'),
-                        section=li.ancestor('.jak-section')
+                        section=li.ancestor('.ja-section')
                     ;
                     //update note count
                         h.podInvoke.one('span').set('innerHTML',cnt===0?'':cnt);
                     //update count reference
-                        if(section.hasClass('jak-section-propPartAnswer')){
-                            d.rs.propPartAnswer.data[parseInt(li.one('.jak-data-id').get('value'),10)].countInfo=cnt;
+                        if(section.hasClass('ja-section-propPartAnswer')){
+                            d.rs.propPartAnswer.data[parseInt(li.one('.ja-data-id').get('value'),10)].countInfo=cnt;
                         }
                 },
                 propPart:function(rs){
@@ -476,7 +469,7 @@ YUI.add('jak-pod-job',function(Y){
                             h.podInvoke.ancestor('li').insert(
                                 render.propPart({
                                     propPartType    :r.propPartType,
-                                    propPartTypeName:JAK.data.propPartType[r.propPartType].name,
+                                    propPartTypeName:JA.data.propPartType[r.propPartType].name,
                                     seq             :1,
                                     indent          :0,
                                     infoCount       :'?',
@@ -496,14 +489,14 @@ YUI.add('jak-pod-job',function(Y){
                 d.rs.answerRef={};
                 Y.each(d.rs.answer.data,function(answer){
                     var cnt={button:0,input:0,select:0,textarea:0},
-                        q=JAK.data.question[answer.question],
+                        q=JA.data.question[answer.question],
                         nodes
                     ;
                     //+question ref to answer
                         d.rs.answerRef[q.ref]=answer;
                     answerInfoCount=0;
                     Y.each(d.rs.answerInfo.data,function(i){
-                        if(i.dbTable===JAK.data.dbTable['answer'].id && i.pk===answer.id){answerInfoCount++;}
+                        if(i.dbTable===JA.data.dbTable['answer'].id && i.pk===answer.id){answerInfoCount++;}
                     });
                     nn=Y.Node.create(
                         render.answer({
@@ -523,7 +516,7 @@ YUI.add('jak-pod-job',function(Y){
                     };
                     //>>>EXCLUDE FOR NOW
                     if(answer.detail!=='' && answer.detail!==null){
-                        Y.each(Y.JAK.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code),function(arr,idx){
+                        Y.each(Y.JA.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code),function(arr,idx){
                             var tag=arr[1],
                                 answerValue=answer.detail.split(';')[idx],
                                 node=nodes[tag].item(cnt[tag]),
@@ -543,7 +536,7 @@ YUI.add('jak-pod-job',function(Y){
                                         break;
                                     case 'select':
                                         if(nodeType==='select-one'){
-                                            Y.JAK.matchSelect(node,answerValue);
+                                            Y.JA.matchSelect(node,answerValue);
                                         }else{
                                             //select-multiple
 
@@ -581,7 +574,7 @@ YUI.add('jak-pod-job',function(Y){
                     if(job.reminder!==null){
                         f.jobReminder.set('value',moment.unix(job.reminder).format('DDMMMYY hh:mma'));
                     }
-                    Y.JAK.matchSelect(f.jobWeather,job.weather);
+                    Y.JA.matchSelect(f.jobWeather,job.weather);
                     f.jobAddress.set('value',job.address);
                     f.jobAddressDetail.set('innerHTML','');
                     f.jobAddressDetail.set('innerHTML','click here to specify address');
@@ -597,11 +590,12 @@ YUI.add('jak-pod-job',function(Y){
                     populate.propPart();
                     populate.answer();
                 });
-                h.answerFilter.simulate('change');
-                Y.JAK.widget.busy.set('message','');
-h.propPartSection.one('legend a').simulate('click');
-                Y.fire(self.customEvent.save,'hi');
-
+                //sync display
+                    h.answerFilter.simulate('change');
+                    h.answerSection.one('legend a').simulate('click');
+                    h.propPartSection.one('legend a').simulate('click');
+                Y.JA.widget.busy.set('message','');
+                Y.fire(self.customEvent.save,'refresh');
             },
             propPart:function(){
                 Y.each(d.rs.propPart.data,function(propPart){
@@ -610,7 +604,7 @@ h.propPartSection.one('legend a').simulate('click');
                             render.propPart({
                                 id              :propPart.id,
                                 propPartType    :propPart.propPartType,
-                                propPartTypeName:JAK.data.propPartType[propPart.propPartType].name,
+                                propPartTypeName:JA.data.propPartType[propPart.propPartType].name,
                                 name            :(propPart.name===null?'':propPart.name),
                                 seq             :1,
                                 indent          :0,
@@ -626,15 +620,15 @@ h.propPartSection.one('legend a').simulate('click');
                         });
                         nn.setData('propPartAnswer',data);
                 });
-                Y.JAK.widget.busy.set('message','');
+                Y.JA.widget.busy.set('message','');
             },
             propPartAnswer:function(){
-                var answerId=parseInt(h.answerRowFocus.one('.jak-data-id').get('value'),10),
-                    eyeOpen=h.propPartAnswerSection.one('> legend > .jak-eye').hasClass('jak-eye-open')
+                var answerId=parseInt(h.answerRowFocus.one('.ja-data-id').get('value'),10),
+                    eyeOpen=h.propPartAnswerSection.one('> legend > .ja-eye').hasClass('ja-eye-open')
                 ;
                 h.propPartAnswerList.set('innerHTML','');
                 h.propPartList.all('li').each(function(pp){
-                    var propPartId=parseInt(pp.one('.jak-data-id').get('value'),10),
+                    var propPartId=parseInt(pp.one('.ja-data-id').get('value'),10),
                         ppaData=pp.getData('propPartAnswer')
                     ;
                     //for visible propPart
@@ -649,7 +643,7 @@ h.propPartSection.one('legend a').simulate('click');
                         nn.setData('propPartRecNode',pp);
                     //display
                         if(!eyeOpen){
-                            nn.one('.jak-info').setStyle('display','none');
+                            nn.one('.ja-info').setStyle('display','none');
                         }
 
 
@@ -659,16 +653,16 @@ h.propPartSection.one('legend a').simulate('click');
                     Y.each(ppaData,function(ppa){
                         ppa.infoCount=0;
                         if(ppa.propPart===propPartId && ppa.answer===answerId){
-                            nn.one('.jak-data-id').setAttrs({
+                            nn.one('.ja-data-id').setAttrs({
                                 'value':ppa.id,
                                 'title':'Property Part Answer id#'+ppa.id
                             });
-                            if(ppa.current===1){nn.one('.jak-data-id').set('checked',true);}
+                            if(ppa.current===1){nn.one('.ja-data-id').set('checked',true);}
                             //info
                                 Y.each(d.rs.propPartAnswerInfo,function(d){
                                     if(d.pk===ppa.id){ppa.infoCount++;}
                                 });
-                                nn.one('.jak-info span').set('innerHTML',ppa.infoCount===0?'':ppa.infoCount);
+                                nn.one('.ja-info span').set('innerHTML',ppa.infoCount===0?'':ppa.infoCount);
                         }
                     });
                 });
@@ -679,56 +673,56 @@ h.propPartSection.one('legend a').simulate('click');
             base:function(){
                 h.ol=new Y.Overlay({
                     headerContent:
-                         '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAK">'+self.info.title+'</span> '
-                        +' #<input type="text" class="jak-data jak-data-id" title="job number" disabled="disabled" />'
-                        +'<input type="hidden" class="jak-data jak-data-address" />'
-                        +' &nbsp; [<span class="jak-display-address"></span>]'
+                         '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JA">'+self.info.title+'</span> '
+                        +' #<input type="text" class="ja-data ja-data-id" title="job number" disabled="disabled" />'
+                        +'<input type="hidden" class="ja-data ja-data-address" />'
+                        +' &nbsp; [<span class="ja-display-address"></span>]'
                         //display
-                            +'<span class="jak-section jak-section-display">'
+                            +'<span class="ja-section ja-section-display">'
                             +  ' &nbsp; ['
-                            +    Y.JAK.html('btn',{action:'eye',title:'change view',classes:'jak-eye-open jak-display-service',label:'services'})
+                            +    Y.JA.html('btn',{action:'eye',title:'change view',classes:'ja-eye-open ja-display-service',label:'services'})
                             +    ' &nbsp;'
-                            +    Y.JAK.html('btn',{action:'eye',title:'change view',classes:'jak-eye-open jak-display-details',label:'details'})
+                            +    Y.JA.html('btn',{action:'eye',title:'change view',classes:'ja-eye-open ja-display-details',label:'details'})
                             +  ']'
                             +'</span>'
-                        +Y.JAK.html('btn',{action:'close',title:'close pod'}),
+                        +Y.JA.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:
                         //job
-                             'ref:<input type="text" class="jak-data jak-data-ref" title="old system reference" placeholder="ref#" />'
-                            +'Appointment:<input type="text" class="jak-data jak-date jak-data-appointment" title="appointment date" placeholder="appointment" />'
-                            +'&nbsp; Confirmed:<input type="text" class="jak-data jak-date jak-data-confirmed" title="confirmed date" placeholder="confirmed" />'
-                            +'&nbsp; Reminder:<input type="text" class="jak-data jak-data-reminder jak-date" title="reminder date" placeholder="reminder" />'
-                            +'<select class="jak-data jak-data-weather">'
+                             'ref:<input type="text" class="ja-data ja-data-ref" title="old system reference" placeholder="ref#" />'
+                            +'Appointment:<input type="text" class="ja-data ja-date ja-data-appointment" title="appointment date" placeholder="appointment" />'
+                            +'&nbsp; Confirmed:<input type="text" class="ja-data ja-date ja-data-confirmed" title="confirmed date" placeholder="confirmed" />'
+                            +'&nbsp; Reminder:<input type="text" class="ja-data ja-data-reminder ja-date" title="reminder date" placeholder="reminder" />'
+                            +'<select class="ja-data ja-data-weather">'
                             +  '<option>fine</option>'
                             +  '<option>cloudy</option>'
                             +  '<option>wet</option>'
                             +  '<option>dark</option>'
                             +'</select>'
+                            +Y.JA.html('btn',{action:'save',title:'save',label:'save'})
                         //services
-                            +'<fieldset class="jak-list-service">'
+                            +'<fieldset class="ja-list-service">'
                             +  '<legend>services</legend>'
                             +'</fieldset>'
-                        +'<div class="jak-section-details">'
+                        +'<div class="ja-section-details">'
                         //question/answers
-                            +  '<fieldset class="jak-section jak-section-answer">'
+                            +  '<fieldset class="ja-section ja-section-answer">'
                             +    '<legend>'
-                            +      Y.JAK.html('btn',{action:'eye',label:'statement&nbsp;',title:'change view',classes:'jak-eye-open'})
+                            +      Y.JA.html('btn',{action:'eye',label:'statement&nbsp;',title:'change view',classes:'ja-eye-open'})
                             +      '<select></select>'
-                            +      Y.JAK.html('btn',{action:'save',title:'save',label:'save'})
                             +    '</legend>'
                             +    '<ul></ul>'
                             +  '</fieldset>'
                         //property part answer associations
-                            +  '<fieldset class="jak-section jak-section-propPartAnswer">'
+                            +  '<fieldset class="ja-section ja-section-propPartAnswer">'
                             +    '<legend>'
-                            +      Y.JAK.html('btn',{action:'eye',label:'link&nbsp;',title:'change view',classes:'jak-eye-open'})
+                            +      Y.JA.html('btn',{action:'eye',label:'link&nbsp;',title:'change view',classes:'ja-eye-open'})
                             +    '</legend>'
                             +    '<ul></ul>'
                             +  '</fieldset>'
                         //property parts
-                            +  '<fieldset class="jak-section jak-section-propPart jak-eye-open">'
+                            +  '<fieldset class="ja-section ja-section-propPart">'
                             +    '<legend>'
-                            +      Y.JAK.html('btn',{action:'eye',label:'property&nbsp;',title:'change view',classes:'jak-eye-open'})
+                            +      Y.JA.html('btn',{action:'eye',label:'property&nbsp;',title:'change view',classes:'ja-eye-open'})
                             +      '<select></select>'
                             +    '</legend>'
                             +    '<ul></ul>'
@@ -745,35 +739,35 @@ h.propPartSection.one('legend a').simulate('click');
                     h.ft              =h.ol.footerNode;
                     h.bb              =h.ol.get('boundingBox');
 
-                    h.close           =h.hd.one('.jak-close');
+                    h.close           =h.hd.one('.ja-close');
 
-                    f.jobId           =h.hd.one('.jak-data-id');
-                    f.jobAddress      =h.hd.one('.jak-data-address');
-                    f.jobAddressDetail=h.hd.one('.jak-display-address');
+                    f.jobId           =h.hd.one('.ja-data-id');
+                    f.jobAddress      =h.hd.one('.ja-data-address');
+                    f.jobAddressDetail=h.hd.one('.ja-display-address');
 
-                    f.jobRef          =h.bd.one('.jak-data-ref');
-                    f.jobAppointment  =h.bd.one('.jak-data-appointment');
-                    f.jobConfirmed    =h.bd.one('.jak-data-confirmed');
-                    f.jobReminder     =h.bd.one('.jak-data-reminder');
-                    f.jobWeather      =h.bd.one('.jak-data-weather');
+                    f.jobRef          =h.bd.one('.ja-data-ref');
+                    f.jobAppointment  =h.bd.one('.ja-data-appointment');
+                    f.jobConfirmed    =h.bd.one('.ja-data-confirmed');
+                    f.jobReminder     =h.bd.one('.ja-data-reminder');
+                    f.jobWeather      =h.bd.one('.ja-data-weather');
 
-                    h.displayServices =h.bd.one('.jak-display-services');
-                    h.serviceList     =h.bd.one('.jak-list-service');
+                    h.displayServices =h.bd.one('.ja-display-services');
+                    h.serviceList     =h.bd.one('.ja-list-service');
                     
-                    h.detailsSection  =h.bd.one('> .jak-section-details');
+                    h.detailsSection  =h.bd.one('> .ja-section-details');
 
-                    h.propPartSection =h.bd.one('.jak-section-propPart');
+                    h.propPartSection =h.bd.one('.ja-section-propPart');
                     h.propPartFilter  =h.propPartSection.one('> legend > select');
                     h.propPartList    =h.propPartSection.one('> ul');
 
-                    h.propPartAnswerSection =h.bd.one('.jak-section-propPartAnswer');
+                    h.propPartAnswerSection =h.bd.one('.ja-section-propPartAnswer');
                     h.propPartAnswerList    =h.propPartAnswerSection.one('> ul');
 
-                    h.answerSection   =h.bd.one('.jak-section-answer');
+                    h.answerSection   =h.bd.one('.ja-section-answer');
                     h.answerFilter    =h.answerSection.one('> legend > select');
                     h.answerList      =h.answerSection.one('> ul');
 
-                    h.save            =h.bd.one('.jak-save');
+                    h.save            =h.bd.one('.ja-save');
             },
             address:function(p){
                 return Y.Lang.sub('{streetRef} {streetName}, {location}',{
@@ -786,14 +780,14 @@ h.propPartSection.one('legend a').simulate('click');
             answer:function(p){
                 return Y.Lang.sub(
                     '<li>'
-                   +  '<input type="hidden" class="jak-data jak-data-id" value="{id}" />'
-                   +  '<input type="hidden" class="jak-data jak-data-question" value="{question}" />'
+                   +  '<input type="hidden" class="ja-data ja-data-id" value="{id}" />'
+                   +  '<input type="hidden" class="ja-data ja-data-question" value="{question}" />'
                    +  '<div title="#{id}">'
                    +    '{name}'
-                   +    Y.JAK.html('btn',{action:'info',title:'notes',label:p.infoCount})
-                   +    '<span class="jak-actions">'
-                   +      Y.JAK.html('btn',{action:'dup',title:'duplicate'})
-                   +      Y.JAK.html('btn',{action:'remove',title:'remove'})
+                   +    Y.JA.html('btn',{action:'info',title:'notes',label:p.infoCount})
+                   +    '<span class="ja-actions">'
+                   +      Y.JA.html('btn',{action:'dup',title:'duplicate'})
+                   +      Y.JA.html('btn',{action:'remove',title:'remove'})
                    +    '</span>'
                    +  '</div>'
                    +  '<span>{code}</span>'
@@ -808,14 +802,14 @@ h.propPartSection.one('legend a').simulate('click');
             propPart:function(p){
                 return Y.Lang.sub(
                     '<li>'
-                   +  '<input type="hidden"   class="jak-data jak-data-id" value="{id}" />'
-                   +  '<input type="hidden"   class="jak-data jak-data-propPartType" value="{propPartType}" />'
-                   +  '<input type="hidden"   class="jak-data jak-data-seq" value="{seq}" />'
-                   +  '<input type="hidden"   class="jak-data jak-data-indent" value="{indent}" />'
-                   +  '<input type="hidden"   class="jak-data jak-data-category" value="{category}" />'
-                   +  '<div class="jak-data-propPartTypeName" title="{propPartTypeName} part#{id}">{propPartTypeName}</div>'
-                   +  '<input type="text" class="jak-data jak-data-name" value="{name}" placeholder="detail" />'
-                   +  '<select class="jak-data jak-data-component">'
+                   +  '<input type="hidden"   class="ja-data ja-data-id" value="{id}" />'
+                   +  '<input type="hidden"   class="ja-data ja-data-propPartType" value="{propPartType}" />'
+                   +  '<input type="hidden"   class="ja-data ja-data-seq" value="{seq}" />'
+                   +  '<input type="hidden"   class="ja-data ja-data-indent" value="{indent}" />'
+                   +  '<input type="hidden"   class="ja-data ja-data-category" value="{category}" />'
+                   +  '<div class="ja-data-propPartTypeName" title="{propPartTypeName} part#{id}">{propPartTypeName}</div>'
+                   +  '<input type="text" class="ja-data ja-data-name" value="{name}" placeholder="detail" />'
+                   +  '<select class="ja-data ja-data-component">'
                    +    '<option>Component..</option>'
                    +    '<option>Wall</option>'
                    +    '<option>Floor</option>'
@@ -823,11 +817,11 @@ h.propPartSection.one('legend a').simulate('click');
                    +    '<option>Window</option>'
                    +    '<option>Door</option>'
                    +  '</select>'
-                   +  Y.JAK.html('btn',{action:'info'  ,title:'notes',label:(p.infoCount===0?' ':p.infoCount)})
-                   +  '<div class="jak-actions">'
-                   +    Y.JAK.html('btn',{action:'add'   ,title:'add property part'})
-                   +    Y.JAK.html('btn',{action:'dup'   ,title:'duplicate property part'})
-                   +    Y.JAK.html('btn',{action:'remove',title:'remove property part'})
+                   +  Y.JA.html('btn',{action:'info'  ,title:'notes',label:(p.infoCount===0?' ':p.infoCount)})
+                   +  '<div class="ja-actions">'
+                   +    Y.JA.html('btn',{action:'add'   ,title:'add property part'})
+                   +    Y.JA.html('btn',{action:'dup'   ,title:'duplicate property part'})
+                   +    Y.JA.html('btn',{action:'remove',title:'remove property part'})
                    +  '</div>'
                    +'</li>',
                 {
@@ -837,16 +831,16 @@ h.propPartSection.one('legend a').simulate('click');
                     'seq'             :p.seq,
                     'name'            :'',
                     'indent'          :p.indent,
-                    'category'        :p.propPartType===''?'':JAK.data.propPartType[p.propPartType].category
+                    'category'        :p.propPartType===''?'':JA.data.propPartType[p.propPartType].category
                 });
             },
             propPartAnswer:function(p){
                 return Y.Lang.sub(
                     '<li>'
-                   +  '<input type="hidden" class="jak-data jak-data-propPart" value="{propPart}" />'
-                   +  '<input type="hidden" class="jak-data jak-data-answer" value="{answer}" />'
-                   +  '<input type="checkbox" class="jak-data jak-data-id" title="propPartAnswer#{id}" value="{id}" />'
-                   +  Y.JAK.html('btn',{action:'info',title:'notes',label:''})
+                   +  '<input type="hidden" class="ja-data ja-data-propPart" value="{propPart}" />'
+                   +  '<input type="hidden" class="ja-data ja-data-answer" value="{answer}" />'
+                   +  '<input type="checkbox" class="ja-data ja-data-id" title="propPartAnswer#{id}" value="{id}" />'
+                   +  Y.JA.html('btn',{action:'info',title:'notes',label:''})
                    +'</li>',
                 {
                     'id'      :p.id,
@@ -865,7 +859,7 @@ h.propPartSection.one('legend a').simulate('click');
                             var found=false,
                                 isCategory=isNaN(parseInt(answerValue,10))//services are numeric , categories are strings
                             ;
-                            Y.each(JAK.data.questionMatrix,function(qm){
+                            Y.each(JA.data.questionMatrix,function(qm){
                                 if(!isCategory){answerValue=parseInt(answerValue,10);}
                                 if(qm.question===question && answerValue===(isCategory?qm.category:qm.service)){found=true;}
                             });
@@ -880,7 +874,7 @@ h.propPartSection.one('legend a').simulate('click');
                         });
                     }else{
                         h.answerList.all('li').each(function(row){
-                            foundValue=questionHas(parseInt(row.one('.jak-data-question').get('value'),10),answerFilterValue);
+                            foundValue=questionHas(parseInt(row.one('.ja-data-question').get('value'),10),answerFilterValue);
                             row.setStyle('display',foundValue?'':'none');
                             if(!visibleAnswer && foundValue){visibleAnswer=row;}
                         });
@@ -893,7 +887,7 @@ h.propPartSection.one('legend a').simulate('click');
                     ;
                     h.propPartList.all('li').each(function(row){
                         row.setStyle('display','');
-                        if(category!=='All' && row.one('.jak-data-category').get('value')!==category){
+                        if(category!=='All' && row.one('.ja-data-category').get('value')!==category){
                             row.setStyle('display','none');
                         }
                     });
@@ -903,14 +897,14 @@ h.propPartSection.one('legend a').simulate('click');
             focus:{
                 answer:function(){
                     h.answerRowFocus=this;
-                    h.answerList.all('.jak-focus').removeClass('jak-focus');
-                    this.addClass('jak-focus');
+                    h.answerList.all('.ja-focus').removeClass('ja-focus');
+                    this.addClass('ja-focus');
                     populate.propPartAnswer();
                 },
                 propPart:function(){
                     h.propPartRowFocus=this;
-                    h.propPartList.all('.jak-focus').removeClass('jak-focus');
-                    this.addClass('jak-focus');
+                    h.propPartList.all('.ja-focus').removeClass('ja-focus');
+                    this.addClass('ja-focus');
                 }
             },
             reset:{
@@ -931,8 +925,8 @@ h.propPartSection.one('legend a').simulate('click');
             set:{
                 propPartAnswer:function(){
                     var ppaRec        =this.ancestor('li'),
-                        propPartId =parseInt(ppaRec.one('.jak-data-propPart').get('value'),10),
-                        answerId   =parseInt(ppaRec.one('.jak-data-answer'  ).get('value'),10),
+                        propPartId =parseInt(ppaRec.one('.ja-data-propPart').get('value'),10),
+                        answerId   =parseInt(ppaRec.one('.ja-data-answer'  ).get('value'),10),
                         checked    =this.get('checked')?1:0,
                         ppaData    =ppaRec.getData('propPartRecNode').getData('propPartAnswer'),
                         newRecord  =true
@@ -957,59 +951,59 @@ h.propPartSection.one('legend a').simulate('click');
                 }
             },
             showHide:function(){
-                var section=this.ancestor('.jak-section'),
+                var section=this.ancestor('.ja-section'),
                     sectionList=section.one('ul')
                 ;
-                if(section.hasClass('jak-section-display')){
-                    if(this.hasClass('jak-display-service')){
-                        if(this.hasClass('jak-eye-open')){
-                            this.replaceClass('jak-eye-open','jak-eye-closed');
+                if(section.hasClass('ja-section-display')){
+                    if(this.hasClass('ja-display-service')){
+                        if(this.hasClass('ja-eye-open')){
+                            this.replaceClass('ja-eye-open','ja-eye-closed');
                             h.serviceList.setStyle('display','none');
                         }else{
-                            this.replaceClass('jak-eye-closed','jak-eye-open');
+                            this.replaceClass('ja-eye-closed','ja-eye-open');
                             h.serviceList.setStyle('display','');
                         }
-                    }else if(this.hasClass('jak-display-details')){
-                        if(this.hasClass('jak-eye-open')){
-                            this.replaceClass('jak-eye-open','jak-eye-closed');
+                    }else if(this.hasClass('ja-display-details')){
+                        if(this.hasClass('ja-eye-open')){
+                            this.replaceClass('ja-eye-open','ja-eye-closed');
                             h.detailsSection.setStyle('display','none');
                         }else{
-                            this.replaceClass('jak-eye-closed','jak-eye-open');
+                            this.replaceClass('ja-eye-closed','ja-eye-open');
                             h.detailsSection.setStyle('display','');
                         }
                     }
-                }else if(section.hasClass('jak-section-propPart')){
-                    if(this.hasClass('jak-eye-open')){
-                        this.replaceClass('jak-eye-open','jak-eye-squint');
-                        sectionList.all('.jak-actions').setStyle('display','none');
-                    }else if(this.hasClass('jak-eye-squint')){
-                        this.replaceClass('jak-eye-squint','jak-eye-closed');
-                        sectionList.all('.jak-data-component,.jak-info').setStyle('display','none');
-                    }else if(this.hasClass('jak-eye-closed')){
-                        this.replaceClass('jak-eye-closed','jak-eye-open');
-                        sectionList.all('.jak-actions,.jak-data-component,.jak-info').setStyle('display','');
+                }else if(section.hasClass('ja-section-propPart')){
+                    if(this.hasClass('ja-eye-open')){
+                        this.replaceClass('ja-eye-open','ja-eye-squint');
+                        sectionList.all('.ja-actions').setStyle('display','none');
+                    }else if(this.hasClass('ja-eye-squint')){
+                        this.replaceClass('ja-eye-squint','ja-eye-closed');
+                        sectionList.all('.ja-data-component,.ja-info').setStyle('display','none');
+                    }else if(this.hasClass('ja-eye-closed')){
+                        this.replaceClass('ja-eye-closed','ja-eye-open');
+                        sectionList.all('.ja-actions,.ja-data-component,.ja-info').setStyle('display','');
                     }
-                }else if(section.hasClass('jak-section-answer')){
-                    if(this.hasClass('jak-eye-open')){
-                        this.replaceClass('jak-eye-open','jak-eye-squint');
-                        sectionList.all('.jak-actions').setStyle('display','none');
+                }else if(section.hasClass('ja-section-answer')){
+                    if(this.hasClass('ja-eye-open')){
+                        this.replaceClass('ja-eye-open','ja-eye-squint');
+                        sectionList.all('.ja-actions').setStyle('display','none');
                         section.setStyle('width','30em');
-                    }else if(this.hasClass('jak-eye-squint')){
-                        this.replaceClass('jak-eye-squint','jak-eye-closed');
-                        sectionList.all('li>span,.jak-info').setStyle('display','none');
+                    }else if(this.hasClass('ja-eye-squint')){
+                        this.replaceClass('ja-eye-squint','ja-eye-closed');
+                        sectionList.all('.ja-info').setStyle('display','none');
                         section.setStyle('width','26em');
                     }else{
-                        this.replaceClass('jak-eye-closed','jak-eye-open');
+                        this.replaceClass('ja-eye-closed','ja-eye-open');
                         section.setStyle('width','35em');
-                        sectionList.all('.jak-actions,li>span,.jak-info').setStyle('display','');
+                        sectionList.all('.ja-actions,.ja-info').setStyle('display','');
                     }
-                }else if(section.hasClass('jak-section-propPartAnswer')){
-                    if(this.hasClass('jak-eye-open')){
-                        this.replaceClass('jak-eye-open','jak-eye-squint');
-                        sectionList.all('.jak-info').setStyle('display','none');
+                }else if(section.hasClass('ja-section-propPartAnswer')){
+                    if(this.hasClass('ja-eye-open')){
+                        this.replaceClass('ja-eye-open','ja-eye-closed');
+                        sectionList.all('.ja-info').setStyle('display','none');
                     }else{
-                        this.replaceClass('jak-eye-closed','jak-eye-open');
-                        sectionList.all('.jak-info').setStyle('display','');
+                        this.replaceClass('ja-eye-closed','ja-eye-open');
+                        sectionList.all('.ja-info').setStyle('display','');
                     }
                 }
             }
@@ -1017,7 +1011,7 @@ h.propPartSection.one('legend a').simulate('click');
         /**
          *  load & initialise
          */
-        Y.JAK.dataSet.fetch([
+        Y.JA.dataSet.fetch([
             ['propPartTag','id'],
             ['propPartType','id'],
             ['propPartTypeTag','id'],

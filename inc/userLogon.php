@@ -2,10 +2,10 @@
 /** //inc/userLogon.php
  *
  */
-namespace jak;
+namespace ja;
 
 //logout
-if (isset($_REQUEST['logout'])) {unset($_SESSION[JAK_MEMBER]); exit;}
+if (isset($_REQUEST['logout'])) {unset($_SESSION[JA_MEMBER]); exit;}
 
 if (!isset($_REQUEST['logon'], $_REQUEST['hash'])) {exit;}
 
@@ -21,14 +21,14 @@ $member = firstElement($r->data);
 if (!isset($member)) {exit;}
 
 //verify password
-if (SHA1($member->password . SHA1($_SESSION[JAK_SALT])) == $_REQUEST['hash']) {
-    $_SESSION[JAK_MEMBER] = $member->id;
+if (SHA1($member->password . SHA1($_SESSION[JA_SALT])) == $_REQUEST['hash']) {
+    $_SESSION[JA_MEMBER] = $member->id;
     //security
     unset($member->logon);
     unset($member->password);
 } else exit;
-if (!isset($_COOKIE[JAK_USERLOGON_REMEMBER])) {
-    unset($_SESSION[JAK_MEMBER]);
+if (!isset($_COOKIE[JA_USERLOGON_REMEMBER])) {
+    unset($_SESSION[JA_MEMBER]);
 }
 header('Content-type: application/json');
 echo json_encode($r);

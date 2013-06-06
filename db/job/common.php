@@ -2,7 +2,7 @@
 /** /db/job/common.php
  *
  */
-namespace jak;
+namespace ja;
 
 require_once '../shared/common.php';
 require_once '../prop/common.php';
@@ -42,7 +42,7 @@ function job_getJob($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->data = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;
@@ -76,7 +76,7 @@ function job_getPropPart($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->data = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;
@@ -125,7 +125,7 @@ function job_setJob(&$i) {
                         and pt.def           = 1'
                 )) {
                     $stmt->execute();
-                    $propPartDef = \jak\fetch_result($stmt);
+                    $propPartDef = \ja\fetch_result($stmt);
                     $stmt->close();
 
                     foreach ($propPartDef as $d) {
@@ -218,7 +218,7 @@ function job_setJob(&$i) {
                   where job = $jobId"
             )) {
                 $stmt->execute();
-                $jobService = \jak\fetch_result($stmt);
+                $jobService = \ja\fetch_result($stmt);
                 $stmt->close();
 
                 foreach ($jobService as $d) {
@@ -245,7 +245,7 @@ function job_setJob(&$i) {
             		,$jobId
             	);
                 $stmt->execute();
-                $propPartAnswer = \jak\fetch_result($stmt);
+                $propPartAnswer = \ja\fetch_result($stmt);
                 $stmt->close();
 
 				$ppArr = array();
@@ -319,58 +319,10 @@ function job_setJob(&$i) {
 
 function job_setPropPart(&$i) {
     global $mysqli;
-
-    $r = initResult($i);
-
-    if (!isset($i->data) &&
-        !isset($i->remove)) {return null;}
-
     db::remove('propPart', $i);
-
-    if (isset($i->data->id)) {
-        if ($stmt = $mysqli->prepare(
-            "update `propPart`
-                set job          = ?,
-                    propPartType = ?,
-                    seq          = ?,
-                    indent       = ?,
-                    name         = ?
-              where id = ?"
-        )) {
-            $stmt->bind_param('iiiisi'
-                ,$i->data->job
-                ,$i->data->propPartType
-                ,$i->data->seq
-                ,$i->data->indent
-                ,$i->data->name
-                ,$i->data->id
-            );
-            $r->successUpdate = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successUpdate OR $r->errorUpdate = $mysqli->error;
-            $stmt->close();
+    if (isset($i->record)) {
+        foreach ($i->record as $rec) {
+            db::update('propPart',$rec) or db::insert('propPart',$rec);
         }
-        return $r;
-    }
-
-    if ($stmt = $mysqli->prepare(
-        "insert into `propPart`
-                (job, propPartType, seq, indent, name)
-         values (?,?,?,?,?)"
-    )) {
-        $stmt->bind_param('iiiis'
-           ,$i->data->job
-           ,$i->data->propPartType
-           ,$i->data->seq
-           ,$i->data->indent
-           ,$i->data->name
-        );
-        $r->successInsert = $stmt->execute();
-        $r->rows = $mysqli->affected_rows;
-        $r->successInsert
-            ?$i->data->id = $stmt->insert_id
-            :$r->errorInsert = $mysqli->error;
-        $stmt->close();
     }
 }
-

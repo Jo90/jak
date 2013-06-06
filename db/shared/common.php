@@ -2,7 +2,7 @@
 /** /db/shared/common.php
  *
  */
-namespace jak;
+namespace ja;
 
 /**
  *  General functions
@@ -34,9 +34,7 @@ function explodeArrayForInsert($data, $fields, $dataTypes) { //array, string, st
 
 function selectIds($dataSet, $field) {
     $ids = array();
-    foreach ($dataSet as $d) {
-        $ids[] = $d->{$field};
-    }
+    foreach ($dataSet as $d) {$ids[] = $d->{$field};}
     return $ids;
 }
 
@@ -198,9 +196,7 @@ class db {
 
 function shared_getInfo($criteria) {
     global $mysqli;
-
     $r = initResult($criteria);
-
     $cnd = "";
     if (isset($criteria->infoIds) && is_array($criteria->infoIds) && count($criteria->infoIds) > 0) {
         $infoIds = implode(',', $criteria->infoIds);
@@ -213,7 +209,6 @@ function shared_getInfo($criteria) {
     if (isset($criteria->dbTable, $criteria->pk)) {
         $cnd = "where dbTable = $criteria->dbTable and pk = $criteria->pk";
     }
-
     if ($stmt = $mysqli->prepare(
         "select *
            from `info` $cnd
@@ -221,28 +216,7 @@ function shared_getInfo($criteria) {
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
-        $stmt->close();
-    }
-    return $r;
-}
-
-function shared_getTag($criteria) {
-    global $mysqli;
-
-    $r = initResult($criteria);
-
-    $dbTable = $criteria->dbTable;
-    $pks     = implode(',', $criteria->pks);
-    if ($stmt = $mysqli->prepare(
-        "select *
-           from `tag`
-           where dbTable = $dbTable
-             and pk in ($pks)"
-    )) {
-        $r->success = $stmt->execute();
-        $r->rows = $mysqli->affected_rows;
-        $r->data = \jak\fetch_result($stmt,'id');
+        $r->data = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     return $r;
@@ -250,64 +224,10 @@ function shared_getTag($criteria) {
 
 function shared_setInfo(&$i) {
     global $mysqli;
-
     db::remove('info', $i);
-
     if (isset($i->record)) {
         foreach ($i->record as $rec) {
             db::update('info',$rec) or db::insert('info',$rec);
         }
-    }
-}
-
-function shared_setTag(&$i) {
-    global $mysqli;
-
-    $r = initResult($i);
-
-    if (!isset($i) &&
-        !isset($i->data) &&
-        !isset($i->dbTable, $i->data->pk) &&
-        !isset($i->remove)) {return null;}
-
-    db::remove('tag', $i);
-
-    if (isset($i->data->id)) {
-        if ($stmt = $mysqli->prepare(
-            "update `tag`
-                set displayOrder = ?,
-                    name         = ?
-              where id = ?"
-        )) {
-            $stmt->bind_param('isi'
-                ,$i->data->displayOrder
-                ,$i->data->name
-                ,$i->data->id
-            );
-            $r->successUpdate = $stmt->execute();
-            $r->rows = $mysqli->affected_rows;
-            $r->successUpdate OR $r->errorUpdate = $mysqli->error;
-            $stmt->close();
-        }
-        return $r;
-    }
-    //insert
-    if ($stmt = $mysqli->prepare(
-            "insert into `tag`
-                    (dbTable,pk,displayOrder,name)
-             values (?,?,?,?)"
-    )) {
-        $stmt->bind_param('iiis'
-           ,$i->data->dbTable
-           ,$i->data->pk
-           ,$i->data->displayOrder
-           ,$i->data->name
-        );
-        $r->successInsert = $stmt->execute();
-        $r->rows = $mysqli->affected_rows;
-        $r->successInsert
-            ?$i->data->id = $stmt->insert_id
-            :$r->errorInsert = $mysqli->error;
-        $stmt->close();
     }
 }

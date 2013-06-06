@@ -1,13 +1,13 @@
 <?php /** //css/combine.css.php
  *
- *  Combine css files
+ *  combine css files
  */
-namespace jak;
+namespace ja;
 require_once 'config.php';
 header('Content-type: text/css');
 
 include 'base.css';
-include 'jak.css';
+include 'ja.css';
 include 'yui3.css'; //yui3 overrides
 
 //passed css files, also include specific device extensions

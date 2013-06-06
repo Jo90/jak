@@ -2,7 +2,7 @@
 /** //index.php
  *
  */
-namespace jak;
+namespace ja;
 ?>
 <!DOCTYPE html>
 <html>
@@ -21,7 +21,7 @@ namespace jak;
 html {height:100%}
 body {height:100%;margin:0;padding:0;}
 body > em {display:block;color:#800;font-size:1.4em;margin:0.4em 1em;}
-.jak-clock {color:rgba(255,255,255,1);float:right;margin:0 200px 0;text-shadow:#80715D 1px 1px 1px;}
+.ja-clock {color:rgba(255,255,255,1);float:right;margin:0 200px 0;text-shadow:#80715D 1px 1px 1px;}
 </style>
 <?php echo YUI_JS; ?>
 
@@ -30,14 +30,14 @@ body > em {display:block;color:#800;font-size:1.4em;margin:0.4em 1em;}
 <script type='text/javascript' src='js/fullcalendar-1.5.4/fullcalendar/fullcalendar.min.js'></script>
 
 </head>
-<body class="jak-main yui3-skin-sam">
+<body class="ja-main yui3-skin-sam">
     <section>
-        <div class="jak-userLogon"></div>
-        <span class="jak-clock"></span>
+        <div class="ja-userLogon"></div>
+        <span class="ja-clock"></span>
     </section>
     <em>JAK Inspections</em>
     <article>
-        <div class="jak-tabs"></div>
+        <div class="ja-tabs"></div>
     </article>
 <script src="index.js.php" type="text/javascript"></script>
 </body>

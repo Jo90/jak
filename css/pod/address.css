@@ -1,9 +1,9 @@
 /** /css/pod/address.css
  *
  */
-.jak-pod-address .jak-close {float:right;}
+.ja-pod-address .ja-close {float:right;}
 
-.jak-pod-address .jak-data-streetRef,
-.jak-pod-address .jak-data-locationName {width:15em;}
-.jak-pod-address .jak-data-streetName   {width:12em;}
-.jak-pod-address .jak-data-streetRef    {width:4em;}
+.ja-pod-address .ja-data-streetRef,
+.ja-pod-address .ja-data-locationName {width:15em;}
+.ja-pod-address .ja-data-streetName   {width:12em;}
+.ja-pod-address .ja-data-streetRef    {width:4em;}

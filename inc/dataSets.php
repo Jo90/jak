@@ -2,7 +2,7 @@
 /** //inc/dataSets.php
  *
  */
-namespace jak;
+namespace ja;
 
 function dataSets($arr, $echo=false) {
     global $mysqli;
@@ -81,8 +81,8 @@ function dataSets($arr, $echo=false) {
     }
     if ($echo) {
         echo PHP_EOL , '//core info'
-            ,PHP_EOL , 'if(!window.JAK){var JAK={};}'
-            ,PHP_EOL , 'if(!JAK.data){JAK.data={};}'
-            ,PHP_EOL , 'JAK.data=' , json_encode($rs) , ';';
+            ,PHP_EOL , 'if(!window.JA){var JA={};}'
+            ,PHP_EOL , 'if(!JA.data){JA.data={};}'
+            ,PHP_EOL , 'JA.data=' , json_encode($rs) , ';';
     } else return $rs;
 }

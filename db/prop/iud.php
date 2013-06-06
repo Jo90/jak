@@ -2,7 +2,9 @@
 /** //db/prop/iud.php
  *
  */
-namespace jak;
+namespace ja;
+
+//>>>>>>>>>>>>>>FINISH convert to shared/iud.php
 
 require_once 'common.php';
 require_once '../shared/common.php';

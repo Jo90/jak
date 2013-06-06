@@ -1,9 +1,9 @@
 /** //mod/calendar.js
  *
  */
-YUI.add('jak-mod-calendar',function(Y){
+YUI.add('ja-mod-calendar',function(Y){
 
-    Y.namespace('JAK.mod').calendar=function(cfg){
+    Y.namespace('JA.mod').calendar=function(cfg){
 
         if(typeof cfg=='undefined' ||
            typeof cfg.node=='undefined'
@@ -28,16 +28,16 @@ YUI.add('jak-mod-calendar',function(Y){
          */
 
         function listeners(){
-            Y.on(JAK.my.podJob.customEvent.save,function(){
-                JAK.my.fc.fullCalendar('refetchEvents');
+            Y.on(JA.my.podJob.customEvent.save,function(){
+                JA.my.fc.fullCalendar('refetchEvents');
             });
         };
 
         render={
             base:function(){
-                JAK.my.fc=$(Y.Node.getDOMNode(cfg.node))
+                JA.my.fc=$(Y.Node.getDOMNode(cfg.node))
                 ;
-                JAK.my.fc.fullCalendar({
+                JA.my.fc.fullCalendar({
                     allowCalEventOverlap:true,
                     allDayDefault:false,
                     contentHeight:500,
@@ -86,13 +86,13 @@ YUI.add('jak-mod-calendar',function(Y){
                     weekMode:'liquid',
                     //events
                     dayClick:function(day){
-                        JAK.my.podJob.display({
+                        JA.my.podJob.display({
                             appointment:moment(day).unix(),
                             visible    :true
                         });
                     },
                     eventClick:function(e){
-                        JAK.my.podJob.display({
+                        JA.my.podJob.display({
                             job    :e.id,
                             visible:true
                         });
@@ -106,7 +106,7 @@ YUI.add('jak-mod-calendar',function(Y){
         /**
          *  load & initialise
          */
-        Y.JAK.dataSet.fetch([
+        Y.JA.dataSet.fetch([
         ],function(){
 
             render.base();

@@ -24,7 +24,7 @@ function usr_getUsr($criteria) {
         $cols = '*';
         $cnd  = 'logon = "' . $mysqli->real_escape_string($criteria->logon) . '"';
     } else
-    if (isset($criteria->firstName, $criteria->firstName)) {
+    if (isset($criteria->firstName, $criteria->lastName)) {
         $cnd  = 'firstName like "' . $mysqli->real_escape_string($criteria->firstName) . '%" and '
               . 'lastName like "' . $mysqli->real_escape_string($criteria->lastName) . '%"';
     }

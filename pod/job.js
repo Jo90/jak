@@ -109,8 +109,12 @@ YUI.add('ja-pod-job',function(Y){
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
-                            criteria:{jobIds:[cfg.job]},
-                            member  :JA.user.usr
+                            job:{
+                            	criteria:{
+                            		jobIds:[cfg.job]
+    	                        }
+                            },
+                            usr:JA.user.usr
                         }])
                     });
                 },
@@ -144,7 +148,7 @@ YUI.add('ja-pod-job',function(Y){
                 },
                 job:function(){
                     Y.JA.widget.busy.set('message','new job...');
-                    Y.io('/db/shared/iud.php',{
+                    Y.io('/db/shared/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
@@ -170,7 +174,7 @@ YUI.add('ja-pod-job',function(Y){
                         answerId=parseInt(row.one('.ja-data-id').get('value'),10)
                     ;
                     if(!confirm('delete answer/statement')){return;}
-                    Y.io('/db/shared/iud.php',{
+                    Y.io('/db/shared/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){
@@ -193,7 +197,7 @@ YUI.add('ja-pod-job',function(Y){
                     var row=this.ancestor('li'),
                         propPartId=parseInt(row.one('.ja-data-id').get('value'),10)
                     ;
-                    Y.io('/db/shared/iud.php',{
+                    Y.io('/db/shared/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){
@@ -320,7 +324,7 @@ YUI.add('ja-pod-job',function(Y){
                             post.propPartAnswer.record.push({data:data});
                         });
                     });
-                    Y.io('/db/shared/iud.php',{
+                    Y.io('/db/shared/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:io.fetch.job},

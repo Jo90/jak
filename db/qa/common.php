@@ -15,14 +15,12 @@ function qa_getAnswer($criteria) {
     if (isset($criteria->answerIds) && is_array($criteria->answerIds) && count($criteria->answerIds) > 0) {
         $answerIds = implode(',', $criteria->answerIds);
         $cnd = "where id in ($answerIds)";
-    }
-
+    } else
     if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0) {
         $jobIds = implode(',', $criteria->jobIds);
         $cnd = "where job in ($jobIds)";
-    }
-
-    if (isset($criteria->questionIds) && is_array($criteria->questionIds) && count($criteria->questionIds) > 0) {
+    } else
+	if (isset($criteria->questionIds) && is_array($criteria->questionIds) && count($criteria->questionIds) > 0) {
         $questionIds = implode(',', $criteria->questionIds);
         $cnd = "where question in ($questionIds)";
     }
@@ -55,7 +53,6 @@ function qa_getPropPartAnswer($criteria) {
         $propPartAnswerIds = implode(',', $criteria->propPartAnswerIds);
         $cnd = "where id in ($propPartAnswerIds)";
     } else
-
     if (isset($criteria->propPartIds) && is_array($criteria->propPartIds) && count($criteria->propPartIds) > 0) {
         $propPartIds = implode(',', $criteria->propPartIds);
         $cnd = "where propPart in ($propPartIds)";

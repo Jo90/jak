@@ -61,10 +61,13 @@ YUI.add('ja-mod-calendar',function(Y){
                                 callback(events);
                             }},
                             data:Y.JSON.stringify([{
-                                 criteria:{
-                                    appointmentStart:Math.round(start.getTime()/1000),
-                                    appointmentEnd  :Math.round(end.getTime()/1000)
-                                 }
+                                job:{
+                                	criteria:{
+                                    	appointmentStart:Math.round(start.getTime()/1000),
+                                    	appointmentEnd  :Math.round(end.getTime()/1000)
+                                    }	
+								},
+								usr:JA.user.usr
                              }])
                          });
                     },

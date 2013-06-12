@@ -84,15 +84,16 @@ YUI.add('ja-pod-info',function(Y){
             fetch:{
                 info:function(p){
                     Y.JA.widget.busy.set('message','getting information...');
-                    Y.io('/db/shared/s.php',{
+                    Y.io('/db/shared/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.info},
                         data:Y.JSON.stringify([{
-                            criteria:{
-                                dataSet:'info',
-                                dbTable:p.dbTable,
-                                pks    :[p.pk]
+                            info:{
+                            	criteria:{
+	                                dbTable:p.dbTable,
+    	                            pks    :[p.pk]
+    	                        }
                             },
                             usr:JA.user.usr
                         }])
@@ -131,7 +132,7 @@ YUI.add('ja-pod-info',function(Y){
                         Y.fire(self.customEvent.save,d.saveData);
                         h.close.simulate('click');
                     }else{
-                        Y.io('/db/shared/iud.php',{
+                        Y.io('/db/shared/siud.php',{
                             method:'POST',
                             headers:{'Content-Type':'application/json'},
                             on:{complete:function(id,o){
@@ -166,7 +167,7 @@ YUI.add('ja-pod-info',function(Y){
                     }else
                 //fetched data
                     if(arguments.length===2){
-                        rs=Y.JSON.parse(arguments[1].responseText)[0].result;
+                        rs=Y.JSON.parse(arguments[1].responseText)[0].info.result;
                     }
                 
                 Y.each(rs.info.data,function(info){

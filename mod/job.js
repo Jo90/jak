@@ -80,8 +80,10 @@ YUI.add('ja-mod-job',function(Y){
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
-                            criteria:criteria,
-                            usr     :JA.user.usr
+                            job:{
+                            	criteria:criteria
+                            },
+                            usr:JA.user.usr
                         }])
                     });
                 },
@@ -104,7 +106,7 @@ YUI.add('ja-mod-job',function(Y){
                         ?post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job input').get('value'),10)
                         :post.record=[{data:{appointment:moment().day(7).unix()}}];
 
-                    Y.io('/db/shared/iud.php',{
+                    Y.io('/db/shared/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
@@ -129,7 +131,7 @@ YUI.add('ja-mod-job',function(Y){
                             +row.one('.yui3-datatable-col-location').get('innerHTML')
                     ;
                     if(!confirm('remove job #'+jobId+' for \n'+address+'?')){return;}
-                    Y.io('/db/shared/iud.php',{
+                    Y.io('/db/shared/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){row.remove();}},

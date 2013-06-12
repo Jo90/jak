@@ -59,8 +59,7 @@ function job_getPropPart($criteria) {
     if (isset($criteria->propPartIds) && is_array($criteria->propPartIds) && count($criteria->propPartIds) > 0) {
         $propPartIds = implode(',', $criteria->propPartIds);
         $cnd = "where id in ($propPartIds)";
-    }
-
+    } else
     if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0){
         $jobIds = implode(',', $criteria->jobIds);
         $cnd = "where job in ($jobIds)";

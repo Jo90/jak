@@ -1,5 +1,5 @@
 <?php
-/** //db/address/acUsr.php
+/** //db/address/ac.php
  *
  *  used by
  *  - /mod/job.js

@@ -110,34 +110,34 @@ YUI.add('ja-pod-job',function(Y){
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
                             job:{
-                            	criteria:{
-                            		jobIds:[cfg.job]
-    	                        }
+                            	criteria:{jobIds:[cfg.job]}
                             },
                             usr:JA.user.usr
                         }])
                     });
                 },
                 propPart:function(id,o){
-                    var rs=Y.JSON.parse(o.responseText),
+                    var rs=Y.JSON.parse(o.responseText)[0],
                         propPartIds=[]
                     ;
-                    Y.each(rs,function(rec){
-                        propPartIds.push(parseInt(rec.criteria.data.id,10));
+                    Y.each(rs.propPart.record,function(rec){
+                        propPartIds.push(parseInt(rec.data.id,10));
                     });
                     Y.JA.widget.busy.set('message','getting property parts...');
-                    Y.io('/db/prop/sPropPart.php',{
+                    Y.io('/db/shared/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var rs=Y.JSON.parse(o.responseText)[0].result.propPart.data
+                            var rs=Y.JSON.parse(o.responseText)[0].propPart.result
                             ;
                             h.propPartList.set('innerHTML','');
                             populate.propPart(rs);
                         }},
                         data:Y.JSON.stringify([{
-                            criteria:{propPartIds:propPartIds},
-                            member  :JA.user.usr
+                            propPart:{
+                            	criteria:{propPartIds:propPartIds}
+                            },
+                            usr:JA.user.usr
                         }])
                     });
                 }
@@ -334,31 +334,32 @@ YUI.add('ja-pod-job',function(Y){
             },
             update:{
                 propPart:function(){
-                    var post=[],
-                        rec={},
+                    var rec=[],
                         propPartId
                     ;
                     h.propPartList.all('li').each(function(row,idx){
                         propPartId=row.one('.ja-data-id').get('value');
-                        rec={
-                            criteria:{
-                                data:{
-                                    job         :parseInt(f.jobId.get('value'),10),
-                                    propPartType:parseInt(row.one('.ja-data-propPartType').get('value'),10),
-                                    seq         :idx,
-                                    indent      :0, //>>>>>>>>FINISH LATER
-                                    name        :row.one('.ja-data-name').get('value')
-                                }
-                            }
-                        };
-                        if(propPartId!==''){rec.criteria.data.id=parseInt(propPartId,10);}
-                        post.push(rec);
+                        rec.push({
+                            data:{
+                                job         :parseInt(f.jobId.get('value'),10),
+                                propPartType:parseInt(row.one('.ja-data-propPartType').get('value'),10),
+                                seq         :idx,
+                                indent      :0, //>>>>>>>>FINISH LATER
+                                name        :row.one('.ja-data-name').get('value')
+                        	}
+                        });
+                        if(propPartId!==''){rec[rec.length-1].data.id=parseInt(propPartId,10);}
                     });
-                    Y.io('/db/prop/iud.php',{
+                    Y.io('/db/shared/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:io.fetch.propPart},
-                        data:Y.JSON.stringify(post)
+                        data:Y.JSON.stringify([{
+                            propPart:{
+								record:rec
+                            },
+                            usr:JA.user.usr
+                        }])
                     });
                 }
             }

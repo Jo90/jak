@@ -85,7 +85,9 @@ YUI.add('ja-pod-address',function(Y){
                             Y.JA.widget.busy.set('message','');
                         }},
                         data:Y.JSON.stringify([{
-                            address:{criteria:{addressIds:[cfg.address]}},
+                            address:{
+                            		criteria:{addressIds:[cfg.address]}
+                            },
                             usr    :JA.user.usr
                         }])
                     });
@@ -104,7 +106,9 @@ YUI.add('ja-pod-address',function(Y){
                     }},
                     data:Y.JSON.stringify([{
                         address:{
-                            record:[{data:trigger.addressData()}]
+                            record:[{
+                            	data:trigger.addressData()
+                            }]
                         },
                         usr :JA.user.usr
                     }])

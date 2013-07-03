@@ -1,4 +1,5 @@
 /* JA Modules */
+gallery:'gallery-2013.06.26-23-09',
 modules:{
     'ja-common':{
         fullpath:'/js/common.js',
@@ -17,15 +18,18 @@ modules:{
             'datatable',
             'datatable-sort',
             'dd',
+            'escape',
             'event-outside',
+            'gallery-yui3treeview-ng',
             'ja-yui3-sugar',
             'node-event-simulate',
             'overlay',
             'recordset',
             'resize-plugin',
             'selector-css3',
-            'template',
             'tabview',
+            'template',
+            'tree',
             'moment',
             'yql'
         ]
@@ -131,7 +135,7 @@ modules:{
         requires:['ja-common','ja-css-pod-info']
     },
     'ja-pod-job':{
-        fullpath:'/pod/job.js',
+        fullpath:'/pod/job.js.php',
         requires:['ja-common','ja-css-pod-job']
     },
     'ja-pod-propPart':{

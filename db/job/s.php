@@ -58,11 +58,12 @@ foreach ($post as $i) {
     foreach ($r->usrJob->data as $d) {$criteria->usrIds[] = $d->usr;}
     $r->usr = usr_getUsr($criteria);
     
-    $r->propPart = job_getPropPart($criteria);
+    $r->property = addr_getProperty($criteria);
 
-    $criteria->propPartIds = array();
-    foreach ($r->propPart->data as $d) {$criteria->propPartIds[] = $d->id;}
-    
+/* >>>>FINISH
+    $criteria->propertyIds = array();
+    foreach ($r->property->data as $d) {$criteria->propertyIds[] = $d->id;}
+
     $r->propPartAnswer = qa_getPropPartAnswer($criteria);
     $criteria->answerIds = array();
     foreach ($r->propPartAnswer->data as $d) {$criteria->answerIds[] = $d->answer;}
@@ -71,6 +72,7 @@ foreach ($post as $i) {
 
     $r->answerInfo         = shared_getInfo((object)array('dbTable'=>$dbTable['answer']        ,'pks'=>$criteria->answerIds));
     $r->propPartAnswerInfo = shared_getInfo((object)array('dbTable'=>$dbTable['propPartAnswer'],'pks'=>$criteria->propPartIds));
+*/
 }
 header('Content-type: text/plain');
 echo json_encode($post);

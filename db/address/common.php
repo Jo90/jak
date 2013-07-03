@@ -71,6 +71,39 @@ function addr_getLocation($criteria) {
     return $r;
 }
 
+function addr_getProperty($criteria) {
+    global $mysqli;
+
+    $r = initResult($criteria);
+
+    $cnd   = '';
+    $limit = '';
+
+    if (isset($criteria->propertyIds) && is_array($criteria->propertyIds) && count($criteria->propertyIds) > 0) {
+        $propertyIds = implode(',', $criteria->propertyIds);
+        $cnd = "where id in ($propertyIds)";
+    }
+    if (isset($criteria->addressIds) && is_array($criteria->addressIds) && count($criteria->addressIds) > 0) {
+        $addressIds = implode(',', $criteria->addressIds);
+        $cnd = "where address in ($addressIds)";
+    }
+
+    if (isset($criteria->rowLimit)) {
+        $limit = ' limit ' . $criteria->rowLimit;
+    }
+
+    if ($stmt = $mysqli->prepare(
+        "select *
+           from `property` $cnd $limit"
+    )) {
+        $r->success = $stmt->execute();
+        $r->rows = $mysqli->affected_rows;
+        $r->data = \ja\fetch_result($stmt,'id');
+        $stmt->close();
+    }
+    return $r;
+}
+
 function addr_setAddress(&$i) {
     global $mysqli;
     db::remove('address', $i);

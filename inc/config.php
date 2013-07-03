@@ -20,7 +20,7 @@ ini_set('session.gc_maxlifetime',30*60);
  * NAMED CONSTANTS
  */
 define('JA_COMPANY'            , 'JAK');
-define('JA_SLOGON'             , 'Pest Control');
+define('JA_SLOGON'             , 'JAK Pest Control');
 define('JA_ADMIN_EMAIL'        , 'john@jainspections.com');
 define('JA_ADMIN_ADMINISTRATOR', 'John Krok');
 define('JA_QUERY_LIMIT_OFFSET' , 0);
@@ -31,10 +31,8 @@ if (isset($_COOKIE[JA_COOKIE_DEVICE],$_COOKIE[JA_COOKIE_THEME])) {
     define('JA_ENV_DEVICE', $_COOKIE[JA_COOKIE_DEVICE]);
     define('JA_ENV_THEME' , $_COOKIE[JA_COOKIE_THEME]);
 }
-//old
-//<link rel="stylesheet" type="text/css" id="yuibasecss" href="http://yui.yahooapis.com/3.10.1/build/cssfonts/fonts-min.css?3.10.1/build/cssreset/reset-min.css&3.10.1/build/cssbase/base-min.css">
-define('YUI_CSS'                ,'<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.10.1/build/cssnormalize/cssnormalize-min.css">');
-define('YUI_JS'                 ,'<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.10.1/build/yui/yui-min.js&3.10.1/build/loader/loader-min.js"></script>');
+define('YUI_CSS'                ,'<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.10.3/build/cssnormalize/cssnormalize-min.css">');
+define('YUI_JS'                 ,'<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.10.3/build/yui/yui-min.js&3.10.3/build/loader/loader-min.js"></script>');
 define('JA_SALT'                ,'SALT'); //userLogon Challenge Handshake AP - salt initializer
 define('JA_MEMBER'              ,'member'); //refer userLogon
 define('JA_USERLOGON_REMEMBER'  , 'userLogon-remember');

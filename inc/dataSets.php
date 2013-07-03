@@ -32,11 +32,11 @@ function dataSets($arr, $echo=false) {
         $stmt->close();
     }
     /**
-     *  propPartTypeTag
+     *  tagOption
      */
-    if (in_array('propPartTypeTag',$arr) && $stmt = $mysqli->prepare("select * from `propPartTypeTag`")) {
+    if (in_array('tagOption',$arr) && $stmt = $mysqli->prepare("select * from `tagOption`")) {
         $stmt->execute();
-        $rs->propPartTypeTag = fetch_info($stmt);
+        $rs->tagOption = fetch_info($stmt);
         $stmt->close();
     }
     /**

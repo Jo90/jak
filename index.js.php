@@ -66,10 +66,10 @@ YUI({<?php require 'modules.inc'; ?>}).use(
                 ['dbTable','name'],
                 ['propPartTag','id'],
                 ['propPartType','id'],
-                ['propPartTypeTag','id'],
                 ['question','id'],
                 ['questionMatrix','id'],
-                ['service','id']
+                ['service','id'],
+                ['tagOption','id']
             ]
            ,function(){
                 var d={},h={tv:{},tp:{}},my={}

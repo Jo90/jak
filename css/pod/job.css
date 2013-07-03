@@ -24,11 +24,9 @@
 .ja-pod-job .ja-section-answer {float:left;width:35em;}
 .ja-pod-job .ja-section-answer li {line-height:auto;} /*override*/
 
-/*propPart*/
-.ja-pod-job .ja-section-propPart {float:left;}
-.ja-pod-job .ja-section-propPart li .ja-data-propPartTypeName {float:left;width:11em;overflow:hidden;}
-.ja-pod-job .ja-section-propPart li .ja-data-name {width:7em;font-size:0.8em;}
-.ja-pod-job .ja-section-propPart li .ja-data-component {font-size:0.8em;}
+/*property*/
+.ja-pod-job .ja-section-property {float:left;width:25em;}
+.ja-pod-job .ja-section-property > legend > span {font-size:.7em;}
 
 /*propPartAnswer*/
 .ja-pod-job .ja-section-propPartAnswer {float:left;width:4em;}

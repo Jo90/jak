@@ -4,7 +4,7 @@
  */
 namespace ja;
 
-require_once ROOT . '/db/shared/common.php';
+require_once ROOT . '/db/common.php';
 
 function usr_getUsr($criteria) {
     global $mysqli;

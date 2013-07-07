@@ -4,6 +4,8 @@
  */
 namespace ja;
 
+require_once '../common.php';
+
 function qa_getAnswer($criteria) {
     global $mysqli;
 

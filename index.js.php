@@ -15,6 +15,7 @@ JA={
         server    :'<?php echo JA_SERVER; ?>'
     },
     my:{},     //instantiated objects
+    propStructure:<?php require 'db/propTree.json'; ?>,
     rs:{},     //result sets
     std:{      //standards
         format:{

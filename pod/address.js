@@ -1,7 +1,8 @@
 /** //pod/address.js
  *
  */
-YUI.add('ja-pod-address',function(Y){
+ YUI.add('ja-pod-address',function(Y){
+    "use strict";
 
     Y.namespace('JA.pod').address=function(cfg){
 
@@ -9,17 +10,17 @@ YUI.add('ja-pod-address',function(Y){
         ){cfg={};}
 
         cfg=Y.merge({
-            title :'address'
-           ,width :720
-           ,visible:false
-           ,zIndex:99999
+            title :'address',
+            width :720,
+            visible:false,
+            zIndex:99999
         },cfg);
 
         this.info={
-            id         :'address'
-           ,title      :cfg.title
-           ,description:'address details'
-           ,version    :'v1.0 March 2013'
+            id         :'address',
+            title      :cfg.title,
+            description:'address details',
+            version    :'v1.0 March 2013'
         };
 
         var self=this,
@@ -86,9 +87,9 @@ YUI.add('ja-pod-address',function(Y){
                         }},
                         data:Y.JSON.stringify([{
                             address:{
-                            		criteria:{addressIds:[cfg.address]}
+                                criteria:{addressIds:[cfg.address]}
                             },
-                            usr    :JA.user.usr
+                            usr:JA.user.usr
                         }])
                     });
                 }
@@ -96,7 +97,7 @@ YUI.add('ja-pod-address',function(Y){
             select:function(){
                 Y.JA.widget.busy.set('message','returning address');
                 delete cfg.address;
-                Y.io('/db/address/siud.php',{
+                Y.io('/db/siud.php',{
                     method:'POST',
                     headers:{'Content-Type':'application/json'},
                     on:{complete:function(id,o){
@@ -107,10 +108,10 @@ YUI.add('ja-pod-address',function(Y){
                     data:Y.JSON.stringify([{
                         address:{
                             record:[{
-                            	data:trigger.addressData()
+                                data:trigger.addressData()
                             }]
                         },
-                        usr :JA.user.usr
+                        usr:JA.user.usr
                     }])
                 });
             }

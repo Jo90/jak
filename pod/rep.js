@@ -73,7 +73,7 @@ YUI.add('ja-pod-rep',function(Y){
         io={
             send:{
                email:function(){
-                    Y.io('/db/shared/email.php',{
+                    Y.io('/db/email.php',{
                         method:'POST'
                        ,headers:{'Content-Type':'application/json'}
                        ,on:{complete:trigger.close}

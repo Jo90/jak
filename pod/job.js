@@ -1,10 +1,8 @@
-/** //pod/job.js.php
- *
- *  client/server sync DOM: property, answer; d.rs:propPartAnswer
+/** //pod/job.js
  *
  */
 YUI.add('ja-pod-job',function(Y){
-
+    "use strict";
     Y.namespace('JA.pod').job=function(cfg){
 
         if(typeof cfg==='undefined'
@@ -26,10 +24,7 @@ YUI.add('ja-pod-job',function(Y){
         };
 
         var self=this,
-            d={},f={},
-            h={
-                propStructure:<?php require '../db/propTree.json'; ?>
-            },
+            d={},f={},h={},
             initialise,
             io={},
             listeners,
@@ -42,7 +37,7 @@ YUI.add('ja-pod-job',function(Y){
         this.display=function(p){
             if(typeof cfg.appointment!=='undefined'){delete cfg.appointment;}
             cfg=Y.merge(cfg,p);
-            trigger.reset.form();
+            trigger.reset();
             Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
             h.ol.show();
             typeof p.job!=='undefined'
@@ -100,7 +95,7 @@ YUI.add('ja-pod-job',function(Y){
                 },
                 job:function(){
                     Y.JA.widget.busy.set('message','new job...');
-                    Y.io('/db/shared/siud.php',{
+                    Y.io('/db/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
@@ -126,7 +121,7 @@ YUI.add('ja-pod-job',function(Y){
                         answerId=parseInt(row.one('.ja-data-id').get('value'),10)
                     ;
                     if(!confirm('delete answer/statement')){return;}
-                    Y.io('/db/shared/siud.php',{
+                    Y.io('/db/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){
@@ -169,14 +164,11 @@ YUI.add('ja-pod-job',function(Y){
                             answer:{
                                 record:[]
                             },
-                            propPartAnswer:{
-                                record:[]
-                            },
                             usr:JA.user.usr
                         },
                         answerSeq=1
                     ;
-                    h.answerList.all('> li').each(function(a){
+                    h.statementList.all('> li').each(function(a){
                         var answerValues=[],
                             cnt={button:0,input:0,select:0,textarea:0},
                             nodes={
@@ -242,7 +234,7 @@ YUI.add('ja-pod-job',function(Y){
                             }
                         });
                     });
-                    Y.io('/db/shared/siud.php',{
+                    Y.io('/db/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:io.fetch.job},
@@ -295,10 +287,7 @@ YUI.add('ja-pod-job',function(Y){
                 h.hd.delegate('click',trigger.showHide,'.ja-eye');
                 h.bd.delegate('click',trigger.showHide,'.ja-eye');
             //answers
-                h.answerFilterService.on('change',trigger.filter.answerService);
-                h.answerList.delegate('click',trigger.focus.answer,'> li');
-                h.answerList.delegate('click',io.insert.answer,'.ja-dup');
-                h.answerList.delegate('click',io.remove.answer,'.ja-remove');
+                h.statementList.delegate('click',io.remove.answer,'.ja-remove');
             //save
                 h.save.on('click',io.save.job);
             //custom
@@ -318,15 +307,10 @@ YUI.add('ja-pod-job',function(Y){
                         section=this.ancestor('.ja-section')
                     ;
                     h.podInvoke=this;
-                    if(section.hasClass('ja-section-answer')){
+                    if(section.hasClass('ja-section-statement')){
                         config.title     ='Answers';
                         config.categories=['General','Feedback','Clarify','Warning'];
                         config.dbTable   =JA.data.dbTable['answer'].id;
-                    }else
-                    if(section.hasClass('ja-section-propPartAnswer')){
-                        config.title     ='Property Parts/Answer';
-                        config.categories=['Joint focus','Property Part Focus','Answer Focus'];
-                        config.dbTable   =JA.data.dbTable['propPartAnswer'].id;
                     }
                     config.pk=parseInt(this.ancestor('li').one('.ja-data-id').get('value'),10);
                     JA.my.podInfo.display(config);
@@ -364,7 +348,7 @@ YUI.add('ja-pod-job',function(Y){
                 d.rs=Y.JSON.parse(o.responseText)[0].result;
                 var addresses=d.rs.address.data
                 ;
-                trigger.reset.form();
+                trigger.reset();
                 //only 1 job anyway
                 Y.each(d.rs.job.data,function(job){
                     f.jobId.set('value',job.id);
@@ -394,16 +378,9 @@ YUI.add('ja-pod-job',function(Y){
                     populate.answer();
                 });
                 //sync display
-                    h.answerFilterService.simulate('change');
-                    h.answerSection.one('legend a').simulate('click');
+                    h.statementSection.one('legend a').simulate('click');
                 Y.JA.widget.busy.set('message','');
                 Y.fire(self.customEvent.save,'refresh');
-            },
-            propPartAnswer:function(){
-                var answerId=parseInt(h.answerRowFocus.one('.ja-data-id').get('value'),10),
-                    eyeOpen=h.propPartAnswerSection.one('> legend > .ja-eye').hasClass('ja-eye-open')
-                ;
-                h.propPartAnswerList.set('innerHTML','');
             }
         };
 
@@ -442,29 +419,16 @@ YUI.add('ja-pod-job',function(Y){
                             +  '<legend>services</legend>'
                             +'</fieldset>'
                         +'<div class="ja-section-details">'
-                        //property parts
+                        //property
                             +  '<fieldset class="ja-section ja-section-property">'
                             +    '<legend>'
-                            +      '<span></span>&nbsp;'
-                            +      '<select>'
-                            +        '<option>add...</option>'
-                            +        '<option>remove</option>'
-                            +      '<select>'
+                            +      '<span></span> <select><select>'
                             +    '</legend>'
                             +  '</fieldset>'
                         //question/answers
-                            +  '<fieldset class="ja-section ja-section-answer">'
+                            +  '<fieldset class="ja-section ja-section-statement">'
                             +    '<legend>'
                             +      Y.JA.html('btn',{action:'eye',label:'statement&nbsp;',title:'change view',classes:'ja-eye-open'})
-                            +      '<select></select>'
-                            +      '<select></select>'
-                            +    '</legend>'
-                            +    '<ul></ul>'
-                            +  '</fieldset>'
-                        //property part answer associations
-                            +  '<fieldset class="ja-section ja-section-propPartAnswer">'
-                            +    '<legend>'
-                            +      Y.JA.html('btn',{action:'eye',label:'link&nbsp;',title:'change view',classes:'ja-eye-open'})
                             +    '</legend>'
                             +    '<ul></ul>'
                             +  '</fieldset>'
@@ -501,52 +465,22 @@ YUI.add('ja-pod-job',function(Y){
                     h.propertyPath    =h.propertySection.one('>legend>span');
                     h.propertyAction  =h.propertySection.one('>legend>select');
 
-                    h.answerSection       =h.bd.one('.ja-section-answer');
-                    h.answerFilterService =h.answerSection.all('> legend > select').item(0);
-                    h.answerFilterCategory=h.answerSection.all('> legend > select').item(1);
-                    h.answerList          =h.answerSection.one('> ul');
+                    h.statementSection=h.bd.one('.ja-section-statement');
+                    h.statementList   =h.statementSection.one('> ul');
 
                     h.save            =h.bd.one('.ja-save');
 
                     /*
-                    FINISH
-                    if focused on node then display options, if not a leaf then allow add
-                    generating valid options????
-                    saving data
+                        FINISH
+                        if focused on node then display options, if not a leaf then allow add
+                        generating valid options????
+                        saving data
                     */
                     h.tree=new Y.TreeView({
                         startCollapsed:false,
-                        render:h.propertySection,
-                        children:[{
-                                label:"site",
-                                children:[
-                                    {
-                                        label : 'building <span>home</span>',
-                                        children : [
-                                            { label: 'lounge'},
-                                            { label: 'bedroom <span>master</span>',
-                                            children: [
-                                                    { label: 'ceiling' },
-                                                    { label: 'wall <span>south</span>'},
-                                                    { label: 'floor' }
-                                            ]
-                                            },
-                                            { label: 'bedroom'},
-                                            { label: 'bedroom'}
-                                        ]
-                                    },
-                                    {
-                                        label : 'land',
-                                        children : [
-                                            { label: 'pool'},
-                                            { label: 'driveway'}
-                                        ]
-                                    }
-                                ]
-                        }]
-                    })
-                ;
-
+                        render:h.propertySection
+                    });
+                    trigger.reset();
 
                     
             },
@@ -599,18 +533,15 @@ YUI.add('ja-pod-job',function(Y){
                         },
                         visibleAnswer=false
                     ;
-                    //reset category filter
-                        h.answerFilterCategory.set('selectedIndex',0);
-
 
                     
                     if(this.get('selectedIndex')===0){
-                        h.answerList.all('li').each(function(row){
+                        h.statementList.all('li').each(function(row){
                             if(!visibleAnswer){visibleAnswer=row;}
                             row.setStyle('display','');
                         });
                     }else{
-                        h.answerList.all('li').each(function(row){
+                        h.statementList.all('li').each(function(row){
                             foundValue=questionHas(parseInt(row.one('.ja-data-question').get('value'),10),answerFilterValue);
                             row.setStyle('display',foundValue?'':'none');
                             if(!visibleAnswer && foundValue){visibleAnswer=row;}
@@ -620,27 +551,44 @@ YUI.add('ja-pod-job',function(Y){
                         if(visibleAnswer!==false){visibleAnswer.simulate('click');}
                 }
             },
-            focus:{
-                answer:function(){
-                    h.answerRowFocus=this;
-                    h.answerList.all('.ja-focus').removeClass('ja-focus');
-                    this.addClass('ja-focus');
-                }
-            },
-            reset:{
-                form:function(){
-                    f.jobId             .set('value','');
-                    f.jobAddress        .set('value','');
-                    f.jobAddressDetail  .set('innerHTML','address not defined');
-                    f.jobRef            .set('value','');
-                    f.jobAppointment    .set('value','');
-                    f.jobConfirmed      .set('value','');
-                    f.jobReminder       .set('value','');
-                    f.jobWeather        .set('value','');
-                    h.answerList        .set('innerHTML','');
-                }
-            },
-            set:{
+            reset:function(){
+                f.jobId             .set('value','');
+                f.jobAddress        .set('value','');
+                f.jobAddressDetail  .set('innerHTML','address not defined');
+                f.jobRef            .set('value','');
+                f.jobAppointment    .set('value','');
+                f.jobConfirmed      .set('value','');
+                f.jobReminder       .set('value','');
+                f.jobWeather        .set('value','');
+                h.tree.remove(0);
+                h.tree.add({
+                    label:"site",
+                    children:[
+                        {
+                            label : 'building <span class="ja-data-property-detail">home</span>',
+                            children : [
+                                { label: 'lounge'},
+                                { label: 'bedroom <span class="ja-data-property-detail">master</span>',
+                                    children: [
+                                        { label: 'ceiling' },
+                                        { label: 'wall <span class="ja-data-property-detail">south</span>'},
+                                        { label: 'floor' }
+                                    ]
+                                },
+                                    { label: 'bedroom'},
+                                    { label: 'bedroom'}
+                            ]
+                        },
+                        {
+                            label : 'land',
+                            children : [
+                                { label: 'pool'},
+                                { label: 'driveway'}
+                            ]
+                        }
+                    ]
+                });
+                h.statementList.set('innerHTML','');
             },
             showHide:function(){
                 var section=this.ancestor('.ja-section'),
@@ -664,7 +612,7 @@ YUI.add('ja-pod-job',function(Y){
                             h.detailsSection.setStyle('display','');
                         }
                     }
-                }else if(section.hasClass('ja-section-answer')){
+                }else if(section.hasClass('ja-section-statement')){
                     if(this.hasClass('ja-eye-open')){
                         this.replaceClass('ja-eye-open','ja-eye-squint');
                         sectionList.all('.ja-actions').setStyle('display','none');

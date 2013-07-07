@@ -84,7 +84,7 @@ YUI.add('ja-pod-info',function(Y){
             fetch:{
                 info:function(p){
                     Y.JA.widget.busy.set('message','getting information...');
-                    Y.io('/db/shared/siud.php',{
+                    Y.io('/db/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.info},
@@ -132,7 +132,7 @@ YUI.add('ja-pod-info',function(Y){
                         Y.fire(self.customEvent.save,d.saveData);
                         h.close.simulate('click');
                     }else{
-                        Y.io('/db/shared/siud.php',{
+                        Y.io('/db/siud.php',{
                             method:'POST',
                             headers:{'Content-Type':'application/json'},
                             on:{complete:function(id,o){

@@ -21,10 +21,10 @@ echo '<h3>Build propTree ', date('l jS \of F Y h:i:s A') , '</h3>';
         $r->propType = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
-    if ($stmt = $mysqli->prepare("select * from `propLink`")) {
-        $r->propLinkSuccess = $stmt->execute();
-        $r->propLinkRows = $mysqli->affected_rows;
-        $r->propLink = \ja\fetch_result($stmt,'id');
+    if ($stmt = $mysqli->prepare("select * from `propChild`")) {
+        $r->propChildSuccess = $stmt->execute();
+        $r->propChildRows = $mysqli->affected_rows;
+        $r->propChild = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
 
@@ -33,8 +33,8 @@ echo '<h3>Build propTree ', date('l jS \of F Y h:i:s A') , '</h3>';
            from prop     as p,
                 propType as pt,
                 prop     as ptp
-          where p.id=pt.prop
-            and pt.propType=ptp.id
+          where p.id    = pt.prop
+            and pt.type = ptp.id
        group by p.id, p.name"
     )) {
         $r->v_prop_typesSuccess = $stmt->execute();
@@ -71,7 +71,7 @@ function nodeChildren($node) {
     global $r;
     $typeChildren = array();
     if ($types = getNodeTypes($node)) {
-        foreach ($r->propLink as $pl) {
+        foreach ($r->propChild as $pl) {
             if (in_array($pl->prop, $types)) {$typeChildren[] = $pl->child;}
         }
     }

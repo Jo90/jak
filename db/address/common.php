@@ -4,7 +4,7 @@
  */
 namespace ja;
 
-require_once '../shared/common.php';
+require_once ROOT . '/db/common.php';
 
 function addr_getAddress($criteria) {
     global $mysqli;
@@ -109,7 +109,59 @@ function addr_setAddress(&$i) {
     db::remove('address', $i);
     if (isset($i->record)) {
         foreach ($i->record as $rec) {
-            db::update('address',$rec) or db::insert('address',$rec);
+            if (!db::update('address', $rec)) {
+                db::insert('address', $rec);
+
+                //site, null parent
+                //>>>>>FINISH should not hard code
+                $siteId     = 31;
+                $buildingId = 32;
+                $landId     = 33;
+                $addressId = $rec->data->id;
+                $rec->property = (object) array (
+                    'record' => array (
+                        (object) array (
+                            'data' => (object) array (
+                                'address' => $addressId,
+                                'prop'    => $siteId
+                            )
+                        )
+                    )
+                );
+                $recPtr = $rec->property->record[0];
+                db::insert('property', $recPtr);
+
+                //building, land, with site parent
+                $rec->property->record[] = (object) array (
+                    'data' => (object) array (
+                        'address' => $addressId,
+                        'parent'  => $recPtr->data->id,
+                        'prop'    => $buildingId
+                    ),
+                    'data' => (object) array (
+                        'address' => $addressId,
+                        'parent'  => $recPtr->data->id,
+                        'prop'    => $landId
+                    )
+                );
+
+                //building rooms
+
+                
+
+
+                
+            }
+        }
+    }
+}
+
+function addr_setProperty(&$i) {
+    global $mysqli;
+    db::remove('property', $i);
+    if (isset($i->record)) {
+        foreach ($i->record as $rec) {
+            db::update('property',$rec) or db::insert('property',$rec);
         }
     }
 }

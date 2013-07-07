@@ -1,5 +1,5 @@
 <?php
-/** //db/shared/email.php
+/** //db/email.php
  *
  */
 namespace ja;

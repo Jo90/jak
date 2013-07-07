@@ -5,7 +5,7 @@
 namespace ja;
 
 require_once 'common.php';
-require_once '../shared/common.php';
+require_once '../common.php';
 require_once '../address/common.php';
 require_once '../prop/common.php';
 require_once '../qa/common.php';

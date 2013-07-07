@@ -1,5 +1,5 @@
 <?php
-/** /db/shared/common.php
+/** /db/common.php
  *
  */
 namespace ja;
@@ -55,8 +55,7 @@ class db {
         $parameters = array();
         $results    = array();
 
-        if (!isset($i->data)) {$i->insert = false; return false;}
-        $i->insert = true;
+        if (!($i->insert = isset($i->data))) {return false;}
 
         $r = initResult($i);
 

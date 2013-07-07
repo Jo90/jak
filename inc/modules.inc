@@ -135,7 +135,7 @@ modules:{
         requires:['ja-common','ja-css-pod-info']
     },
     'ja-pod-job':{
-        fullpath:'/pod/job.js.php',
+        fullpath:'/pod/job.js',
         requires:['ja-common','ja-css-pod-job']
     },
     'ja-pod-propPart':{

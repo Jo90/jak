@@ -69,7 +69,7 @@ YUI.add('ja-pod-property',function(Y){
             fetch:{
                 property:function(){
                     Y.JA.widget.busy.set('message','getting property(s)...');
-                    Y.io('/db/shared/suid.php',{
+                    Y.io('/db/suid.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.property},
@@ -85,7 +85,7 @@ YUI.add('ja-pod-property',function(Y){
             insert:{
                 property:function(){
                     Y.JA.widget.busy.set('message','new property...');
-                    Y.io('/db/shared/siud.php',{
+                    Y.io('/db/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){

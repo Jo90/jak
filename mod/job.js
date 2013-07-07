@@ -99,14 +99,8 @@ YUI.add('ja-mod-job',function(Y){
                 }
             },
             insert:{
-                job:function(e,action){
-                    var post={}
-                    ;
-                    action==='duplicate'
-                        ?post.duplicate=parseInt(this.ancestor('tr').one('.yui3-datatable-col-job input').get('value'),10)
-                        :post.record=[{data:{appointment:moment().day(7).unix()}}];
-
-                    Y.io('/db/shared/siud.php',{
+                job:function(){
+                    Y.io('/db/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
@@ -116,7 +110,9 @@ YUI.add('ja-mod-job',function(Y){
                             else{pod.display.job({job:rs.data.id});}
                         }},
                         data:Y.JSON.stringify([{
-                            job:post,
+                            job:{record:[{
+                                data:{appointment:moment().day(7).unix()}
+                            }]},
                             usr:JA.user.usr
                         }])
                     });
@@ -131,7 +127,7 @@ YUI.add('ja-mod-job',function(Y){
                             +row.one('.yui3-datatable-col-location').get('innerHTML')
                     ;
                     if(!confirm('remove job #'+jobId+' for \n'+address+'?')){return;}
-                    Y.io('/db/shared/siud.php',{
+                    Y.io('/db/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){row.remove();}},
@@ -148,10 +144,9 @@ YUI.add('ja-mod-job',function(Y){
 
         listeners=function(){
             h.bd.delegate('click',io.fetch.job,'.ja-search');
-            h.addJob.on('click',io.insert.job,null,'create');
+            h.addJob.on('click',io.insert.job);
             h.dtc.delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
             h.dtc.delegate('click',trigger.report,'.ja-rep');
-            h.dtc.delegate('click',io.insert.job,'.ja-dup',null,'duplicate');
             h.dtc.delegate('click',io.remove.job,'.ja-remove');
             //custom
                Y.on(JA.my.podJob.customEvent.save,pod.result.job);
@@ -206,8 +201,7 @@ YUI.add('ja-mod-job',function(Y){
                         report     :Y.JA.html('btn',{action:'rep',title:'summary'            ,classes:'ja-rep-summary'})
                                    +Y.JA.html('btn',{action:'rep',title:'details'            ,classes:'ja-rep-detail'})
                                    +Y.JA.html('btn',{action:'rep',title:'inspection report 1',classes:'ja-rep-1'}),
-                        actions    :Y.JA.html('btn',{action:'dup',title:'duplicate'})
-                                   +Y.JA.html('btn',{action:'remove',title:'remove'})
+                        actions    :Y.JA.html('btn',{action:'remove',title:'remove'})
                     });
                 });
                 Y.JA.widget.busy.set('message','');

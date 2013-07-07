@@ -99,19 +99,19 @@ YUI.add('ja-mod-job',function(Y){
                 }
             },
             insert:{
-                job:function(){
+                job:function(rs){
                     Y.io('/db/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var rs=Y.JSON.parse(o.responseText)[0].job.record[0]
-                            ;
-                            if(!rs.result.successInsert){alert('insert failed');}
-                            else{pod.display.job({job:rs.data.id});}
+                            h.bd.one('.ja-search-last-jobs').simulate('click');
                         }},
                         data:Y.JSON.stringify([{
                             job:{record:[{
-                                data:{appointment:moment().day(7).unix()}
+                                data:{
+                                    address    :rs.data.id,
+                                    appointment:moment().day(7).unix()
+                                }
                             }]},
                             usr:JA.user.usr
                         }])
@@ -144,12 +144,13 @@ YUI.add('ja-mod-job',function(Y){
 
         listeners=function(){
             h.bd.delegate('click',io.fetch.job,'.ja-search');
-            h.addJob.on('click',io.insert.job);
+            Y.one('.ja-add-job').on('click',JA.my.podAddress.display);
             h.dtc.delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
             h.dtc.delegate('click',trigger.report,'.ja-rep');
             h.dtc.delegate('click',io.remove.job,'.ja-remove');
             //custom
-               Y.on(JA.my.podJob.customEvent.save,pod.result.job);
+                Y.on(JA.my.podAddress.customEvent.select,io.insert.job);
+                Y.on(JA.my.podJob.customEvent.save,pod.result.job);
         };
 
         pod={
@@ -161,16 +162,20 @@ YUI.add('ja-mod-job',function(Y){
             },
             result:{
                 job:function(rs){
-
                 }
             }
         };
 
         populate={
             job:function(id,o){
+                var jobs=[]
+                ;
                 d.rs=Y.JSON.parse(o.responseText)[0].result;
                 h.dt.set('data',null);
-                Y.each(d.rs.job.data,function(job){
+                //reverse
+                    Y.each(d.rs.job.data,function(job){jobs.push(job);});
+                    jobs.sort(function(a,b){return b.id-a.id;});
+                Y.each(jobs,function(job){
                     var usrInfo=[]
                     ;
                     //usr
@@ -212,9 +217,7 @@ YUI.add('ja-mod-job',function(Y){
             base:function(){
                 cfg.node.append(
                     '<fieldset>'
-                   +  '<legend>search &nbsp; '
-                   +  Y.JA.html('btn',{action:'add',label:'add job',title:'new job',classes:'ja-add-job'})
-                   +  '</legend>'
+                   +  '<legend>search</legend>'
                    +  '<button class="ja-search ja-search-last-jobs">last jobs</button>'
                    +  '&nbsp; Address:'
                    +  '<select class="ja-data-state">'
@@ -251,7 +254,6 @@ YUI.add('ja-mod-job',function(Y){
                 f.lastName    =h.bd.one('.ja-data-lastName'    );
                 f.job         =h.bd.one('.ja-data-job'         );
                 f.rowLimit    =h.bd.one('.ja-data-row-limit'   );
-                h.addJob      =h.bd.one('.ja-add-job'          );
             //auto complete
                 f.locationName.plug(Y.Plugin.AutoComplete,{
                     activateFirstItem:true,
@@ -348,7 +350,7 @@ YUI.add('ja-mod-job',function(Y){
                 });
 
                 h.dt=new Y.DataTable({
-                    caption :'JA Inspections Job Log',
+                    caption :'Job Log '+Y.JA.html('btn',{action:'add',label:'job',title:'new job',classes:'ja-add-job'}),
                     columns:[
                         {key:'job'        ,label:'Job'        ,allowHTML:true},
                         {key:'ref'        ,label:'Ref'        },

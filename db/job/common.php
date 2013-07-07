@@ -12,8 +12,9 @@ function job_getJob($criteria) {
 
     $r = initResult($criteria);
 
-    $cnd   = '';
-    $limit = '';
+    $cnd     = '';
+    $orderBy = '';
+    $limit   = '';
 
     //criteria
     if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0) {
@@ -29,16 +30,19 @@ function job_getJob($criteria) {
     } else
     //last jobs
     if (isset($criteria->lastJob) && $criteria->lastJob) {
-        $cnd = 'order by id desc';
+        $orderBy = 'order by id desc';
     }
 
+    if (isset($criteria->orderBy)) {
+        $orderBy = ' order by ' . $criteria->orderBy;
+    }
     if (isset($criteria->rowLimit)) {
         $limit = ' limit ' . $criteria->rowLimit;
     }
 
     if ($stmt = $mysqli->prepare(
         "select *
-           from `job` $cnd $limit"
+           from `job` $cnd $orderBy $limit"
     )) {
         $r->success = $stmt->execute();
         $r->rows = $mysqli->affected_rows;

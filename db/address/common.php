@@ -113,7 +113,7 @@ function addr_setAddress(&$i) {
                 db::insert('address', $rec);
 
                 //site, null parent
-                //>>>>>FINISH should not hard code
+                //>>>>>FINISH should not hard code site, et al Ids
                 $siteId     = 31;
                 $buildingId = 32;
                 $landId     = 33;
@@ -128,29 +128,41 @@ function addr_setAddress(&$i) {
                         )
                     )
                 );
-                $recPtr = $rec->property->record[0];
-                db::insert('property', $recPtr);
+                $recPtr = $rec->property->record;
+                db::insert('property', $recPtr[0]);
 
                 //building, land, with site parent
-                $rec->property->record[] = (object) array (
+                $recPtr[] = (object) array (
                     'data' => (object) array (
                         'address' => $addressId,
-                        'parent'  => $recPtr->data->id,
+                        'parent'  => $recPtr[0]->data->id,
                         'prop'    => $buildingId
-                    ),
+                    )
+                );
+                db::insert('property', $recPtr[1]);
+                $recPtr[] = (object) array (
                     'data' => (object) array (
                         'address' => $addressId,
-                        'parent'  => $recPtr->data->id,
+                        'parent'  => $recPtr[0]->data->id,
                         'prop'    => $landId
                     )
                 );
+                db::insert('property', $recPtr[2]);
 
                 //building rooms
-
-                
-
-
-                
+                $propBuildingId = $recPtr[1]->data->id;
+                //>>>>>FINISH should not hard code room Ids, use room type instead
+                if ($stmt = $mysqli->prepare(
+                    "insert into `property`
+                            (address, parent, prop)
+                     select $addressId, $propBuildingId, id
+                       from `prop`
+                      where id between 34 and 39"
+                )) {
+                    $rec->roomsInsertSuccess = $stmt->execute();
+                    $rec->roomsRows          = $mysqli->affected_rows;
+                    $stmt->close();
+                }
             }
         }
     }

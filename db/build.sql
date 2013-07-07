@@ -9,8 +9,6 @@ insert into address select * from jakOld.address;
 
 insert into dbTable (name) select table_name from information_schema.tables where table_schema='jak';
 
-insert into `propTemplate` select * from jakOld.propTemplate;
-
 delete from `qa`;
 delete from `prop`;
 delete from `propType`;

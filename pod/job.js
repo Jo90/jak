@@ -291,15 +291,11 @@ YUI.add('ja-pod-job',function(Y){
             //save
                 h.save.on('click',io.save.job);
             //custom
-                Y.on(JA.my.podAddress.customEvent.select,pod.result.address);
                 Y.on(JA.my.podInfo.customEvent.save,pod.result.info);
         };
 
         pod={
             display:{
-                address:function(){
-                    JA.my.podAddress.display({address:f.jobAddress.get('value')});
-                },
                 info:function(){
                     var config={
                             visible:true
@@ -319,16 +315,6 @@ YUI.add('ja-pod-job',function(Y){
             load:{
             },
             result:{
-                address:function(rs){
-                    f.jobAddress.set('value',rs.data.id);
-                    f.jobAddressDetail.set('innerHTML',
-                        render.address({
-                            streetRef :rs.data.streetRef,
-                            streetName:rs.data.streetName,
-                            location  :rs.data.locationName
-                        })
-                    );
-                },
                 info:function(rs){
                     var cnt=rs.info.record.length,
                         li=h.podInvoke.ancestor('li'),

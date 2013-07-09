@@ -37,9 +37,9 @@ YUI.add('ja-pod-job',function(Y){
         this.display=function(p){
             if(typeof cfg.appointment!=='undefined'){delete cfg.appointment;}
             cfg=Y.merge(cfg,p);
-            trigger.reset();
             Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
             h.ol.show();
+            trigger.reset();
             typeof p.job!=='undefined'
                 ?io.fetch.job()
                 :io.insert.job();
@@ -64,10 +64,6 @@ YUI.add('ja-pod-job',function(Y){
          */
 
         initialise=function(){
-            var answerArr=[],
-                jobServiceArr=[],
-                propPartTypeCategory={}
-            ;
             h.bb.addClass('ja-pod-'+self.info.id);
             new Y.DD.Drag({node:h.bb,handles:[h.hd,h.ft]});
         };
@@ -75,7 +71,7 @@ YUI.add('ja-pod-job',function(Y){
         io={
             fetch:{
                 job:function(){
-                    Y.JA.widget.busy.set('message','getting job(s)...');
+                    Y.JA.widget.busy.set('message','getting job...');
                     Y.io('/db/job/s.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
@@ -168,7 +164,7 @@ YUI.add('ja-pod-job',function(Y){
                         },
                         answerSeq=1
                     ;
-                    h.statementList.all('> li').each(function(a){
+                    h.qaList.all('> li').each(function(a){
                         var answerValues=[],
                             cnt={button:0,input:0,select:0,textarea:0},
                             nodes={
@@ -245,49 +241,16 @@ YUI.add('ja-pod-job',function(Y){
         };
 
         listeners=function(){
-            h.close.on('click',function(){
-                h.ol.hide();
-                Y.JA.widget.dialogMask.hide();
-            });
-            //job
-                f.jobAddressDetail.on('click',pod.display.address);
-
-
-            h.tree.on('nodeclick',function(e){
-                h.tvNode=e.treenode;
-                h.propertyPath.set('innerHTML',h.tvNode.path().join('/'));
-
-                //
-                console.log(
-                    "\nYou clicked " +  h.tvNode.get("label")+(h.tvNode.get("isLeaf")?" (leaf)":" (node)")
-                    +"\nIndex is: " + h.tvNode.get('index')
-                    +"\nState is: " + (h.tvNode.get("collapsed") ? "collapsed" : "expanded")
-                );
-            });
-            h.propertyAction.on('click',function(e){
-                var selectedIndex=this.get('selectedIndex'),
-                    activeDescendant=h.tree.get('activeDescendant'),
-                    selection=h.tree.get('selection'),
-                    focused=h.tree.get('focused'),
-                    index=h.tvNode.get('index'),
-                    selected=h.tree.get('selected')
-                ;
-                if(selectedIndex===0){
-                    h.tvNode.add({
-                        label:"foster-child"
-                    });
-                }else{
-                    h.tvNode.remove();
-                }
-            });
-
-                
+            h.close.on('click',function(){h.ol.hide();Y.JA.widget.dialogMask.hide();});
+            //tree
+                h.tree.on('nodeclick',trigger.tree.nodeClick);
+                h.propertyAction.on('click',trigger.tree.action);
             //all
                 h.bd.delegate('click',pod.display.info,'.ja-info');
                 h.hd.delegate('click',trigger.showHide,'.ja-eye');
                 h.bd.delegate('click',trigger.showHide,'.ja-eye');
             //answers
-                h.statementList.delegate('click',io.remove.answer,'.ja-remove');
+                h.qaList.delegate('click',io.remove.answer,'.ja-remove');
             //save
                 h.save.on('click',io.save.job);
             //custom
@@ -328,11 +291,25 @@ YUI.add('ja-pod-job',function(Y){
         };
 
         populate={
-            answer:function(){
-            },
             job:function(id,o){
                 d.rs=Y.JSON.parse(o.responseText)[0].result;
-                var addresses=d.rs.address.data
+                var addresses=d.rs.address.data,
+                    tree=[],
+                    buildTree=function(parent){
+                        var branch={label:
+                                '<!--'+parent.id+','+parent.prop+'-->'+
+                                JA.data.prop[parent.prop].name+
+                                (parent.detail!==null?' '+parent.detail:'')
+                            }
+                        ;
+                        Y.each(d.rs.property.data,function(p){
+                            if(p.parent===parent.id){
+                                if(!branch.children){branch.children=[];}
+                                branch.children.push(buildTree(p));
+                            }
+                        });
+                        return branch;
+                    }
                 ;
                 trigger.reset();
                 //only 1 job anyway
@@ -350,21 +327,23 @@ YUI.add('ja-pod-job',function(Y){
                     }
                     Y.JA.matchSelect(f.jobWeather,job.weather);
                     f.jobAddress.set('value',job.address);
-                    f.jobAddressDetail.set('innerHTML','');
-                    f.jobAddressDetail.set('innerHTML','click here to specify address');
-                    if(job.address&&addresses[job.address]){
-                        f.jobAddressDetail.set('innerHTML',
-                            render.address({
-                                streetRef :addresses[job.address].streetRef,
-                                streetName:addresses[job.address].streetName,
-                                location  :d.rs.location.data[addresses[job.address].location].full
-                            })
-                        );
-                    }
-                    populate.answer();
+                    f.jobAddressDetail.set('innerHTML',
+                        addresses[job.address].streetRef+' '+
+                        addresses[job.address].streetName+', '+
+                        d.rs.location.data[addresses[job.address].location].full
+                    );
+                    //property tree
+                        h.tree.remove(0);
+                        tree=[];
+                        Y.each(d.rs.property.data,function(property){
+                            if(property.address===job.address && property.parent===null){
+                                tree.push(buildTree(property));
+                            }
+                        });
+                        h.tree.add(tree);
                 });
                 //sync display
-                    h.statementSection.one('legend a').simulate('click');
+//                    h.qaSection.one('legend a').simulate('click');
                 Y.JA.widget.busy.set('message','');
                 Y.fire(self.customEvent.save,'refresh');
             }
@@ -377,10 +356,9 @@ YUI.add('ja-pod-job',function(Y){
                          '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JA">'+self.info.title+'</span> '
                         +' #<input type="text" class="ja-data ja-data-id" title="job number" disabled="disabled" />'
                         +'<input type="hidden" class="ja-data ja-data-address" />'
-                        +' &nbsp; [<span class="ja-display-address"></span>]'
+                        +' &nbsp; <span class="ja-display-address"></span> &nbsp; '
                         //display
                             +'<span class="ja-section ja-section-display">'
-                            +  ' &nbsp; ['
                             +    Y.JA.html('btn',{action:'eye',title:'change view',classes:'ja-eye-open ja-display-service',label:'services'})
                             +    ' &nbsp;'
                             +    Y.JA.html('btn',{action:'eye',title:'change view',classes:'ja-eye-open ja-display-details',label:'details'})
@@ -408,11 +386,14 @@ YUI.add('ja-pod-job',function(Y){
                         //property
                             +  '<fieldset class="ja-section ja-section-property">'
                             +    '<legend>'
-                            +      '<span></span> <select><select>'
+                            +      '<div>select a property component</div>'
+                            +      '<div>'
+                            +        '<span></span> <select><select>'
+                            +      '</div>'
                             +    '</legend>'
                             +  '</fieldset>'
                         //question/answers
-                            +  '<fieldset class="ja-section ja-section-statement">'
+                            +  '<fieldset class="ja-section ja-section-qa">'
                             +    '<legend>'
                             +      Y.JA.html('btn',{action:'eye',label:'statement&nbsp;',title:'change view',classes:'ja-eye-open'})
                             +    '</legend>'
@@ -424,59 +405,44 @@ YUI.add('ja-pod-job',function(Y){
                     xy     :cfg.xy,
                     zIndex :cfg.zIndex
                 }).plug(Y.Plugin.Resize).render();
-                //shortcuts
-                    h.hd              =h.ol.headerNode;
-                    h.bd              =h.ol.bodyNode;
-                    h.ft              =h.ol.footerNode;
-                    h.bb              =h.ol.get('boundingBox');
 
-                    h.close           =h.hd.one('.ja-close');
+                h.hd              =h.ol.headerNode;
+                h.bd              =h.ol.bodyNode;
+                h.ft              =h.ol.footerNode;
+                h.bb              =h.ol.get('boundingBox');
 
-                    f.jobId           =h.hd.one('.ja-data-id');
-                    f.jobAddress      =h.hd.one('.ja-data-address');
-                    f.jobAddressDetail=h.hd.one('.ja-display-address');
+                h.close           =h.hd.one('.ja-close');
 
-                    f.jobRef          =h.bd.one('.ja-data-ref');
-                    f.jobAppointment  =h.bd.one('.ja-data-appointment');
-                    f.jobConfirmed    =h.bd.one('.ja-data-confirmed');
-                    f.jobReminder     =h.bd.one('.ja-data-reminder');
-                    f.jobWeather      =h.bd.one('.ja-data-weather');
+                f.jobId           =h.hd.one('.ja-data-id');
+                f.jobAddress      =h.hd.one('.ja-data-address');
+                f.jobAddressDetail=h.hd.one('.ja-display-address');
 
-                    h.displayServices =h.bd.one('.ja-display-services');
-                    h.serviceList     =h.bd.one('.ja-list-service');
-                    
-                    h.detailsSection  =h.bd.one('> .ja-section-details');
+                f.jobRef          =h.bd.one('.ja-data-ref');
+                f.jobAppointment  =h.bd.one('.ja-data-appointment');
+                f.jobConfirmed    =h.bd.one('.ja-data-confirmed');
+                f.jobReminder     =h.bd.one('.ja-data-reminder');
+                f.jobWeather      =h.bd.one('.ja-data-weather');
 
-                    h.propertySection =h.bd.one('.ja-section-property');
-                    h.propertyPath    =h.propertySection.one('>legend>span');
-                    h.propertyAction  =h.propertySection.one('>legend>select');
+                h.displayServices =h.bd.one('.ja-display-services');
+                h.serviceList     =h.bd.one('.ja-list-service');
 
-                    h.statementSection=h.bd.one('.ja-section-statement');
-                    h.statementList   =h.statementSection.one('> ul');
+                h.detailsSection  =h.bd.one('> .ja-section-details');
 
-                    h.save            =h.bd.one('.ja-save');
+                h.propertySection =h.bd.one('.ja-section-property');
+                h.propertyFocusNo =h.propertySection.one('>legend>div');
+                h.propertyFocusYes=h.propertySection.one('>legend>div:nth-child(2)');
+                h.propertyPath    =h.propertyFocusYes.one('>span');
+                h.propertyAction  =h.propertyFocusYes.one('>select');
 
-                    /*
-                        FINISH
-                        if focused on node then display options, if not a leaf then allow add
-                        generating valid options????
-                        saving data
-                    */
-                    h.tree=new Y.TreeView({
-                        startCollapsed:false,
-                        render:h.propertySection
-                    });
-                    trigger.reset();
+                h.qaSection=h.bd.one('.ja-section-qa');
+                h.qaList   =h.qaSection.one('> ul');
 
-                    
-            },
-            address:function(p){
-                return Y.Lang.sub('{streetRef} {streetName}, {location}',{
-                        'streetRef' :p.streetRef,
-                        'streetName':p.streetName,
-                        'location'  :p.location
-                    })
-                ;
+                h.save            =h.bd.one('.ja-save');
+
+                h.tree=new Y.TreeView({
+                    startCollapsed:false,
+                    render:h.propertySection
+                });
             },
             answer:function(p){
                 return Y.Lang.sub(
@@ -522,12 +488,12 @@ YUI.add('ja-pod-job',function(Y){
 
                     
                     if(this.get('selectedIndex')===0){
-                        h.statementList.all('li').each(function(row){
+                        h.qaList.all('li').each(function(row){
                             if(!visibleAnswer){visibleAnswer=row;}
                             row.setStyle('display','');
                         });
                     }else{
-                        h.statementList.all('li').each(function(row){
+                        h.qaList.all('li').each(function(row){
                             foundValue=questionHas(parseInt(row.one('.ja-data-question').get('value'),10),answerFilterValue);
                             row.setStyle('display',foundValue?'':'none');
                             if(!visibleAnswer && foundValue){visibleAnswer=row;}
@@ -538,43 +504,15 @@ YUI.add('ja-pod-job',function(Y){
                 }
             },
             reset:function(){
-                f.jobId             .set('value','');
-                f.jobAddress        .set('value','');
-                f.jobAddressDetail  .set('innerHTML','address not defined');
-                f.jobRef            .set('value','');
-                f.jobAppointment    .set('value','');
-                f.jobConfirmed      .set('value','');
-                f.jobReminder       .set('value','');
-                f.jobWeather        .set('value','');
-                h.tree.remove(0);
-                h.tree.add({
-                    label:"site",
-                    children:[
-                        {
-                            label : 'building <span class="ja-data-property-detail">home</span>',
-                            children : [
-                                { label: 'lounge'},
-                                { label: 'bedroom <span class="ja-data-property-detail">master</span>',
-                                    children: [
-                                        { label: 'ceiling' },
-                                        { label: 'wall <span class="ja-data-property-detail">south</span>'},
-                                        { label: 'floor' }
-                                    ]
-                                },
-                                    { label: 'bedroom'},
-                                    { label: 'bedroom'}
-                            ]
-                        },
-                        {
-                            label : 'land',
-                            children : [
-                                { label: 'pool'},
-                                { label: 'driveway'}
-                            ]
-                        }
-                    ]
-                });
-                h.statementList.set('innerHTML','');
+                f.jobId           .set('value','');
+                f.jobAddress      .set('value','');
+                f.jobAddressDetail.set('innerHTML','');
+                f.jobRef          .set('value','');
+                f.jobAppointment  .set('value','');
+                f.jobConfirmed    .set('value','');
+                f.jobReminder     .set('value','');
+                f.jobWeather      .set('value','');
+                trigger.tree.nodeFocus(false);
             },
             showHide:function(){
                 var section=this.ancestor('.ja-section'),
@@ -613,12 +551,86 @@ YUI.add('ja-pod-job',function(Y){
                         sectionList.all('.ja-actions,.ja-info').setStyle('display','');
                     }
                 }
+            },
+            tree:{
+                action:function(e){
+                    var selectedIndex=this.get('selectedIndex'),
+                        value=this.get('value'),
+                        activeDescendant=h.tree.get('activeDescendant'),
+                        selection=h.tree.get('selection'),
+                        focused=h.tree.get('focused'),
+                        index=h.tvNode.get('index'),
+                        selected=h.tree.get('selected'),
+                        newDetail=''
+                    ;
+                    if(selectedIndex===0){return;}
+                    else if(selectedIndex===1){
+                        newDetail=prompt('test');
+                        if(newDetail!==null){alert('set '+newDetail);}
+                    }
+                    else if(value==='remove'){
+                        h.tvNode.remove();
+                        trigger.tree.nodeFocus(false);
+                    }else{
+                        h.tvNode.add({
+                            label:'<!--0,'+value+'-->'+JA.data.prop[value].name
+                        });
+                    }
+                    this.set('selectedIndex',0);
+                },
+                nodeClick:function(e){
+                    h.tvNode=e.treenode;
+                    var label=h.tvNode.get('label'),
+                        propertyData=label.substring(4,label.indexOf('-->')).split(','),
+                        propertyId=parseInt(propertyData[0],10),
+                        propertyProp=parseInt(propertyData[1],10),
+                        propBranch,
+                        propOptions=[],
+                        traverse=function(o){
+                            for(var i in o){
+                                if(parseInt(i,10)===propertyProp){
+                                    propBranch=o[i];
+                                }
+                                else if(typeof(o[i])=="object"){
+                                    traverse(o[i]);
+                                }
+                            }
+                        }
+                    ;
+                    trigger.tree.nodeFocus(true);
+                    h.propertyPath.set('innerHTML',h.tvNode.path().join('/'));
+                    //build property action options
+                        traverse(JA.propStructure);
+                        for(var i in propBranch){
+                            propOptions.push('<option value="'+i+'">'+JA.data.prop[i].name+'</option>');
+                        };
+                    h.propertyAction.set('innerHTML',
+                        '<option>...</option>'+
+                        '<option>set new detail</option>'+
+                        (propOptions.length===0?'':
+                            '<optgroup label="create">'+propOptions.join('')+'</optgroup>'
+                        )+
+                        '<option value="remove">remove</option>'
+                    );
+
+                    
+                    console.log(
+                        "\nYou clicked "+h.tvNode.get("label")+(h.tvNode.get("isLeaf")?" (leaf)":" (node)")+
+                        "\nIndex is: "+h.tvNode.get('index')+
+                        "\nState is: "+(h.tvNode.get("collapsed") ? "collapsed" : "expanded")
+                    );
+                },
+                nodeFocus:function(state){
+                    h.propertyFocusNo.setStyle('display',state?'none':'');
+                    h.propertyFocusYes.setStyle('display',state?'':'none');
+                }
             }
         };
         /**
          *  load & initialise
          */
         Y.JA.dataSet.fetch([
+            ['prop','id'],
             ['service','id'],
             ['tagOption','id']
         ],function(){

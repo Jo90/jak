@@ -65,10 +65,7 @@ YUI({<?php require 'modules.inc'; ?>}).use(
         Y.JA.dataSet.fetch(
             [
                 ['dbTable','name'],
-                ['propPartTag','id'],
-                ['propPartType','id'],
-                ['question','id'],
-                ['questionMatrix','id'],
+                ['prop','id'],
                 ['service','id'],
                 ['tagOption','id']
             ]

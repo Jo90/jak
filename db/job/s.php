@@ -60,10 +60,10 @@ foreach ($post as $i) {
     
     $r->property = addr_getProperty($criteria);
 
-/* >>>>FINISH
     $criteria->propertyIds = array();
     foreach ($r->property->data as $d) {$criteria->propertyIds[] = $d->id;}
 
+/* >>>>FINISH
     $r->propPartAnswer = qa_getPropPartAnswer($criteria);
     $criteria->answerIds = array();
     foreach ($r->propPartAnswer->data as $d) {$criteria->answerIds[] = $d->answer;}

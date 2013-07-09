@@ -16,19 +16,11 @@ function dataSets($arr, $echo=false) {
         $stmt->close();
     }
     /**
-     *  propPartTag
+     *  prop
      */
-    if (in_array('propPartTag',$arr) && $stmt = $mysqli->prepare("select * from `propPartTag` order by name")) {
+    if (in_array('prop',$arr) && $stmt = $mysqli->prepare("select * from `prop`")) {
         $stmt->execute();
-        $rs->propPartTag = fetch_info($stmt);
-        $stmt->close();
-    }
-    /**
-     *  propPartType
-     */
-    if (in_array('propPartType',$arr) && $stmt = $mysqli->prepare("select * from `propPartType` order by name")) {
-        $stmt->execute();
-        $rs->propPartType = fetch_info($stmt);
+        $rs->prop = fetch_info($stmt);
         $stmt->close();
     }
     /**
@@ -37,38 +29,6 @@ function dataSets($arr, $echo=false) {
     if (in_array('tagOption',$arr) && $stmt = $mysqli->prepare("select * from `tagOption`")) {
         $stmt->execute();
         $rs->tagOption = fetch_info($stmt);
-        $stmt->close();
-    }
-    /**
-     *  propTemplate
-     */
-    if (in_array('propTemplate',$arr) && $stmt = $mysqli->prepare("select * from `propTemplate` order by name")) {
-        $stmt->execute();
-        $rs->propTemplate = fetch_info($stmt);
-        $stmt->close();
-    }
-    /**
-     *  propTemplatePart
-     */
-    if (in_array('propTemplatePart',$arr) && $stmt = $mysqli->prepare("select * from `propTemplatePart` order by seq")) {
-        $stmt->execute();
-        $rs->propTemplatePart = fetch_info($stmt);
-        $stmt->close();
-    }
-    /**
-     *  question
-     */
-    if (in_array('question',$arr) && $stmt = $mysqli->prepare("select * from `question`")) {
-        $stmt->execute();
-        $rs->question = fetch_info($stmt);
-        $stmt->close();
-    }
-    /**
-     *  questionMatrix
-     */
-    if (in_array('questionMatrix',$arr) && $stmt = $mysqli->prepare("select * from `questionMatrix` order by service,seq")) {
-        $stmt->execute();
-        $rs->questionMatrix = fetch_info($stmt);
         $stmt->close();
     }
     /**

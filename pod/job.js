@@ -64,8 +64,21 @@ YUI.add('ja-pod-job',function(Y){
          */
 
         initialise=function(){
+            var qaTopStatements='',
+                qaArr=[]
+            ;
             h.bb.addClass('ja-pod-'+self.info.id);
             new Y.DD.Drag({node:h.bb,handles:[h.hd,h.ft]});
+            //top level statements
+                Y.each(JA.data.qa,function(qa){
+                    if(qa.type==='G'){qaArr.push(qa);}
+                });
+                qaArr.sort(function(a,b){return a.seq-b.seq;});
+                Y.each(qaArr,function(qa){
+                    qaTopStatements+='<option value="'+qa.id+'">'+qa.name+'</option>';
+                });
+                h.qaSelect.append('<option>add...</option>'+qaTopStatements);
+                h.qaSelect.set('selectedIndex',0);
         };
 
         io={
@@ -236,6 +249,17 @@ YUI.add('ja-pod-job',function(Y){
                         on:{complete:io.fetch.job},
                         data:Y.JSON.stringify([post])
                     });
+                },
+                property:function(post,callback){
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:callback},
+                        data:Y.JSON.stringify([{
+                            property:post,
+                            usr:JA.user.usr
+                        }])
+                    });
                 }
             }
         };
@@ -244,13 +268,16 @@ YUI.add('ja-pod-job',function(Y){
             h.close.on('click',function(){h.ol.hide();Y.JA.widget.dialogMask.hide();});
             //tree
                 h.tree.on('nodeclick',trigger.tree.nodeClick);
+                //using treeNode to get contentBox fails
+                h.tree.get('contentBox').delegate('click',function(){h.tvLabel=this;},'.yui3-treenode-label-content');
                 h.propertyAction.on('click',trigger.tree.action);
             //all
                 h.bd.delegate('click',pod.display.info,'.ja-info');
                 h.hd.delegate('click',trigger.showHide,'.ja-eye');
                 h.bd.delegate('click',trigger.showHide,'.ja-eye');
-            //answers
-                h.qaList.delegate('click',io.remove.answer,'.ja-remove');
+            //qa
+                h.qaSelect.on('click',trigger.qa.add);
+                h.qaList.delegate('click',trigger.qa.remove,'.ja-remove');
             //save
                 h.save.on('click',io.save.job);
             //custom
@@ -296,10 +323,10 @@ YUI.add('ja-pod-job',function(Y){
                 var addresses=d.rs.address.data,
                     tree=[],
                     buildTree=function(parent){
-                        var branch={label:
-                                '<!--'+parent.id+','+parent.prop+'-->'+
-                                JA.data.prop[parent.prop].name+
-                                (parent.detail!==null?' '+parent.detail:'')
+                        var branch={
+                                label:'<!--'+parent.id+','+parent.prop+'-->'+
+                                    JA.data.prop[parent.prop].name+
+                                    (parent.detail!==null?' '+parent.detail:'')
                             }
                         ;
                         Y.each(d.rs.property.data,function(p){
@@ -396,6 +423,8 @@ YUI.add('ja-pod-job',function(Y){
                             +  '<fieldset class="ja-section ja-section-qa">'
                             +    '<legend>'
                             +      Y.JA.html('btn',{action:'eye',label:'statement&nbsp;',title:'change view',classes:'ja-eye-open'})
+                            +      '<select></select>'
+                            +      '<span></span>'
                             +    '</legend>'
                             +    '<ul></ul>'
                             +  '</fieldset>'
@@ -426,18 +455,20 @@ YUI.add('ja-pod-job',function(Y){
                 h.displayServices =h.bd.one('.ja-display-services');
                 h.serviceList     =h.bd.one('.ja-list-service');
 
-                h.detailsSection  =h.bd.one('> .ja-section-details');
+                h.detailsSection  =h.bd.one('.ja-section-details');
 
-                h.propertySection =h.bd.one('.ja-section-property');
+                h.propertySection =h.detailsSection.one('.ja-section-property');
                 h.propertyFocusNo =h.propertySection.one('>legend>div');
                 h.propertyFocusYes=h.propertySection.one('>legend>div:nth-child(2)');
                 h.propertyPath    =h.propertyFocusYes.one('>span');
                 h.propertyAction  =h.propertyFocusYes.one('>select');
 
-                h.qaSection=h.bd.one('.ja-section-qa');
-                h.qaList   =h.qaSection.one('> ul');
+                h.qaSection  =h.bd.one('.ja-section-qa');
+                h.qaSelect   =h.qaSection.one('> legend > select');
+                h.qaTreeLabel=h.qaSection.one('> legend > span');
+                h.qaList     =h.qaSection.one('> ul');
 
-                h.save            =h.bd.one('.ja-save');
+                h.save       =h.bd.one('.ja-save');
 
                 h.tree=new Y.TreeView({
                     startCollapsed:false,
@@ -556,64 +587,88 @@ YUI.add('ja-pod-job',function(Y){
                 action:function(e){
                     var selectedIndex=this.get('selectedIndex'),
                         value=this.get('value'),
-                        activeDescendant=h.tree.get('activeDescendant'),
-                        selection=h.tree.get('selection'),
-                        focused=h.tree.get('focused'),
-                        index=h.tvNode.get('index'),
-                        selected=h.tree.get('selected'),
+                        property,
+                        propId,
                         newDetail=''
                     ;
                     if(selectedIndex===0){return;}
-                    else if(selectedIndex===1){
-                        newDetail=prompt('test');
-                        if(newDetail!==null){alert('set '+newDetail);}
-                    }
-                    else if(value==='remove'){
-                        h.tvNode.remove();
+                    if(value==='remove'){
                         trigger.tree.nodeFocus(false);
+                        io.save.property(
+                            {remove:[trigger.tree.labelData().id]},
+                            function(){h.tvNode.remove();}
+                        );
+                        return;
+                    }
+                    property=trigger.tree.labelData();
+                    if(selectedIndex===1){
+                        if(newDetail=prompt('enter new property part detail')){
+                            io.save.property(
+                                {record:[{
+                                    data:{
+                                        id    :property.id,
+                                        detail:newDetail
+                                    }
+                                }]},
+                                function(){
+                                    h.tvNode.set('label','<!--'+property.id+','+property.prop+'-->'+JA.data.prop[property.prop].name+' '+newDetail);
+                                    h.tvLabel.set('innerHTML','<!--'+property.id+','+property.prop+'-->'+JA.data.prop[property.prop].name+' '+newDetail);
+                                    h.propertyPath.set('innerHTML',h.tvNode.path().join('/'));
+                                }
+                            );
+                        }
                     }else{
-                        h.tvNode.add({
-                            label:'<!--0,'+value+'-->'+JA.data.prop[value].name
-                        });
+                        propId=parseInt(value,10);
+                        io.save.property(
+                            {record:[{
+                                data:{
+                                    address:parseInt(f.jobAddress.get('value'),10),
+                                    parent :trigger.tree.labelData().id,
+                                    prop   :propId
+                                }
+                            }]},
+                            function(id,o){
+                                var rs=Y.JSON.parse(o.responseText)[0].property.record[0].data
+                                ;
+                                h.tvNode.add({
+                                    label:'<!--'+rs.id+','+propId+'-->'+JA.data.prop[propId].name
+                                });
+                            }
+                        );
                     }
                     this.set('selectedIndex',0);
                 },
+                labelData:function(){
+                    var label=h.tvNode.get('label'),
+                        data=label.substring(4,label.indexOf('-->')).split(',')
+                    ;
+                    return {
+                        id  :parseInt(data[0],10),
+                        prop:parseInt(data[1],10)
+                    };
+                },
                 nodeClick:function(e){
                     h.tvNode=e.treenode;
-                    var label=h.tvNode.get('label'),
-                        propertyData=label.substring(4,label.indexOf('-->')).split(','),
-                        propertyId=parseInt(propertyData[0],10),
-                        propertyProp=parseInt(propertyData[1],10),
+                    var property=trigger.tree.labelData(),
                         propBranch,
                         propOptions=[],
-                        traverse=function(o){
-                            for(var i in o){
-                                if(parseInt(i,10)===propertyProp){
-                                    propBranch=o[i];
-                                }
-                                else if(typeof(o[i])=="object"){
-                                    traverse(o[i]);
-                                }
-                            }
-                        }
+                        path=h.tvNode.path()
                     ;
                     trigger.tree.nodeFocus(true);
-                    h.propertyPath.set('innerHTML',h.tvNode.path().join('/'));
+                    h.propertyPath.set('innerHTML',path.join('/'));
+                    h.qaTreeLabel.set('innerHTML',path[path.length-1]);
                     //build property action options
-                        traverse(JA.propStructure);
+                        propBranch=trigger.traverse(JA.propStructure,property.prop);
                         for(var i in propBranch){
                             propOptions.push('<option value="'+i+'">'+JA.data.prop[i].name+'</option>');
                         };
                     h.propertyAction.set('innerHTML',
                         '<option>...</option>'+
                         '<option>set new detail</option>'+
-                        (propOptions.length===0?'':
-                            '<optgroup label="create">'+propOptions.join('')+'</optgroup>'
-                        )+
-                        '<option value="remove">remove</option>'
+                        (propOptions.length===0?'':'<optgroup label="create">'+propOptions.join('')+'</optgroup>')+
+                        (h.tvNode.get('isLeaf')?'<optgroup label="remove"><option value="remove">proceed</option></optgroup>':'')
+                        
                     );
-
-                    
                     console.log(
                         "\nYou clicked "+h.tvNode.get("label")+(h.tvNode.get("isLeaf")?" (leaf)":" (node)")+
                         "\nIndex is: "+h.tvNode.get('index')+
@@ -621,9 +676,53 @@ YUI.add('ja-pod-job',function(Y){
                     );
                 },
                 nodeFocus:function(state){
-                    h.propertyFocusNo.setStyle('display',state?'none':'');
-                    h.propertyFocusYes.setStyle('display',state?'':'none');
+                    if(state){
+                        h.propertyFocusNo.setStyle('display','none');
+                        h.propertyFocusYes.setStyle('display','');
+                        h.qaSelect.setStyle('display','');
+                        h.qaTreeLabel.setStyle('display','');
+                    }else{
+                        h.propertyFocusNo.setStyle('display','');
+                        h.propertyFocusYes.setStyle('display','none');
+                        h.qaSelect.setStyle('display','none');
+                        h.qaTreeLabel.setStyle('display','none');
+                    }
                 }
+            },
+            qa:{
+                add:function(){
+                    var selectedIndex=this.get('selectedIndex'),
+                        optionText=this.get('options').item(selectedIndex).get('text'),
+                        value=this.get('value')
+                    ;
+                    if(selectedIndex===0){return;}
+
+                    //add
+                    h.qaList.append(
+                        '<li>'+
+                          '<input type="hidden" value="'+value+'"/>'+
+                          JA.data.qa[value].code+' '+
+                          Y.JA.html('btn',{action:'remove',title:'remove'})+
+                        '</li>'
+                    );
+                    this.set('selectedIndex',0);
+                },
+                remove:function(){
+                    //>>>>FINISH db
+                    this.ancestor('li').remove();
+                }
+            },
+            traverse:function(o,key){
+                var obj
+                ;
+                for(var i in o){
+                    if(parseInt(i,10)===key){return o[i];}
+                    if(typeof(o[i])=='object'){
+                        obj=trigger.traverse(o[i],key);
+                        if(obj!==false){return obj;}
+                    }
+                }
+                return false;
             }
         };
         /**

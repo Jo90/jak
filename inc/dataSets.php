@@ -24,6 +24,22 @@ function dataSets($arr, $echo=false) {
         $stmt->close();
     }
     /**
+     *  qa
+     */
+    if (in_array('qa',$arr) && $stmt = $mysqli->prepare("select * from `qa`")) {
+        $stmt->execute();
+        $rs->qa = fetch_info($stmt);
+        $stmt->close();
+    }
+    /**
+     *  qaLink
+     */
+    if (in_array('qaLink',$arr) && $stmt = $mysqli->prepare("select * from `qaLink`")) {
+        $stmt->execute();
+        $rs->qaLink = fetch_info($stmt);
+        $stmt->close();
+    }
+    /**
      *  tagOption
      */
     if (in_array('tagOption',$arr) && $stmt = $mysqli->prepare("select * from `tagOption`")) {

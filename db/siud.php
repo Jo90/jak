@@ -30,6 +30,12 @@ foreach ($post as $i) {
                     ? $r->job = job_getJob($dataSet)
                     : job_setJob($dataSet);
                 break;
+            case 'property':
+                require_once 'address/common.php';
+                $criteria
+                    ? $r->property = addr_getProperty($dataSet)
+                    : addr_setProperty($dataSet);
+                break;
             case 'usr':
                 break;
         }

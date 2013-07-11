@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 08, 2013 at 11:57 AM
+-- Generation Time: Jul 12, 2013 at 11:28 AM
 -- Server version: 5.5.31-0ubuntu0.12.04.2
 -- PHP Version: 5.4.17RC1
 
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `address` (
   KEY `address__fk1_idx` (`location`),
   KEY `address_idx_1` (`streetRef`),
   KEY `address_idx_2` (`streetName`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Addresses' AUTO_INCREMENT=11 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Addresses' AUTO_INCREMENT=15 ;
 
 --
 -- Dumping data for table `address`
@@ -52,7 +52,11 @@ INSERT INTO `address` (`id`, `streetRef`, `streetName`, `location`, `postcode`) 
 (7, '14', 'Success Ave', 376, NULL),
 (8, '15', 'Success Ave', 376, NULL),
 (9, '123', 'Able St', 377, NULL),
-(10, '123', 'Cain Cres', 2567, NULL);
+(10, '123', 'Cain Cres', 2567, NULL),
+(11, '123', 'Able Tce', 3186, NULL),
+(12, '123', 'Cool Cres', 2901, NULL),
+(13, '12', 'Able Street', 962, NULL),
+(14, '123', 'Boondoggle St', 2500, NULL);
 
 -- --------------------------------------------------------
 
@@ -291,21 +295,17 @@ CREATE TABLE IF NOT EXISTS `job` (
   KEY `idx_job_1` (`address`),
   KEY `idx_job_2` (`ref`),
   KEY `idx_job_3` (`appointment`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=14 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
 
 --
 -- Dumping data for table `job`
 --
 
 INSERT INTO `job` (`id`, `address`, `ref`, `created`, `createdBy`, `appointment`, `confirmed`, `reminder`, `weather`) VALUES
-(6, 3, NULL, 0, NULL, 1373753029, NULL, NULL, NULL),
 (7, 4, NULL, 0, NULL, 1373754875, NULL, NULL, NULL),
-(8, 5, NULL, 0, NULL, 1373754890, NULL, NULL, NULL),
-(9, 6, NULL, 0, NULL, 1373754979, NULL, NULL, NULL),
-(10, 7, NULL, 0, NULL, 1373755091, NULL, NULL, NULL),
-(11, 8, NULL, 0, NULL, 1373755104, NULL, NULL, NULL),
-(12, 9, NULL, 0, NULL, 1373759419, NULL, NULL, NULL),
-(13, 10, NULL, 0, NULL, 1373759462, NULL, NULL, NULL);
+(15, 12, 0, 0, NULL, 1373756100, NULL, NULL, 'fine'),
+(16, 13, NULL, 0, NULL, 1373769484, NULL, NULL, NULL),
+(17, 14, NULL, 0, NULL, 1373772265, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -16688,7 +16688,7 @@ CREATE TABLE IF NOT EXISTS `property` (
   KEY `property_fk1_idx` (`address`),
   KEY `property_fk2_idx` (`parent`),
   KEY `property_fk3_idx` (`prop`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=100 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=166 ;
 
 --
 -- Dumping data for table `property`
@@ -16784,7 +16784,52 @@ INSERT INTO `property` (`id`, `address`, `parent`, `prop`, `seq`, `detail`) VALU
 (95, 10, 91, 36, 1, NULL),
 (96, 10, 91, 37, 1, NULL),
 (97, 10, 91, 38, 1, NULL),
-(98, 10, 91, 39, 1, NULL);
+(98, 10, 91, 39, 1, NULL),
+(100, 11, NULL, 31, 1, NULL),
+(101, 11, 100, 32, 1, NULL),
+(102, 11, 100, 33, 1, NULL),
+(103, 11, 101, 34, 1, NULL),
+(104, 11, 101, 35, 1, NULL),
+(105, 11, 101, 36, 1, NULL),
+(106, 11, 101, 37, 1, NULL),
+(107, 11, 101, 38, 1, NULL),
+(108, 11, 101, 39, 1, NULL),
+(109, 12, NULL, 31, 1, NULL),
+(110, 12, 109, 32, 1, 'tes5'),
+(111, 12, 109, 33, 1, NULL),
+(113, 12, 110, 35, 1, 'whatever'),
+(114, 12, 110, 36, 1, 'main'),
+(116, 12, 110, 38, 1, NULL),
+(119, 12, 110, 37, 1, NULL),
+(126, 12, 110, 34, 1, 'master'),
+(131, 12, 110, 35, 1, 'ensuit'),
+(132, 13, NULL, 31, 1, NULL),
+(133, 13, 132, 32, 1, NULL),
+(134, 13, 132, 33, 1, NULL),
+(135, 13, 133, 34, 1, 'test'),
+(136, 13, 133, 35, 1, NULL),
+(137, 13, 133, 36, 1, NULL),
+(138, 13, 133, 37, 1, NULL),
+(139, 13, 133, 38, 1, NULL),
+(142, 13, 133, 34, 1, '1'),
+(143, 13, 133, 34, 1, '2'),
+(144, 13, 133, 34, 1, '3'),
+(146, 13, 138, 22, 1, NULL),
+(147, 14, NULL, 31, 1, NULL),
+(148, 14, 147, 32, 1, 'mansion'),
+(149, 14, 147, 33, 1, NULL),
+(150, 14, 148, 34, 1, NULL),
+(151, 14, 148, 35, 1, NULL),
+(152, 14, 148, 36, 1, NULL),
+(153, 14, 148, 37, 1, NULL),
+(154, 14, 148, 38, 1, NULL),
+(155, 14, 148, 39, 1, NULL),
+(158, 14, 148, 34, 1, NULL),
+(159, 14, 148, 34, 1, NULL),
+(162, 14, 150, 21, 1, NULL),
+(163, 14, 150, 25, 1, NULL),
+(164, 14, 147, 32, 1, 'garage'),
+(165, 14, 150, 23, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -16855,25 +16900,28 @@ INSERT INTO `propType` (`id`, `prop`, `type`) VALUES
 
 CREATE TABLE IF NOT EXISTS `qa` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `seq` tinyint(4) NOT NULL DEFAULT '1',
   `type` char(1) NOT NULL DEFAULT 'B' COMMENT '(G)lobal, (B)ranch, (C)omponent',
+  `name` varchar(30) DEFAULT NULL,
   `codeType` char(1) NOT NULL DEFAULT 'H' COMMENT '(S)cript/(H)tml',
   `code` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 --
 -- Dumping data for table `qa`
 --
 
-INSERT INTO `qa` (`id`, `type`, `codeType`, `code`) VALUES
-(1, 'G', 'H', 'Defect Minor'),
-(2, 'G', 'H', 'Defect Major'),
-(3, 'G', 'H', 'Cracking'),
-(4, 'G', 'H', 'Advisory'),
-(5, 'G', 'H', 'Safety'),
-(6, 'G', 'H', 'Obstruction'),
-(7, 'G', 'H', 'Inaccessible'),
-(8, 'G', 'H', 'Information');
+INSERT INTO `qa` (`id`, `seq`, `type`, `name`, `codeType`, `code`) VALUES
+(1, 2, 'G', 'Defect Minor', 'H', 'Defect Minor\r\n<select>\r\n <option>trivial</option>\r\n <option>not so trival</option>\r\n</select>\r\n<textarea placeholder="description"></textarea>'),
+(2, 1, 'G', 'Defect Major', 'H', 'Defect Major <textarea placeholder="description"></textarea>'),
+(3, 4, 'G', 'Cracking', 'H', 'Cracking <textarea placeholder="description"></textarea>'),
+(4, 4, 'G', 'Advisory', 'H', 'Advisory <textarea placeholder="description"></textarea>'),
+(5, 5, 'G', 'Safety', 'H', 'Safety\r\n<select>\r\n  <option>note</option>\r\n  <option>warning</option>\r\n  <option>critical</option>\r\n</select>\r\n<textarea placeholder="description"></textarea>'),
+(6, 6, 'G', 'Obstruction', 'H', 'Obstruction <textarea placeholder="description"></textarea>'),
+(7, 7, 'G', 'Inaccessible', 'H', 'Inaccessible <textarea placeholder="description"></textarea>'),
+(8, 3, 'G', 'Information', 'H', 'Information\r\n<select>\r\n  <option>General</option>\r\n  <option>Advisory</option>\r\n  <option>Future consideration</option>\r\n</select>\r\n<textarea placeholder="notes"></textarea>'),
+(9, 99, 'G', 'Termites', 'H', 'Termite: <select class="ja-data-qa-termites">\r\n<option>Coptotermes</option>\r\n<option>Schedorhinotermes</option>\r\n<option>Nasutitermes</option>\r\n<option>Heterotermes</option>\r\n</select>&nbsp;\r\n<label><input type="checkbox"  class="ja-data-qa-termites-active" />Live/Active</label>\r\n<label><input type="checkbox"  class="ja-data-qa-termites-nest" />Nest found</label> <textarea placeholder="notes"></textarea>\r\n');
 
 -- --------------------------------------------------------
 

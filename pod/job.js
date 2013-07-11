@@ -326,7 +326,9 @@ YUI.add('ja-pod-job',function(Y){
                         var branch={
                                 label:'<!--'+parent.id+','+parent.prop+'-->'+
                                     JA.data.prop[parent.prop].name+
-                                    (parent.detail!==null?' '+parent.detail:'')
+                                    (parent.detail!==null?' '+parent.detail:'')+
+                                    '&nbsp; <small><small><span>2</span>,'+
+                                    '<span>0</span></small></small>'
                             }
                         ;
                         Y.each(d.rs.property.data,function(p){
@@ -669,6 +671,7 @@ YUI.add('ja-pod-job',function(Y){
                         (h.tvNode.get('isLeaf')?'<optgroup label="remove"><option value="remove">proceed</option></optgroup>':'')
                         
                     );
+                    h.qaList.set('innerHTML','');
                     console.log(
                         "\nYou clicked "+h.tvNode.get("label")+(h.tvNode.get("isLeaf")?" (leaf)":" (node)")+
                         "\nIndex is: "+h.tvNode.get('index')+

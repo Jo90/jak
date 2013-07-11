@@ -69,17 +69,18 @@ INSERT INTO `propChild` (`prop`, `child`) VALUES
 (3, 10),
 (5, 7);
 
-INSERT INTO `qa` (`type`, `code`) VALUES
-('G', 'Defect Minor'),
-('G', 'Defect Major'),
-('G', 'Cracking'),
-('G', 'Advisory'),
-('G', 'Safety'),
-('G', 'Obstruction'),
-('G', 'Inaccessible'),
-('G', 'Information');
-
-
+INSERT INTO `qa` (`id`, `seq`, `type`, `name`, `codeType`, `code`) VALUES
+(1, 2, 'G', 'Defect Minor', 'H', 'Defect Minor <textarea placeholder="description"></textarea>'),
+(2, 1, 'G', 'Defect Major', 'H', 'Defect Major <textarea placeholder="description"></textarea>'),
+(3, 4, 'G', 'Cracking', 'H', 'Cracking <textarea placeholder="description"></textarea>'),
+(4, 4, 'G', 'Advisory', 'H', 'Advisory <textarea placeholder="description"></textarea>'),
+(5, 5, 'G', 'Safety', 'H', 'Safety\r\n<select>\r\n  <option>note</option>\r\n  <option>warning</option>\r\n  <option>critical</option>\r\n</select>\r\n<textarea placeholder="description"></textarea>'),
+(6, 6, 'G', 'Obstruction', 'H', 'Obstruction <textarea placeholder="description"></textarea>'),
+(7, 7, 'G', 'Inaccessible', 'H', 'Inaccessible <textarea placeholder="description"></textarea>'),
+(8, 3, 'G', 'Information', 'H', 'Information\r\n<select>\r\n  <option>General</option>\r\n  <option>Advisory</option>\r\n  <option>Future consideration</option>\r\n</select>'),
+(9, 99, 'G', 'Termites', 'H', 'Termite: <select class="ja-data-qa-termites">\r\n<option>Coptotermes</option>\r\n<option>Schedorhinotermes</option>\r\n<option>Nasutitermes</option>\r\n<option>Heterotermes</option>\r\n</select>&nbsp;\r\n<label><input type="checkbox"  class="ja-data-qa-termites-active" />Live/Active</label>\r\n<label><input type="checkbox"  class="ja-data-qa-termites-nest" />Nest found</label> <textarea placeholder="notes"></textarea>'),
+(10, 1, 'N', 'Door', 'H', 'General door stuff')
+;
 
 create or replace view `v_prop_types` as
 select p.id, p.name, group_concat(concat(ptp.name,'(',ptp.id,')') separator ', ') as 'types'

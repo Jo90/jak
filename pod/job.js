@@ -99,9 +99,6 @@ YUI.add('ja-pod-job',function(Y){
                 }
             },
             insert:{
-                answer:function(){
-                    alert('duplicate - to do - must create immediately to allow notes to be attached....');
-                },
                 job:function(){
                     Y.JA.widget.busy.set('message','new job...');
                     Y.io('/db/siud.php',{
@@ -124,37 +121,49 @@ YUI.add('ja-pod-job',function(Y){
                     });
                 }
             },
-            remove:{
-                answer:function(){
-                    var row=this.ancestor('li'),
-                        answerId=parseInt(row.one('.ja-data-id').get('value'),10)
+            save:{
+                job:function(){
+                    var fAppointment=f.jobAppointment.get('value'),
+                        fConfirmed  =f.jobConfirmed.get('value'),
+                        fReminder   =f.jobReminder.get('value'),
+                        qa={li:{},tag:[]}
                     ;
-                    if(!confirm('delete answer/statement')){return;}
+                    //html/values
+                        h.qaList.all('li').each(function(li,idx){
+                            //get html and strip yui ids
+                            qa.li[idx]=li.get('innerHTML').replace(/( id="yui[^"]*")/g,'');
+                            li.all('input,textarea,select').each(function(tag){
+                                var nodeName=this.get('nodeName'),
+                                    nodeType=this.get('type')
+                                ;
+                                if(!qa.tag[idx]){qa.tag[idx]=[];}
+                                if(nodeType==='checkbox'){
+
+
+
+
+                                    //>>>>>>>>>>FINISH need to save value and if checked
+                                    qa.tag[idx].push(tag.get('checked'));
+
+
+
+
+
+
+                                }else{
+                                    qa.tag[idx].push(tag.get('value'));
+                                }
+                            });
+                        });
                     Y.io('/db/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
-                        on:{complete:function(){
-                        }},
+                        on:{complete:io.fetch.job},
                         data:Y.JSON.stringify([{
-                            answer:{
-                                remove:[answerId]
-                            },
-                            usr:JA.user.usr
-                        }])
-                    });
-                }
-            },
-            save:{
-                job:function(){
-                    var jobId       =parseInt(f.jobId.get('value'),10),
-                        fAppointment=f.jobAppointment.get('value'),
-                        fConfirmed  =f.jobConfirmed.get('value'),
-                        fReminder   =f.jobReminder.get('value'),
-                        post={
                             job:{
                                 record:[{
                                     data:{
-                                        id         :jobId,
+                                        id         :parseInt(f.jobId.get('value'),10),
                                         address    :parseInt(f.jobAddress.get('value'),10),
                                         ref        :f.jobRef.get('value'),
                                         appointment:fAppointment===''
@@ -166,88 +175,12 @@ YUI.add('ja-pod-job',function(Y){
                                         reminder   :fReminder===''
                                                         ?null
                                                         :moment(fReminder,'DDMMMYY hh:mma').unix(),
-                                        weather    :f.jobWeather.get('value')
+                                        weather    :f.jobWeather.get('value'),
+                                        detail     :Y.JSON.stringify(qa)
                                     }
                                 }]
-                            },
-                            answer:{
-                                record:[]
-                            },
-                            usr:JA.user.usr
-                        },
-                        answerSeq=1
-                    ;
-                    h.qaList.all('> li').each(function(a){
-                        var answerValues=[],
-                            cnt={button:0,input:0,select:0,textarea:0},
-                            nodes={
-                                button  :a.all('span button'),
-                                input   :a.all('span input'),
-                                select  :a.all('span select'),
-                                textarea:a.all('span textarea')
-                            },
-                            questionId=parseInt(a.one('.ja-data-question').get('value'),10),
-                            q=JA.data.question[questionId]
-                        ;
-                        Y.each(Y.JA.mergeIndicesOf(['<button','<input','<select','<textarea'],q.code),function(arr){
-                            var tag=arr[1],
-                                node=nodes[tag].item(cnt[tag]),
-                                nodeType=node.get('type'),
-                                selectMultiArr=[]
-                            ;
-                            //tag action
-                                switch(tag){
-                                    case 'button':
-
-                                        //>>>>>>>>>>>>>>>>>>>>FINISH
-
-                                        break;
-                                    case 'input':
-                                        if(nodeType==='text'){
-
-                                        //>>>>>>>>>>>>>>>>>>>>FINISH remove commas
-
-                                            answerValues.push(node.get('value'));
-                                        }else if(nodeType==='checkbox'){
-                                            answerValues.push(node.get('checked')?node.get('value'):'');
-                                        }
-                                        break;
-                                    case 'select':
-                                        if(nodeType==='select-one'){
-                                            answerValues.push(node.get('value'));
-                                        }else{
-                                            selectMultiArr=[];
-                                            node.all('option').each(function(){
-                                                if(this.get('selected')){selectMultiArr.push(this.get('value'));}
-                                            });
-                                            answerValues.push(selectMultiArr.join(','));
-                                        }
-                                        break;
-                                    case 'textarea':
-
-                                        //>>>>>>>>>>>>>>>>>>>>FINISH remove commas
-
-                                        answerValues.push(node.get('value'));
-                                        break;
-                                }
-                            //tag occurance
-                                cnt[tag]++;
-                        });
-                        post.answer.record.push({
-                            data:{
-                                id      :parseInt(a.one('.ja-data-id').get('value'),10),
-                                question:parseInt(a.one('.ja-data-question').get('value'),10),
-                                job     :jobId,
-                                detail  :answerValues.join(';'),
-                                seq     :answerSeq++
                             }
-                        });
-                    });
-                    Y.io('/db/siud.php',{
-                        method:'POST',
-                        headers:{'Content-Type':'application/json'},
-                        on:{complete:io.fetch.job},
-                        data:Y.JSON.stringify([post])
+                        }])
                     });
                 },
                 property:function(post,callback){
@@ -322,13 +255,14 @@ YUI.add('ja-pod-job',function(Y){
                 d.rs=Y.JSON.parse(o.responseText)[0].result;
                 var addresses=d.rs.address.data,
                     tree=[],
+                    qa,
                     buildTree=function(parent){
                         var branch={
-                                label:'<!--'+parent.id+','+parent.prop+'-->'+
-                                    JA.data.prop[parent.prop].name+
-                                    (parent.detail!==null?' '+parent.detail:'')+
-                                    '&nbsp; <small><small><span>2</span>,'+
-                                    '<span>0</span></small></small>'
+                                label:'<!--'+parent.id+','+parent.prop+'-->'
+                                    +JA.data.prop[parent.prop].name
+                                    +(parent.detail!==null?' '+parent.detail:'')
+                                    +'&nbsp; <small><small><span>2</span>,'
+                                    +'<span>0</span></small></small>'
                             }
                         ;
                         Y.each(d.rs.property.data,function(p){
@@ -370,6 +304,29 @@ YUI.add('ja-pod-job',function(Y){
                             }
                         });
                         h.tree.add(tree);
+                    //qa
+                        qa=Y.JSON.parse(job.detail);
+                        h.qaList.set('innerHTML','');
+                        //create statements and set values
+                        Y.each(qa.li,function(li,liIdx){
+                            var nn=Y.Node.create('<li>'+li+'</li>')
+                            ;
+                            h.qaList.append(nn);
+                            nn.all('input,textarea,select').each(function(tag,tagIdx){
+                                var nodeName=this.get('nodeName'),
+                                    nodeType=this.get('type'),
+                                    val=qa.tag[liIdx][tagIdx]
+                                ;
+                                if(nodeName==='INPUT'){
+                                    if(nodeType==='checkbox'){tag.set('checked',val);}
+                                    else {tag.set('value',val);}
+                                }else if(nodeName==='TEXTAREA'){
+                                    tag.set('innerHTML',val);
+                                }else if(nodeName==='SELECT'){
+                                    Y.JA.matchSelect(tag,val);
+                                }
+                            });
+                        });
                 });
                 //sync display
 //                    h.qaSection.one('legend a').simulate('click');
@@ -476,66 +433,10 @@ YUI.add('ja-pod-job',function(Y){
                     startCollapsed:false,
                     render:h.propertySection
                 });
-            },
-            answer:function(p){
-                return Y.Lang.sub(
-                    '<li>'
-                   +  '<input type="hidden" class="ja-data ja-data-id" value="{id}" />'
-                   +  '<input type="hidden" class="ja-data ja-data-question" value="{question}" />'
-                   +  '<div title="#{id}">'
-                   +    '{name}'
-                   +    Y.JA.html('btn',{action:'info',title:'notes',label:p.infoCount})
-                   +    '<span class="ja-actions">'
-                   +      Y.JA.html('btn',{action:'dup',title:'duplicate'})
-                   +      Y.JA.html('btn',{action:'remove',title:'remove'})
-                   +    '</span>'
-                   +  '</div>'
-                   +  '<span>{code}</span>'
-                   +'</li>',
-                {
-                    'id'      :p.id,
-                    'question':p.question,
-                    'name'    :p.name,
-                    'code'    :p.code
-                });
             }
         };
 
         trigger={
-            filter:{
-                answerService:function(){
-                    var answerFilterValue=this.get('value'),
-                        foundValue,
-                        questionHas=function(question,answerValue){
-                            var found=false,
-                                isCategory=isNaN(parseInt(answerValue,10))//services are numeric , categories are strings
-                            ;
-                            Y.each(JA.data.questionMatrix,function(qm){
-                                if(!isCategory){answerValue=parseInt(answerValue,10);}
-                                if(qm.question===question && answerValue===(isCategory?qm.category:qm.service)){found=true;}
-                            });
-                            return found;
-                        },
-                        visibleAnswer=false
-                    ;
-
-                    
-                    if(this.get('selectedIndex')===0){
-                        h.qaList.all('li').each(function(row){
-                            if(!visibleAnswer){visibleAnswer=row;}
-                            row.setStyle('display','');
-                        });
-                    }else{
-                        h.qaList.all('li').each(function(row){
-                            foundValue=questionHas(parseInt(row.one('.ja-data-question').get('value'),10),answerFilterValue);
-                            row.setStyle('display',foundValue?'':'none');
-                            if(!visibleAnswer && foundValue){visibleAnswer=row;}
-                        });
-                    }
-                    //focus on first displayed
-                        if(visibleAnswer!==false){visibleAnswer.simulate('click');}
-                }
-            },
             reset:function(){
                 f.jobId           .set('value','');
                 f.jobAddress      .set('value','');
@@ -671,7 +572,13 @@ YUI.add('ja-pod-job',function(Y){
                         (h.tvNode.get('isLeaf')?'<optgroup label="remove"><option value="remove">proceed</option></optgroup>':'')
                         
                     );
-                    h.qaList.set('innerHTML','');
+                    //display qa
+                    h.qaList.all('li').each(function(li){
+
+
+                        //>>>>>>>>>>>>>>FINISH
+                        
+                    });
                     console.log(
                         "\nYou clicked "+h.tvNode.get("label")+(h.tvNode.get("isLeaf")?" (leaf)":" (node)")+
                         "\nIndex is: "+h.tvNode.get('index')+

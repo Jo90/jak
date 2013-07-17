@@ -27,3 +27,5 @@
 
 /*qa*/
 .ja-pod-job .ja-section-qa {float:left;width:35em;}
+.ja-pod-job .ja-section-qa ul {list-style-type:square;}
+.ja-pod-job .ja-section-qa span.ja-qa-snippet {display:block;}

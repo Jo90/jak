@@ -24,7 +24,13 @@ YUI.add('ja-pod-job',function(Y){
         };
 
         var self=this,
-            d={},f={},h={},
+            d={
+                qa:{
+                    existing:'add to existing statement',
+                    new:'add as a new statement'
+                }
+            },
+            f={},h={},
             initialise,
             io={},
             listeners,
@@ -71,13 +77,19 @@ YUI.add('ja-pod-job',function(Y){
             new Y.DD.Drag({node:h.bb,handles:[h.hd,h.ft]});
             //top level statements
                 Y.each(JA.data.qa,function(qa){
-                    if(qa.type==='G'){qaArr.push(qa);}
+                    if(qa.prop===null){qaArr.push(qa);}
                 });
                 qaArr.sort(function(a,b){return a.seq-b.seq;});
                 Y.each(qaArr,function(qa){
                     qaTopStatements+='<option value="'+qa.id+'">'+qa.name+'</option>';
                 });
-                h.qaSelect.append('<option>add...</option>'+qaTopStatements);
+                h.qaSelect.set('innerHTML',
+                    '<option>'+d.qa.new+'</option>'
+                   +'<option>'+d.qa.existing+'</option>'
+                   +'<optgroup label="top level issues">'
+                   +  qaTopStatements
+                   +'</optgroup>'
+                );
                 h.qaSelect.set('selectedIndex',0);
         };
 
@@ -91,7 +103,7 @@ YUI.add('ja-pod-job',function(Y){
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
                             job:{
-                            	criteria:{jobIds:[cfg.job]}
+                                criteria:{jobIds:[cfg.job]}
                             },
                             usr:JA.user.usr
                         }])
@@ -126,34 +138,34 @@ YUI.add('ja-pod-job',function(Y){
                     var fAppointment=f.jobAppointment.get('value'),
                         fConfirmed  =f.jobConfirmed.get('value'),
                         fReminder   =f.jobReminder.get('value'),
-                        qa={li:{},tag:[]}
+                        qa={}
                     ;
                     //html/values
-                        h.qaList.all('li').each(function(li,idx){
+                        h.qaList.all('li').each(function(li){
+                            var statements=[],
+                                propertyId=li.getData('propertyId')
+                            ;
                             //get html and strip yui ids
-                            qa.li[idx]=li.get('innerHTML').replace(/( id="yui[^"]*")/g,'');
-                            li.all('input,textarea,select').each(function(tag){
-                                var nodeName=this.get('nodeName'),
-                                    nodeType=this.get('type')
+                            li.all('span.ja-qa-snippet').each(function(snippetNode){
+                                var snippet={
+                                        html  :snippetNode.get('innerHTML').replace(/( id="yui[^"]*")/g,'').replace(/(<a class="ja-btn ja-remove[\s\S]*?a>)/g,''),
+                                        values:[]
+                                    }
                                 ;
-                                if(!qa.tag[idx]){qa.tag[idx]=[];}
-                                if(nodeType==='checkbox'){
-
-
-
-
-                                    //>>>>>>>>>>FINISH need to save value and if checked
-                                    qa.tag[idx].push(tag.get('checked'));
-
-
-
-
-
-
-                                }else{
-                                    qa.tag[idx].push(tag.get('value'));
-                                }
+                                snippetNode.all('input,textarea,select').each(function(){
+                                    var nodeType=this.get('type')
+                                    ;
+                                    if(nodeType==='checkbox'){
+                                        //>>>>>>>>>>FINISH need to save value and if checked
+                                        snippet.values.push([this.get('value'),this.get('checked')]);
+                                    }else{
+                                        snippet.values.push(this.get('value'));
+                                    }
+                                });
+                                statements.push(snippet);
                             });
+                            if(!qa[propertyId]){qa[propertyId]=[];}
+                            qa[propertyId].push(statements);
                         });
                     Y.io('/db/siud.php',{
                         method:'POST',
@@ -209,8 +221,9 @@ YUI.add('ja-pod-job',function(Y){
                 h.hd.delegate('click',trigger.showHide,'.ja-eye');
                 h.bd.delegate('click',trigger.showHide,'.ja-eye');
             //qa
-                h.qaSelect.on('click',trigger.qa.add);
+                h.qaSelect.on('change',trigger.qa.add);
                 h.qaList.delegate('click',trigger.qa.remove,'.ja-remove');
+                h.qaList.delegate('click',function(){h.qaListRec=this;},'>li');
             //save
                 h.save.on('click',io.save.job);
             //custom
@@ -255,14 +268,16 @@ YUI.add('ja-pod-job',function(Y){
                 d.rs=Y.JSON.parse(o.responseText)[0].result;
                 var addresses=d.rs.address.data,
                     tree=[],
-                    qa,
+                    job=Y.JA.firstRecord(d.rs.job.data), //only 1 job anyway
+                    jobDetail=(job.detail!=='' && job.detail!==null?Y.JSON.parse(job.detail):false),
                     buildTree=function(parent){
                         var branch={
                                 label:'<!--'+parent.id+','+parent.prop+'-->'
                                     +JA.data.prop[parent.prop].name
                                     +(parent.detail!==null?' '+parent.detail:'')
-                                    +'&nbsp; <small><small><span>2</span>,'
-                                    +'<span>0</span></small></small>'
+                                    +'&nbsp; <span style="font-size:0.7em">'
+                                    +  (typeof d.propertyQaCount[parent.id]!=='undefined' && d.propertyQaCount[parent.id]>0?d.propertyQaCount[parent.id]:'')
+                                    +'</span>'
                             }
                         ;
                         Y.each(d.rs.property.data,function(p){
@@ -274,62 +289,84 @@ YUI.add('ja-pod-job',function(Y){
                         return branch;
                     }
                 ;
+                d.propertyQaCount={};
                 trigger.reset();
-                //only 1 job anyway
-                Y.each(d.rs.job.data,function(job){
-                    f.jobId.set('value',job.id);
-                    f.jobRef.set('value',job.ref);
-                    if(job.appointment!==null){
-                        f.jobAppointment.set('value',moment.unix(job.appointment).format('DDMMMYY hh:mma'));
-                    };
-                    if(job.confirmed!==null){
-                        f.jobConfirmed.set('value',moment.unix(job.confirmed).format('DDMMMYY hh:mma'));
-                    }
-                    if(job.reminder!==null){
-                        f.jobReminder.set('value',moment.unix(job.reminder).format('DDMMMYY hh:mma'));
-                    }
-                    Y.JA.matchSelect(f.jobWeather,job.weather);
-                    f.jobAddress.set('value',job.address);
-                    f.jobAddressDetail.set('innerHTML',
-                        addresses[job.address].streetRef+' '+
-                        addresses[job.address].streetName+', '+
-                        d.rs.location.data[addresses[job.address].location].full
-                    );
-                    //property tree
-                        h.tree.remove(0);
-                        tree=[];
-                        Y.each(d.rs.property.data,function(property){
-                            if(property.address===job.address && property.parent===null){
-                                tree.push(buildTree(property));
-                            }
-                        });
-                        h.tree.add(tree);
-                    //qa
-                        qa=Y.JSON.parse(job.detail);
-                        h.qaList.set('innerHTML','');
-                        //create statements and set values
-                        Y.each(qa.li,function(li,liIdx){
-                            var nn=Y.Node.create('<li>'+li+'</li>')
+                f.jobId.set('value',job.id);
+                f.jobRef.set('value',job.ref);
+                if(job.appointment!==null){
+                    f.jobAppointment.set('value',moment.unix(job.appointment).format('DDMMMYY hh:mma'));
+                };
+                if(job.confirmed!==null){
+                    f.jobConfirmed.set('value',moment.unix(job.confirmed).format('DDMMMYY hh:mma'));
+                }
+                if(job.reminder!==null){
+                    f.jobReminder.set('value',moment.unix(job.reminder).format('DDMMMYY hh:mma'));
+                }
+                Y.JA.matchSelect(f.jobWeather,job.weather);
+                f.jobAddress.set('value',job.address);
+                f.jobAddressDetail.set('innerHTML',
+                    addresses[job.address].streetRef+' '+
+                    addresses[job.address].streetName+', '+
+                    d.rs.location.data[addresses[job.address].location].full
+                );
+                //qa stats
+                    if(Y.Lang.isObject(jobDetail)){
+                        Y.each(jobDetail,function(property,idx){
+                            var propertyId=parseInt(idx,10)
                             ;
-                            h.qaList.append(nn);
-                            nn.all('input,textarea,select').each(function(tag,tagIdx){
-                                var nodeName=this.get('nodeName'),
-                                    nodeType=this.get('type'),
-                                    val=qa.tag[liIdx][tagIdx]
-                                ;
-                                if(nodeName==='INPUT'){
-                                    if(nodeType==='checkbox'){tag.set('checked',val);}
-                                    else {tag.set('value',val);}
-                                }else if(nodeName==='TEXTAREA'){
-                                    tag.set('innerHTML',val);
-                                }else if(nodeName==='SELECT'){
-                                    Y.JA.matchSelect(tag,val);
-                                }
+                            d.propertyQaCount[propertyId]=0;
+                            Y.each(property,function(statement){
+                                d.propertyQaCount[propertyId]++;
                             });
                         });
-                });
-                //sync display
-//                    h.qaSection.one('legend a').simulate('click');
+                    }
+                //property tree
+                    h.tree.remove(0);
+                    tree=[];
+                    Y.each(d.rs.property.data,function(property){
+                        if(property.address===job.address && property.parent===null){
+                            tree.push(buildTree(property));
+                        }
+                    });
+                    h.tree.add(tree);
+                    //populate tree node references
+                    h.propertySection.all('').each(function(){
+                        
+                    });
+                //statements
+                    h.qaList.set('innerHTML','');
+                //create statements and set values
+                    if(Y.Lang.isObject(jobDetail)){
+                        Y.each(jobDetail,function(property,idx){
+                            var propertyId=parseInt(idx,10)
+                            ;
+                            Y.each(property,function(statement){
+                                var li=render.qaStatement(propertyId)
+                                ;
+                                h.qaList.append(li);
+                                li.setStyle('display','none');
+                                Y.each(statement,function(snippet){
+                                    var html=render.qaSnippet(snippet.html)
+                                    ;
+                                    li.append(html);
+                                    html.all('input,textarea,select').each(function(tag,tagIdx){
+                                        var nodeName=this.get('nodeName'),
+                                            nodeType=this.get('type'),
+                                            val=snippet.values[tagIdx]
+                                        ;
+                                        if(nodeName==='INPUT'){
+                                            if(nodeType==='checkbox'){tag.set('checked',val);}
+                                            else {tag.set('value',val);}
+                                        }else if(nodeName==='TEXTAREA'){
+                                            tag.set('innerHTML',val);
+                                        }else if(nodeName==='SELECT'){
+                                            Y.JA.matchSelect(tag,val);
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    }
                 Y.JA.widget.busy.set('message','');
                 Y.fire(self.customEvent.save,'refresh');
             }
@@ -433,6 +470,32 @@ YUI.add('ja-pod-job',function(Y){
                     startCollapsed:false,
                     render:h.propertySection
                 });
+            },
+            qaStatement:function(propertyId){
+                var nn=Y.Node.create('<li></li>')
+                ;
+                
+                //>>>>>>>>>>>>>>FINISH <<<<<<<<<<<<<<<<<<<<
+                //if prop is a component automatically create the compoment qa in li
+                //requires prop to test for component type
+                //
+
+
+
+
+
+                
+                nn.setData('propertyId',propertyId);
+                return nn;
+            },
+            qaSnippet:function(html){
+                var nn=Y.Node.create(
+                    '<span class="ja-qa-snippet">'
+                   +  html
+                   +  Y.JA.html('btn',{action:'remove',title:'remove'})
+                   +'</span>'
+                );
+                return nn;
             }
         };
 
@@ -447,6 +510,51 @@ YUI.add('ja-pod-job',function(Y){
                 f.jobReminder     .set('value','');
                 f.jobWeather      .set('value','');
                 trigger.tree.nodeFocus(false);
+            },
+            qa:{
+                add:function(){
+                    var selectedIndex=this.get('selectedIndex'),
+                        property=trigger.tree.labelData(),
+                        value=this.get('value'),
+                        opts=this.get('options'),
+                        opt0=opts.item(0),
+                        opt1=opts.item(1),
+                        opt0Text=opt0.get('text'),
+                        newStatement=opt0Text===d.qa.new,
+                        nnStatement,
+                        nnSnippet
+                    ;
+                    if(selectedIndex===1){
+                        if(newStatement){
+                            opt0.set('text',d.qa.existing);
+                            opt1.set('text',d.qa.new);
+                        }else{
+                            opt0.set('text',d.qa.new);
+                            opt1.set('text',d.qa.existing);
+                        }
+                    }else{
+                        if(newStatement || d.qaCount===0){
+                            nnStatement=render.qaStatement(property.id);
+                            d.qaCount++;
+                            h.qaList.append(nnStatement);
+                            nnStatement.simulate('click');
+                        }
+                        nnSnippet=render.qaSnippet(JA.data.qa[value].code);
+                        h.qaListRec.append(nnSnippet);
+                    }
+                    this.set('selectedIndex',0);
+                },
+                remove:function(){
+                    var snippet =this.ancestor('span.ja-qa-snippet'),
+                        li      =this.ancestor('li')
+                    ;
+                    if(li.all('span.ja-qa-snippet').size()>1){
+                        snippet.remove();
+                    }else{
+                        li.remove();
+                        d.qaCount--;
+                    }
+                }
             },
             showHide:function(){
                 var section=this.ancestor('.ja-section'),
@@ -555,11 +663,12 @@ YUI.add('ja-pod-job',function(Y){
                     var property=trigger.tree.labelData(),
                         propBranch,
                         propOptions=[],
-                        path=h.tvNode.path()
+                        path=e.treenode.path()
                     ;
                     trigger.tree.nodeFocus(true);
                     h.propertyPath.set('innerHTML',path.join('/'));
                     h.qaTreeLabel.set('innerHTML',path[path.length-1]);
+                    d.qaCount=0;
                     //build property action options
                         propBranch=trigger.traverse(JA.propStructure,property.prop);
                         for(var i in propBranch){
@@ -570,15 +679,16 @@ YUI.add('ja-pod-job',function(Y){
                         '<option>set new detail</option>'+
                         (propOptions.length===0?'':'<optgroup label="create">'+propOptions.join('')+'</optgroup>')+
                         (h.tvNode.get('isLeaf')?'<optgroup label="remove"><option value="remove">proceed</option></optgroup>':'')
-                        
                     );
                     //display qa
-                    h.qaList.all('li').each(function(li){
-
-
-                        //>>>>>>>>>>>>>>FINISH
-                        
-                    });
+                        h.qaList.all('li').each(function(){
+                            if(this.getData('propertyId')===property.id){
+                                this.setStyle('display','');
+                                d.qaCount++;
+                            }else{
+                                this.setStyle('display','none');
+                            }
+                        });
                     console.log(
                         "\nYou clicked "+h.tvNode.get("label")+(h.tvNode.get("isLeaf")?" (leaf)":" (node)")+
                         "\nIndex is: "+h.tvNode.get('index')+
@@ -597,29 +707,6 @@ YUI.add('ja-pod-job',function(Y){
                         h.qaSelect.setStyle('display','none');
                         h.qaTreeLabel.setStyle('display','none');
                     }
-                }
-            },
-            qa:{
-                add:function(){
-                    var selectedIndex=this.get('selectedIndex'),
-                        optionText=this.get('options').item(selectedIndex).get('text'),
-                        value=this.get('value')
-                    ;
-                    if(selectedIndex===0){return;}
-
-                    //add
-                    h.qaList.append(
-                        '<li>'+
-                          '<input type="hidden" value="'+value+'"/>'+
-                          JA.data.qa[value].code+' '+
-                          Y.JA.html('btn',{action:'remove',title:'remove'})+
-                        '</li>'
-                    );
-                    this.set('selectedIndex',0);
-                },
-                remove:function(){
-                    //>>>>FINISH db
-                    this.ancestor('li').remove();
                 }
             },
             traverse:function(o,key){

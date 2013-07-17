@@ -67,7 +67,6 @@ YUI({<?php require 'modules.inc'; ?>}).use(
                 ['dbTable','name'],
                 ['prop','id'],
                 ['qa','id'],
-                ['qaLink','id'],
                 ['service','id'],
                 ['tagOption','id']
             ]

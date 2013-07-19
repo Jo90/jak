@@ -24,6 +24,22 @@ function dataSets($arr, $echo=false) {
         $stmt->close();
     }
     /**
+     *  propChild
+     */
+    if (in_array('propChild',$arr) && $stmt = $mysqli->prepare("select * from `propChild`")) {
+        $stmt->execute();
+        $rs->propChild = fetch_info($stmt);
+        $stmt->close();
+    }
+    /**
+     *  propType
+     */
+    if (in_array('propType',$arr) && $stmt = $mysqli->prepare("select * from `propType`")) {
+        $stmt->execute();
+        $rs->propType = fetch_info($stmt);
+        $stmt->close();
+    }
+    /**
      *  qa
      */
     if (in_array('qa',$arr) && $stmt = $mysqli->prepare("select * from `qa`")) {
@@ -32,19 +48,19 @@ function dataSets($arr, $echo=false) {
         $stmt->close();
     }
     /**
-     *  tagOption
-     */
-    if (in_array('tagOption',$arr) && $stmt = $mysqli->prepare("select * from `tagOption`")) {
-        $stmt->execute();
-        $rs->tagOption = fetch_info($stmt);
-        $stmt->close();
-    }
-    /**
      *  service
      */
     if (in_array('service',$arr) && $stmt = $mysqli->prepare("select * from `service` order by seq,name")) {
         $stmt->execute();
         $rs->service = fetch_info($stmt);
+        $stmt->close();
+    }
+    /**
+     *  tagOption
+     */
+    if (in_array('tagOption',$arr) && $stmt = $mysqli->prepare("select * from `tagOption`")) {
+        $stmt->execute();
+        $rs->tagOption = fetch_info($stmt);
         $stmt->close();
     }
     if ($echo) {

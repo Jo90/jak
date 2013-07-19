@@ -69,18 +69,21 @@ INSERT INTO `propChild` (`prop`, `child`) VALUES
 (5, 7);
 
 delete from `qa`;
-INSERT INTO `qa` (`id`, `seq`, `prop`, `name`, `codeType`, `code`) VALUES
-(1, 2, null, 'Defect Minor', 'H', 'Defect Minor <textarea placeholder="description"></textarea>'),
-(2, 1, null, 'Defect Major', 'H', 'Defect Major <textarea placeholder="description"></textarea>'),
-(3, 4, null, 'Cracking', 'H', 'Cracking <textarea placeholder="description"></textarea>'),
-(4, 4, null, 'Advisory', 'H', 'Advisory <textarea placeholder="description"></textarea>'),
-(5, 5, null, 'Safety', 'H', 'Safety\r\n<select>\r\n  <option>note</option>\r\n  <option>warning</option>\r\n  <option>critical</option>\r\n</select>\r\n<textarea placeholder="description"></textarea>'),
-(6, 6, null, 'Obstruction', 'H', 'Obstruction <textarea placeholder="description"></textarea>'),
-(7, 7, null, 'Inaccessible', 'H', 'Inaccessible <textarea placeholder="description"></textarea>'),
-(8, 3, null, 'Information', 'H', 'Information\r\n<select>\r\n  <option>General</option>\r\n  <option>Advisory</option>\r\n  <option>Future consideration</option>\r\n</select>'),
-(9, 99, null, 'Termites', 'H', 'Termite: <select class="ja-data-qa-termites">\r\n<option>Coptotermes</option>\r\n<option>Schedorhinotermes</option>\r\n<option>Nasutitermes</option>\r\n<option>Heterotermes</option>\r\n</select>&nbsp;\r\n<label><input type="checkbox"  class="ja-data-qa-termites-active" />Live/Active</label>\r\n<label><input type="checkbox"  class="ja-data-qa-termites-nest" />Nest found</label> <textarea placeholder="notes"></textarea>'),
-(10, 1, 24, 'Door', 'H', 'Door: <select><option>handle</option><option>out of square</option><option>missing\/removed</option><option>not coated</option><option>other</option></select><textarea></textarea>'),
-(11, 1, 25, 'Window', 'H', 'Window: <select><option>frame damage</option><option>cracked glass</option><option>other</option></select><textarea></textarea>')
+INSERT INTO `qa` (`id`, `seq`, `prop`, `name`, `rule`, `codeType`, `code`) VALUES
+(1, 2, null, 'Defect Minor', null, 'H', 'Defect Minor <textarea placeholder="description"></textarea>'),
+(2, 1, null, 'Defect Major', null, 'H', 'Defect Major <textarea placeholder="description"></textarea>'),
+(3, 4, null, 'Cracking', null, 'H', 'Cracking <textarea placeholder="description"></textarea>'),
+(4, 4, null, 'Advisory', null, 'H', 'Advisory <textarea placeholder="description"></textarea>'),
+(5, 5, null, 'Safety', null, 'H', 'Safety <select><option>note</option><option>warning</option><option>critical</option></select><textarea placeholder="description"></textarea>'),
+(6, 6, null, 'Obstruction', null, 'H', 'Obstruction <textarea placeholder="description"></textarea>'),
+(7, 7, null, 'Inaccessible', null, 'H', 'Inaccessible <textarea placeholder="description"></textarea>'),
+(8, 3, null, 'Information', null, 'H', 'Information<select><option>General</option><option>Advisory</option><option>Future consideration</option></select>'),
+(9, 99, null, 'Termites', null, 'H', 'Termite: <select class="ja-data-qa-termites"><option>Coptotermes</option><option>Schedorhinotermes</option><option>Nasutitermes</option><option>Heterotermes</option></select>&nbsp;<label><input type="checkbox"  class="ja-data-qa-termites-active" />Live/Active</label><label><input type="checkbox"  class="ja-data-qa-termites-nest" />Nest found</label> <textarea placeholder="notes"></textarea>'),
+(10, 1, 24, 'Door', null, 'H', '<select><option>handle</option><option>out of square</option><option>missing/removed</option><option>not coated</option><option>other</option></select><textarea></textarea>'),
+(11, 1, 25, 'Window', null, 'H', '<select><option>frame damage</option><option>cracked glass</option><option>other</option></select><textarea></textarea>'),
+(12, 1, 23, 'Floor', null, 'H', '<select><option>carpeted</option><option>wooden</option><option>linoleum</option><option>other</option></select><textarea></textarea>'),
+(13, 1, 23, 'Kitchen Floor', '37', 'H', 'Kitchen Floor <input type="text" placeholder="Kitchen Floor" />'),
+(14, 1, 21, 'Building Wall', '32', 'H', 'Building Wall <select><option>Interior</option><option>Exterior</option></select>')
 ;
 
 create or replace view `v_prop_types` as

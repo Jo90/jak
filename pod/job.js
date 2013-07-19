@@ -429,7 +429,7 @@ YUI.add('ja-pod-job',function(Y){
                     visible:cfg.visible,
                     xy     :cfg.xy,
                     zIndex :cfg.zIndex
-                }).plug(Y.Plugin.Resize).render();
+                }).render();
 
                 h.hd              =h.ol.headerNode;
                 h.bd              =h.ol.bodyNode;
@@ -468,23 +468,14 @@ YUI.add('ja-pod-job',function(Y){
 
                 h.tree=new Y.TreeView({
                     startCollapsed:false,
+                    toggleOnLabelClick:false,
                     render:h.propertySection
                 });
             },
             qaStatement:function(propertyId){
-                var nn=Y.Node.create('<li></li>')
+                var nn=Y.Node.create('<li></li>'),
+                    property=d.rs.property.data[propertyId]
                 ;
-                
-                //>>>>>>>>>>>>>>FINISH <<<<<<<<<<<<<<<<<<<<
-                //if prop is a component automatically create the compoment qa in li
-                //requires prop to test for component type
-                //
-
-
-
-
-
-                
                 nn.setData('propertyId',propertyId);
                 return nn;
             },
@@ -522,7 +513,10 @@ YUI.add('ja-pod-job',function(Y){
                         opt0Text=opt0.get('text'),
                         newStatement=opt0Text===d.qa.new,
                         nnStatement,
-                        nnSnippet
+                        nnSnippet,
+                        componentCode=false,
+                        ruleCode=false,
+                        tvPathPropArr=[]
                     ;
                     if(selectedIndex===1){
                         if(newStatement){
@@ -538,9 +532,27 @@ YUI.add('ja-pod-job',function(Y){
                             d.qaCount++;
                             h.qaList.append(nnStatement);
                             nnStatement.simulate('click');
+                            //if prop/component
+                                Y.each(JA.data.qa,function(qa){
+                                    if(qa.prop===property.prop){
+                                        if(qa.rule===null){
+                                            componentCode=render.qaSnippet(qa.code);
+                                        }else{
+                                            //rules
+                                            Y.each(h.tvNode.path(),function(label){
+                                                label=label.substring(label.indexOf(',')+1);
+                                                tvPathPropArr.push(parseInt(label.substr(0,label.indexOf('-')),10));
+                                            });
+                                            tvPathPropArr.pop(); //remove current prop
+                                            if(Y.Array.indexOf(tvPathPropArr,parseInt(qa.rule,10))!==-1){ruleCode=render.qaSnippet(qa.code);}
+                                        }
+                                    }
+                                });
                         }
                         nnSnippet=render.qaSnippet(JA.data.qa[value].code);
                         h.qaListRec.append(nnSnippet);
+                        if(componentCode!==false){h.qaListRec.append(componentCode);}
+                        if(ruleCode     !==false){h.qaListRec.append(ruleCode);}
                     }
                     this.set('selectedIndex',0);
                 },
@@ -598,7 +610,7 @@ YUI.add('ja-pod-job',function(Y){
                 action:function(e){
                     var selectedIndex=this.get('selectedIndex'),
                         value=this.get('value'),
-                        property,
+                        property=trigger.tree.labelData(),
                         propId,
                         newDetail=''
                     ;
@@ -611,7 +623,6 @@ YUI.add('ja-pod-job',function(Y){
                         );
                         return;
                     }
-                    property=trigger.tree.labelData();
                     if(selectedIndex===1){
                         if(newDetail=prompt('enter new property part detail')){
                             io.save.property(
@@ -666,8 +677,8 @@ YUI.add('ja-pod-job',function(Y){
                         path=e.treenode.path()
                     ;
                     trigger.tree.nodeFocus(true);
-                    h.propertyPath.set('innerHTML',path.join('/'));
-                    h.qaTreeLabel.set('innerHTML',path[path.length-1]);
+                    h.propertyPath.set('innerHTML',path.join('/').replace(/(<span style.*?<\/span>)/g,''));
+                    h.qaTreeLabel.set('innerHTML',path[path.length-1].replace(/(<span style.*?<\/span>)/g,''));
                     d.qaCount=0;
                     //build property action options
                         propBranch=trigger.traverse(JA.propStructure,property.prop);

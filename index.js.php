@@ -66,6 +66,8 @@ YUI({<?php require 'modules.inc'; ?>}).use(
             [
                 ['dbTable','name'],
                 ['prop','id'],
+                ['propChild','id'],
+                ['propType','id'],
                 ['qa','id'],
                 ['service','id'],
                 ['tagOption','id']
@@ -73,6 +75,16 @@ YUI({<?php require 'modules.inc'; ?>}).use(
            ,function(){
                 var d={},h={tv:{},tp:{}},my={}
                 ;
+
+                //extend prop with propChild and propType to ease lookup
+                Y.each(JA.data.propChild,function(propChild){
+                    if(typeof JA.data.prop[propChild.prop].child){JA.data.prop[propChild.prop].child=[];}
+                    JA.data.prop[propChild.prop].child.push(propChild.child);
+                });
+                Y.each(JA.data.propType,function(propType){
+                    if(typeof JA.data.prop[propType.type].child){JA.data.prop[propType.prop].type=[];}
+                    JA.data.prop[propType.prop].type.push(propType.type);
+                });
 
                 Y.JA.pod.userLogon({
                     node:Y.one('.ja-userLogon'),

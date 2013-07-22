@@ -506,7 +506,7 @@ YUI.add('ja-pod-job',function(Y){
                 add:function(){
                     var selectedIndex=this.get('selectedIndex'),
                         property=trigger.tree.labelData(),
-                        value=this.get('value'),
+                        value=parseInt(this.get('value'),10),
                         opts=this.get('options'),
                         opt0=opts.item(0),
                         opt1=opts.item(1),
@@ -514,8 +514,7 @@ YUI.add('ja-pod-job',function(Y){
                         newStatement=opt0Text===d.qa.new,
                         nnStatement,
                         nnSnippet,
-                        componentCode=false,
-                        ruleCode=false,
+                        ruleType,
                         tvPathPropArr=[]
                     ;
                     if(selectedIndex===1){
@@ -530,29 +529,51 @@ YUI.add('ja-pod-job',function(Y){
                         if(newStatement || d.qaCount===0){
                             nnStatement=render.qaStatement(property.id);
                             d.qaCount++;
-                            h.qaList.append(nnStatement);
-                            nnStatement.simulate('click');
-                            //if prop/component
+                            //create statement and top level qa snippet
+                                h.qaList.append(nnStatement);
+                                nnStatement.simulate('click');
+                                nnSnippet=render.qaSnippet(JA.data.qa[value].code);
+                                h.qaListRec.append(nnSnippet);
+                            //prop hierarchy parent to root
+                                Y.each(h.tvNode.path(),function(label){
+                                    label=label.substring(label.indexOf(',')+1);
+                                    tvPathPropArr.push(parseInt(label.substr(0,label.indexOf('-')),10));
+                                });
+                                tvPathPropArr.pop();
+                            //additional rules
                                 Y.each(JA.data.qa,function(qa){
+                                    var rules={P:[],Q:[]},
+                                        componentCode=false,
+                                        ruleCode=false,
+                                        ok=true
+                                    ;
                                     if(qa.prop===property.prop){
                                         if(qa.rule===null){
                                             componentCode=render.qaSnippet(qa.code);
                                         }else{
                                             //rules
-                                            Y.each(h.tvNode.path(),function(label){
-                                                label=label.substring(label.indexOf(',')+1);
-                                                tvPathPropArr.push(parseInt(label.substr(0,label.indexOf('-')),10));
+                                            Y.each(qa.rule.split(','),function(rule){
+                                                rules[rule.substr(0,1)].push(parseInt(rule.substr(1),10));
                                             });
-                                            tvPathPropArr.pop(); //remove current prop
-                                            if(Y.Array.indexOf(tvPathPropArr,parseInt(qa.rule,10))!==-1){ruleCode=render.qaSnippet(qa.code);}
+                                            //prop ancestor
+                                                if(rules['P'].length>0){
+                                                    Y.each(rules['P'],function(propId){
+                                                        if(Y.Array.indexOf(tvPathPropArr,propId)===-1){ok=false;}
+                                                    });
+                                                }
+                                            //qa ancestor
+                                                if(rules['Q'].length>0 && ok){
+                                                    Y.each(rules['Q'],function(qaId){
+                                                        if(qaId!==value){ok=false;}
+                                                    });
+                                                }
+                                            if(ok){ruleCode=render.qaSnippet(qa.code);}
                                         }
                                     }
+                                    if(componentCode!==false){h.qaListRec.append(componentCode);}
+                                    if(ruleCode     !==false){h.qaListRec.append(ruleCode);}
                                 });
                         }
-                        nnSnippet=render.qaSnippet(JA.data.qa[value].code);
-                        h.qaListRec.append(nnSnippet);
-                        if(componentCode!==false){h.qaListRec.append(componentCode);}
-                        if(ruleCode     !==false){h.qaListRec.append(ruleCode);}
                     }
                     this.set('selectedIndex',0);
                 },

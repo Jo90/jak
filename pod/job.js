@@ -143,23 +143,21 @@ YUI.add('ja-pod-job',function(Y){
                     //html/values
                         h.qaList.all('li').each(function(li){
                             var statements=[],
-                                propertyId=li.getData('propertyId')
+                                propertyId=parseInt(li.getAttribute('data-qa-propertyId'),10)
                             ;
                             //get html and strip yui ids
                             li.all('span.ja-qa-snippet').each(function(snippetNode){
                                 var snippet={
-                                        html  :snippetNode.get('innerHTML').replace(/( id="yui[^"]*")/g,'').replace(/(<a class="ja-btn ja-remove[\s\S]*?a>)/g,''),
+                                        qa    :parseInt(snippetNode.getAttribute('data-qa-id'),10),
                                         values:[]
                                     }
                                 ;
-                                snippetNode.all('input,textarea,select').each(function(){
-                                    var nodeType=this.get('type')
-                                    ;
-                                    if(nodeType==='checkbox'){
+                                snippetNode.all('input,textarea,select').each(function(n){
+                                    if(n.get('type')==='checkbox'){
                                         //>>>>>>>>>>FINISH need to save value and if checked
-                                        snippet.values.push([this.get('value'),this.get('checked')]);
+                                        snippet.values.push([n.getAttribute('data-ref'),[n.get('value'),n.get('checked')]]);
                                     }else{
-                                        snippet.values.push(this.get('value'));
+                                        snippet.values.push([n.getAttribute('data-ref'),n.get('value')]);
                                     }
                                 });
                                 statements.push(snippet);
@@ -329,10 +327,6 @@ YUI.add('ja-pod-job',function(Y){
                         }
                     });
                     h.tree.add(tree);
-                    //populate tree node references
-                    h.propertySection.all('').each(function(){
-                        
-                    });
                 //statements
                     h.qaList.set('innerHTML','');
                 //create statements and set values
@@ -346,16 +340,16 @@ YUI.add('ja-pod-job',function(Y){
                                 h.qaList.append(li);
                                 li.setStyle('display','none');
                                 Y.each(statement,function(snippet){
-                                    var html=render.qaSnippet(snippet.html)
+                                    var html=render.qaSnippet(JA.data.qa[snippet.qa].code,snippet.qa)
                                     ;
                                     li.append(html);
                                     html.all('input,textarea,select').each(function(tag,tagIdx){
                                         var nodeName=this.get('nodeName'),
                                             nodeType=this.get('type'),
-                                            val=snippet.values[tagIdx]
+                                            val=snippet.values[tagIdx][1]
                                         ;
                                         if(nodeName==='INPUT'){
-                                            if(nodeType==='checkbox'){tag.set('checked',val);}
+                                            if(nodeType==='checkbox'){tag.set('checked',val[1]);}
                                             else {tag.set('value',val);}
                                         }else if(nodeName==='TEXTAREA'){
                                             tag.set('innerHTML',val);
@@ -473,15 +467,11 @@ YUI.add('ja-pod-job',function(Y){
                 });
             },
             qaStatement:function(propertyId){
-                var nn=Y.Node.create('<li></li>'),
-                    property=d.rs.property.data[propertyId]
-                ;
-                nn.setData('propertyId',propertyId);
-                return nn;
+                return Y.Node.create('<li data-qa-propertyId="'+propertyId+'"></li>');
             },
-            qaSnippet:function(html){
+            qaSnippet:function(html,qa){
                 var nn=Y.Node.create(
-                    '<span class="ja-qa-snippet">'
+                    '<span class="ja-qa-snippet" data-qa-id="'+qa+'">'
                    +  html
                    +  Y.JA.html('btn',{action:'remove',title:'remove'})
                    +'</span>'
@@ -532,7 +522,7 @@ YUI.add('ja-pod-job',function(Y){
                             //create statement and top level qa snippet
                                 h.qaList.append(nnStatement);
                                 nnStatement.simulate('click');
-                                nnSnippet=render.qaSnippet(JA.data.qa[value].code);
+                                nnSnippet=render.qaSnippet(JA.data.qa[value].code,value);
                                 h.qaListRec.append(nnSnippet);
                             //prop hierarchy parent to root
                                 Y.each(h.tvNode.path(),function(label){
@@ -549,7 +539,7 @@ YUI.add('ja-pod-job',function(Y){
                                     ;
                                     if(qa.prop===property.prop){
                                         if(qa.rule===null){
-                                            componentCode=render.qaSnippet(qa.code);
+                                            componentCode=render.qaSnippet(qa.code,qa.id);
                                         }else{
                                             //rules
                                             Y.each(qa.rule.split(','),function(rule){
@@ -567,12 +557,16 @@ YUI.add('ja-pod-job',function(Y){
                                                         if(qaId!==value){ok=false;}
                                                     });
                                                 }
-                                            if(ok){ruleCode=render.qaSnippet(qa.code);}
+                                            if(ok){ruleCode=render.qaSnippet(qa.code,qa.id);}
                                         }
                                     }
                                     if(componentCode!==false){h.qaListRec.append(componentCode);}
                                     if(ruleCode     !==false){h.qaListRec.append(ruleCode);}
                                 });
+                        }else{
+                            //add to existing statement
+                                nnSnippet=render.qaSnippet(JA.data.qa[value].code,value);
+                                h.qaListRec.append(nnSnippet);
                         }
                     }
                     this.set('selectedIndex',0);
@@ -673,6 +667,8 @@ YUI.add('ja-pod-job',function(Y){
                             function(id,o){
                                 var rs=Y.JSON.parse(o.responseText)[0].property.record[0].data
                                 ;
+                                //treeNode widget gives error on get('contentBox') DOM node
+                                //added data as comment
                                 h.tvNode.add({
                                     label:'<!--'+rs.id+','+propId+'-->'+JA.data.prop[propId].name
                                 });
@@ -713,12 +709,12 @@ YUI.add('ja-pod-job',function(Y){
                         (h.tvNode.get('isLeaf')?'<optgroup label="remove"><option value="remove">proceed</option></optgroup>':'')
                     );
                     //display qa
-                        h.qaList.all('li').each(function(){
-                            if(this.getData('propertyId')===property.id){
-                                this.setStyle('display','');
+                        h.qaList.all('li').each(function(li){
+                            if(parseInt(li.getAttribute('data-qa-propertyId'),10)===property.id){
+                                li.setStyle('display','');
                                 d.qaCount++;
                             }else{
-                                this.setStyle('display','none');
+                                li.setStyle('display','none');
                             }
                         });
                     console.log(

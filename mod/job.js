@@ -88,7 +88,6 @@ YUI.add('ja-mod-job',function(Y){
                     });
                 },
                 templates:function(){
-                    
                     Y.io('/template/PPI.html',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
@@ -172,7 +171,7 @@ YUI.add('ja-mod-job',function(Y){
                 ;
                 d.rs=Y.JSON.parse(o.responseText)[0].result;
                 h.dt.set('data',null);
-                //reverse
+                //reverse sort
                     Y.each(d.rs.job.data,function(job){jobs.push(job);});
                     jobs.sort(function(a,b){return b.id-a.id;});
                 Y.each(jobs,function(job){
@@ -243,8 +242,10 @@ YUI.add('ja-mod-job',function(Y){
                    +  Y.JA.html('btn',{action:'find',title:'search for specific job',classes:'ja-search ja-search-job'})
                    +  '&nbsp; row limit<input type="text" class="ja-data-row-limit"  title="maximum number of records to fetch"  placeholder="rows" value="20" />'
                    +'</fieldset>'
+                   +'<div style="display:none"></div>'
                 );
                 h.bd          =cfg.node.one('fieldset');
+                h.temp        =cfg.node.one('>div'    );
                 f.state       =h.bd.one('.ja-data-state'       );
                 f.streetRef   =h.bd.one('.ja-data-streetRef'   );
                 f.streetName  =h.bd.one('.ja-data-streetName'  );
@@ -377,8 +378,8 @@ YUI.add('ja-mod-job',function(Y){
                 var rec=this.ancestor('tr'),
                     jobId=parseInt(rec.one('.yui3-datatable-col-job input').get('value'),10),
                     job=d.rs.job.data[jobId],
-                    address,
-                    addressMessage='address not entered',
+                    jobDetail=(job.detail!=='' && job.detail!==null?Y.JSON.parse(job.detail):false),
+                    address=d.rs.address.data[job.address],
                     statement=[],
                     statementRef={},
                     indices=[],
@@ -386,79 +387,75 @@ YUI.add('ja-mod-job',function(Y){
                     html='',
                     width=800
                 ;
-                if(job.address!==null){
-                    address=d.rs.address.data[job.address];
-                    addressMessage=address.streetRef+' '+address.streetName+' '+d.rs.location.data[address.location].name;
-                }
+                d.propertyQaCount={};
+                address.full=address.streetRef+' '+address.streetName+' '+d.rs.location.data[address.location].name;
                 //answers
-                    Y.each(d.rs.answer.data,function(answer){
-                        if(answer.job!==jobId || answer.detail===null || answer.detail===''){return;}
-                        var tagAnswers,
-                            tagAnswer,
-                            tagType,
-                            codeSnippet,
-                            posX,
-                            q=JA.data.question[answer.question],
-                            code=q.code
-                        ;
-                        tagAnswers=answer.detail.split(';');
-                        //replace tags in reverse order
-                        Y.each(Y.JA.mergeIndicesOf(['<button','<input','<select','<textarea'],code).sort(function(a,b){return b[0]-a[0];}),function(tag){
-                            tagAnswer=tagAnswers.pop();
-                            //replace tag with value
-                                if(tag[1]==='select'){
-                                    //>>>>>>>>FINISH if array then multi select otherwise normal
-
-                                    //>>>>>>>>>>>>FINISH what happens if there are several select tags?  Need to search for last????? lastIndexOf
-                                    
-                                    code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('</'+tag[1])+tag[1].length+3);
-
-
-                                }else if(tag[1]==='textarea'||tag[1]==='button'){
-
-                                    code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('</'+tag[1])+tag[1].length+3);
-
-                                }else if(tag[1]==='input'){
-                                    //find type
-                                    tagType=code.substring(code.indexOf('type=',tag[0])+6);
-                                    tagType=tagType.substring(0,tagType.indexOf('"'));
-                                    if(tagType.toLowerCase()==='checkbox'){
-                                        codeSnippet=code.substring(0,tag[0]);
-                                        posX=codeSnippet.lastIndexOf('<label');
-
-
-                                        
-                                        //>>>>>>>>>>>>>>FINISH
-
-
-                                        
-                                        codeSnippet=codeSnippet.substring(0,posX);
 
 
 
 
-                                        
-                                    }else{
-                                        code=code.substring(0,tag[0])+tagAnswer+code.substring(code.indexOf('/>')+2);
-                                    }
-                                }
-                        });
-                        statementRef[q.ref]=code;
-                        statement.push(JA.data.question[answer.question].name+': '+code);
-                    });
+                
                 if(this.hasClass('ja-rep-summary')){
-                    html='<h2>Job#'+jobId+' '+addressMessage+'</h2>'
+                    html='<h2>Job#'+jobId+' '+address.full+'</h2>'
                         +'<ul>'
-                        +  '<li>'+statement.join('</li><li>')+'</li>'
+                        +  '<li>to be completed</li>'
+                        +  '<li>Statistics</li>'
+                        +  '<li>Count of each of the top level statements</li>'
+                        +  '<li>Property part statistics, perhaps a data grid?</li>'
                         +'</ul>';
                 }else
                 if(this.hasClass('ja-rep-detail')){
-                    html='<h1>details</h1>';
+                    html='<h1>Details - Job#'+jobId+' '+address.full+'</h1>';
+                    if(jobDetail===false){
+                        html+='<em>no information entered as yet</em>';
+                    }else{
+                        //html+=Y.JSON.stringify(x);
+                        //property tree format with details
+
+                        //>>>>>>FINISH quick and dirty tree, need to generate ul/li structure
+                        //>>>>>>FINISH by modifying buildtree
+                        html+='<h3>Property/Site definition</h3>';
+                        d.tree=[];
+                        Y.each(d.rs.property.data,function(property){
+                            if(property.address===job.address && property.parent===null){
+                                d.tree.push(Y.JA.lib.job.buildTree(property,d));
+                            }
+                        });
+                        h.temp.set('innerHTML','');
+                        h.tree=new Y.TreeView({
+                            startCollapsed:false,
+                            toggleOnLabelClick:false,
+                            render:h.temp
+                        });
+                        h.tree.add(d.tree);
+                        html+=h.tree.get('boundingBox')
+                            .get('innerHTML')
+                            .replace(/( id="yui[^"]*")/g,'')
+                            .replace(/<a\b[^>]*>/gi,'')
+                            .replace(/<\/a>/gi,'')
+                        ;
+                        html+='<h3>Values</h3>';
+                        var values=JSONSelect.match('.values',jobDetail)
+                        ;
+                        Y.each(values,function(statement){
+                            Y.each(statement,function(snippet){
+                                if(snippet[0]!==''){
+                                    if(Y.Lang.isArray(snippet[1])){
+                                        if(snippet[1][1]){
+                                            html+=snippet[0]+' is '+snippet[1][0]+'<br/>';
+                                        }
+                                    }else{
+                                        html+=snippet[0]+' is '+snippet[1]+'<br/>';
+                                    }
+                                }
+                            });
+                        });
+
+
+                    }
                 }else
                 if(this.hasClass('ja-rep-1')){
                     //substitute final values
-
-                    //switch (statement) .... reformat the values for output ...
 
                     html=h.template.bindPPI(statementRef);
                     width=1000;

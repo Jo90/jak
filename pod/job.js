@@ -34,7 +34,6 @@ YUI.add('ja-pod-job',function(Y){
             initialise,
             io={},
             listeners,
-            pod={},
             populate={},
             render={},
             trigger={}
@@ -89,8 +88,7 @@ YUI.add('ja-pod-job',function(Y){
                    +'<optgroup label="top level issues">'
                    +  qaTopStatements
                    +'</optgroup>'
-                );
-                h.qaSelect.set('selectedIndex',0);
+                ).set('selectedIndex',0);
         };
 
         io={
@@ -102,9 +100,7 @@ YUI.add('ja-pod-job',function(Y){
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
-                            job:{
-                                criteria:{jobIds:[cfg.job]}
-                            },
+                            job:{criteria:{jobIds:[cfg.job]}},
                             usr:JA.user.usr
                         }])
                     });
@@ -117,17 +113,11 @@ YUI.add('ja-pod-job',function(Y){
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var rs=Y.JSON.parse(o.responseText)[0].job.record[0]
-                            ;
-                            cfg.job=rs.data.id;
+                            cfg.job=Y.JSON.parse(o.responseText)[0].job.record[0].data.id;
                             io.fetch.job();
                         }},
                         data:Y.JSON.stringify([{
-                            job:{record:[{
-                                data:{
-                                    appointment:cfg.appointment
-                                }
-                            }]},
+                            job:{record:[{data:{appointment:cfg.appointment}}]},
                             usr:JA.user.usr
                         }])
                     });
@@ -138,7 +128,9 @@ YUI.add('ja-pod-job',function(Y){
                     var fAppointment=f.jobAppointment.get('value'),
                         fConfirmed  =f.jobConfirmed.get('value'),
                         fReminder   =f.jobReminder.get('value'),
-                        qa={}
+                        qa={
+                            tree:d.tree
+                        }
                     ;
                     //html/values
                         h.qaList.all('li').each(function(li){
@@ -215,77 +207,21 @@ YUI.add('ja-pod-job',function(Y){
                 h.tree.get('contentBox').delegate('click',function(){h.tvLabel=this;},'.yui3-treenode-label-content');
                 h.propertyAction.on('click',trigger.tree.action);
             //all
-                h.bd.delegate('click',pod.display.info,'.ja-info');
-                h.hd.delegate('click',trigger.showHide,'.ja-eye');
-                h.bd.delegate('click',trigger.showHide,'.ja-eye');
+                h.ol.get('contentBox').delegate('click',trigger.showHide,'.ja-eye');
             //qa
                 h.qaSelect.on('change',trigger.qa.add);
                 h.qaList.delegate('click',trigger.qa.remove,'.ja-remove');
                 h.qaList.delegate('click',function(){h.qaListRec=this;},'>li');
             //save
                 h.save.on('click',io.save.job);
-            //custom
-                Y.on(JA.my.podInfo.customEvent.save,pod.result.info);
-        };
-
-        pod={
-            display:{
-                info:function(){
-                    var config={
-                            visible:true
-                        },
-                        section=this.ancestor('.ja-section')
-                    ;
-                    h.podInvoke=this;
-                    if(section.hasClass('ja-section-statement')){
-                        config.title     ='Answers';
-                        config.categories=['General','Feedback','Clarify','Warning'];
-                        config.dbTable   =JA.data.dbTable['answer'].id;
-                    }
-                    config.pk=parseInt(this.ancestor('li').one('.ja-data-id').get('value'),10);
-                    JA.my.podInfo.display(config);
-                }
-            },
-            load:{
-            },
-            result:{
-                info:function(rs){
-                    var cnt=rs.info.record.length,
-                        li=h.podInvoke.ancestor('li'),
-                        section=li.ancestor('.ja-section')
-                    ;
-                    //update note count
-                        h.podInvoke.one('span').set('innerHTML',cnt===0?'':cnt);
-                    //update count reference
-                }
-            }
         };
 
         populate={
             job:function(id,o){
                 d.rs=Y.JSON.parse(o.responseText)[0].result;
                 var addresses=d.rs.address.data,
-                    tree=[],
                     job=Y.JA.firstRecord(d.rs.job.data), //only 1 job anyway
-                    jobDetail=(job.detail!=='' && job.detail!==null?Y.JSON.parse(job.detail):false),
-                    buildTree=function(parent){
-                        var branch={
-                                label:'<!--'+parent.id+','+parent.prop+'-->'
-                                    +JA.data.prop[parent.prop].name
-                                    +(parent.detail!==null?' '+parent.detail:'')
-                                    +'&nbsp; <span style="font-size:0.7em">'
-                                    +  (typeof d.propertyQaCount[parent.id]!=='undefined' && d.propertyQaCount[parent.id]>0?d.propertyQaCount[parent.id]:'')
-                                    +'</span>'
-                            }
-                        ;
-                        Y.each(d.rs.property.data,function(p){
-                            if(p.parent===parent.id){
-                                if(!branch.children){branch.children=[];}
-                                branch.children.push(buildTree(p));
-                            }
-                        });
-                        return branch;
-                    }
+                    jobDetail=(job.detail!=='' && job.detail!==null?Y.JSON.parse(job.detail):false)
                 ;
                 d.propertyQaCount={};
                 trigger.reset();
@@ -320,18 +256,20 @@ YUI.add('ja-pod-job',function(Y){
                     }
                 //property tree
                     h.tree.remove(0);
-                    tree=[];
+                    d.tree=[];
                     Y.each(d.rs.property.data,function(property){
                         if(property.address===job.address && property.parent===null){
-                            tree.push(buildTree(property));
+                            d.tree.push(Y.JA.lib.job.buildTree(property,d));
                         }
                     });
-                    h.tree.add(tree);
+                    h.tree.add(d.tree);
                 //statements
                     h.qaList.set('innerHTML','');
                 //create statements and set values
                     if(Y.Lang.isObject(jobDetail)){
                         Y.each(jobDetail,function(property,idx){
+                            //filter tree definition
+                                if(idx==='tree'){return;}
                             var propertyId=parseInt(idx,10)
                             ;
                             Y.each(property,function(statement){
@@ -412,7 +350,7 @@ YUI.add('ja-pod-job',function(Y){
                         //question/answers
                             +  '<fieldset class="ja-section ja-section-qa">'
                             +    '<legend>'
-                            +      Y.JA.html('btn',{action:'eye',label:'statement&nbsp;',title:'change view',classes:'ja-eye-open'})
+                            +      'Statements'
                             +      '<select></select>'
                             +      '<span></span>'
                             +    '</legend>'
@@ -495,7 +433,7 @@ YUI.add('ja-pod-job',function(Y){
             qa:{
                 add:function(){
                     var selectedIndex=this.get('selectedIndex'),
-                        property=trigger.tree.labelData(),
+                        property=Y.JSON.parse(h.tvNode.get('nodeId')),
                         value=parseInt(this.get('value'),10),
                         opts=this.get('options'),
                         opt0=opts.item(0),
@@ -605,27 +543,13 @@ YUI.add('ja-pod-job',function(Y){
                             h.detailsSection.setStyle('display','');
                         }
                     }
-                }else if(section.hasClass('ja-section-statement')){
-                    if(this.hasClass('ja-eye-open')){
-                        this.replaceClass('ja-eye-open','ja-eye-squint');
-                        sectionList.all('.ja-actions').setStyle('display','none');
-                        section.setStyle('width','30em');
-                    }else if(this.hasClass('ja-eye-squint')){
-                        this.replaceClass('ja-eye-squint','ja-eye-closed');
-                        sectionList.all('.ja-info').setStyle('display','none');
-                        section.setStyle('width','26em');
-                    }else{
-                        this.replaceClass('ja-eye-closed','ja-eye-open');
-                        section.setStyle('width','35em');
-                        sectionList.all('.ja-actions,.ja-info').setStyle('display','');
-                    }
                 }
             },
             tree:{
                 action:function(e){
                     var selectedIndex=this.get('selectedIndex'),
                         value=this.get('value'),
-                        property=trigger.tree.labelData(),
+                        property=Y.JSON.parse(h.tvNode.get('nodeId')),
                         propId,
                         newDetail=''
                     ;
@@ -633,23 +557,22 @@ YUI.add('ja-pod-job',function(Y){
                     if(value==='remove'){
                         trigger.tree.nodeFocus(false);
                         io.save.property(
-                            {remove:[trigger.tree.labelData().id]},
-                            function(){h.tvNode.remove();}
+                            {remove:[Y.JSON.parse(h.tvNode.get('nodeId')).id]},
+                            function(){
+                                h.tvNode.remove();
+                            }
                         );
                         return;
-                    }
+                    }else
                     if(selectedIndex===1){
                         if(newDetail=prompt('enter new property part detail')){
+                            property.detail=newDetail;
                             io.save.property(
-                                {record:[{
-                                    data:{
-                                        id    :property.id,
-                                        detail:newDetail
-                                    }
-                                }]},
+                                {record:[{data:property}]},
                                 function(){
-                                    h.tvNode.set('label','<!--'+property.id+','+property.prop+'-->'+JA.data.prop[property.prop].name+' '+newDetail);
-                                    h.tvLabel.set('innerHTML','<!--'+property.id+','+property.prop+'-->'+JA.data.prop[property.prop].name+' '+newDetail);
+                                    h.tvNode.set('label',JA.data.prop[property.prop].name+' '+newDetail);
+                                    h.tvNode.set('nodeId',Y.JSON.stringify(property));
+                                    h.tvLabel.set('innerHTML',JA.data.prop[property.prop].name+' '+newDetail);
                                     h.propertyPath.set('innerHTML',h.tvNode.path().join('/'));
                                 }
                             );
@@ -660,35 +583,23 @@ YUI.add('ja-pod-job',function(Y){
                             {record:[{
                                 data:{
                                     address:parseInt(f.jobAddress.get('value'),10),
-                                    parent :trigger.tree.labelData().id,
+                                    parent :Y.JSON.parse(h.tvNode.get('nodeId')).id,
                                     prop   :propId
                                 }
                             }]},
                             function(id,o){
-                                var rs=Y.JSON.parse(o.responseText)[0].property.record[0].data
-                                ;
-                                //treeNode widget gives error on get('contentBox') DOM node
-                                //added data as comment
                                 h.tvNode.add({
-                                    label:'<!--'+rs.id+','+propId+'-->'+JA.data.prop[propId].name
+                                    label :JA.data.prop[propId].name,
+                                    nodeId:Y.JSON.stringify(Y.JSON.parse(o.responseText)[0].property.record[0].data)
                                 });
                             }
                         );
                     }
                     this.set('selectedIndex',0);
                 },
-                labelData:function(){
-                    var label=h.tvNode.get('label'),
-                        data=label.substring(4,label.indexOf('-->')).split(',')
-                    ;
-                    return {
-                        id  :parseInt(data[0],10),
-                        prop:parseInt(data[1],10)
-                    };
-                },
                 nodeClick:function(e){
                     h.tvNode=e.treenode;
-                    var property=trigger.tree.labelData(),
+                    var property=Y.JSON.parse(h.tvNode.get('nodeId')),
                         propBranch,
                         propOptions=[],
                         path=e.treenode.path()
@@ -698,7 +609,7 @@ YUI.add('ja-pod-job',function(Y){
                     h.qaTreeLabel.set('innerHTML',path[path.length-1].replace(/(<span style.*?<\/span>)/g,''));
                     d.qaCount=0;
                     //build property action options
-                        propBranch=trigger.traverse(JA.propStructure,property.prop);
+                        propBranch=Y.JA.lib.job.traverse(JA.propStructure,property.prop);
                         for(var i in propBranch){
                             propOptions.push('<option value="'+i+'">'+JA.data.prop[i].name+'</option>');
                         };
@@ -717,11 +628,6 @@ YUI.add('ja-pod-job',function(Y){
                                 li.setStyle('display','none');
                             }
                         });
-                    console.log(
-                        "\nYou clicked "+h.tvNode.get("label")+(h.tvNode.get("isLeaf")?" (leaf)":" (node)")+
-                        "\nIndex is: "+h.tvNode.get('index')+
-                        "\nState is: "+(h.tvNode.get("collapsed") ? "collapsed" : "expanded")
-                    );
                 },
                 nodeFocus:function(state){
                     if(state){
@@ -736,18 +642,6 @@ YUI.add('ja-pod-job',function(Y){
                         h.qaTreeLabel.setStyle('display','none');
                     }
                 }
-            },
-            traverse:function(o,key){
-                var obj
-                ;
-                for(var i in o){
-                    if(parseInt(i,10)===key){return o[i];}
-                    if(typeof(o[i])=='object'){
-                        obj=trigger.traverse(o[i],key);
-                        if(obj!==false){return obj;}
-                    }
-                }
-                return false;
             }
         };
         /**

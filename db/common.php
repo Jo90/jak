@@ -114,7 +114,7 @@ class db {
         if (!isset($i->remove) || !is_array($i->remove) || !count($i->remove) > 0) {$i->removeMessage = 'nothing to remove'; return false;}
 
         if (is_numeric($i->remove)) {$cnd = 'where id = ' . $i->remove;}
-        else if (is_array($i->remove))   {$cnd = 'where id in ("' . implode('","', array_map('mysql_real_escape_string', $i->remove)) . '")';}
+        else if (is_array($i->remove))   {$cnd = 'where id in ("' . implode('","', array_map(array($mysqli, 'real_escape_string'), $i->remove)) . '")';}
         else {$cnd = 'where id = "' . $mysqli->real_escape_string($i->remove) . '"';}
 
         if ($stmt = $mysqli->prepare(

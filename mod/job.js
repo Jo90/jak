@@ -242,10 +242,8 @@ YUI.add('ja-mod-job',function(Y){
                    +  Y.JA.html('btn',{action:'find',title:'search for specific job',classes:'ja-search ja-search-job'})
                    +  '&nbsp; row limit<input type="text" class="ja-data-row-limit"  title="maximum number of records to fetch"  placeholder="rows" value="20" />'
                    +'</fieldset>'
-                   +'<div style="display:none"></div>'
                 );
                 h.bd          =cfg.node.one('fieldset');
-                h.temp        =cfg.node.one('>div'    );
                 f.state       =h.bd.one('.ja-data-state'       );
                 f.streetRef   =h.bd.one('.ja-data-streetRef'   );
                 f.streetName  =h.bd.one('.ja-data-streetName'  );
@@ -382,19 +380,17 @@ YUI.add('ja-mod-job',function(Y){
                     address=d.rs.address.data[job.address],
                     statement=[],
                     statementRef={},
-                    indices=[],
-                    micro=new Y.Template(),
+                    propertyData=d.rs.property.data,
+                    propertyTree=[],
+//                    micro=new Y.Template(),
                     html='',
-                    width=800
+                    width=800,
+                    qaRef={}
                 ;
                 d.propertyQaCount={};
                 address.full=address.streetRef+' '+address.streetName+' '+d.rs.location.data[address.location].name;
                 //answers
 
-
-
-
-                
                 if(this.hasClass('ja-rep-summary')){
                     html='<h2>Job#'+jobId+' '+address.full+'</h2>'
                         +'<ul>'
@@ -409,49 +405,37 @@ YUI.add('ja-mod-job',function(Y){
                     if(jobDetail===false){
                         html+='<em>no information entered as yet</em>';
                     }else{
-                        //html+=Y.JSON.stringify(x);
-                        //property tree format with details
-
-                        //>>>>>>FINISH quick and dirty tree, need to generate ul/li structure
-                        //>>>>>>FINISH by modifying buildtree
                         html+='<h3>Property/Site definition</h3>';
-                        d.tree=[];
-                        Y.each(d.rs.property.data,function(property){
-                            if(property.address===job.address && property.parent===null){
-                                d.tree.push(Y.JA.lib.job.buildTree(property,d));
-                            }
+                        propertyTree=Y.JA.lib.job.tree.build(propertyData,job.address);
+                        Y.each(propertyTree,function(branch){
+                            html+='<ul>'+Y.JA.lib.job.tree.output(branch)+'<ul>';
                         });
-                        h.temp.set('innerHTML','');
-                        h.tree=new Y.TreeView({
-                            startCollapsed:false,
-                            toggleOnLabelClick:false,
-                            render:h.temp
-                        });
-                        h.tree.add(d.tree);
-                        html+=h.tree.get('boundingBox')
-                            .get('innerHTML')
-                            .replace(/( id="yui[^"]*")/g,'')
-                            .replace(/<a\b[^>]*>/gi,'')
-                            .replace(/<\/a>/gi,'')
-                        ;
                         html+='<h3>Values</h3>';
-                        var values=JSONSelect.match('.values',jobDetail)
-                        ;
-                        Y.each(values,function(statement){
-                            Y.each(statement,function(snippet){
-                                if(snippet[0]!==''){
-                                    if(Y.Lang.isArray(snippet[1])){
-                                        if(snippet[1][1]){
-                                            html+=snippet[0]+' is '+snippet[1][0]+'<br/>';
-                                        }
-                                    }else{
-                                        html+=snippet[0]+' is '+snippet[1]+'<br/>';
+                        qaRef=Y.JA.lib.job.detail(jobDetail);
+                        Y.each(qaRef,function(ref,refId){
+                            Y.each(ref,function(rec){
+                                if(Y.Lang.isArray(rec.value)){ //checkbox
+                                    if(rec.value[1]){
+                                        html+=refId+' is '+rec.value[0]+'<br/>';
                                     }
+                                }else{
+                                    html+=refId+' is '+rec.value+'<br/>';
                                 }
                             });
                         });
-
-
+                        html+='<h3>Safety</h3>';
+                        Y.each(qaRef,function(ref,refId){
+                            if(refId!=='Safety'){return;}
+                            Y.each(ref,function(rec){
+                                if(Y.Lang.isArray(rec.value)){ //checkbox
+                                    if(rec.value[1]){
+                                        html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+rec.value[0]+'<br/>';
+                                    }
+                                }else{
+                                    html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+rec.value+'<br/>';
+                                }
+                            });
+                        });
                     }
                 }else
                 if(this.hasClass('ja-rep-1')){

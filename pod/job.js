@@ -128,9 +128,7 @@ YUI.add('ja-pod-job',function(Y){
                     var fAppointment=f.jobAppointment.get('value'),
                         fConfirmed  =f.jobConfirmed.get('value'),
                         fReminder   =f.jobReminder.get('value'),
-                        qa={
-                            tree:d.tree
-                        }
+                        qa={}
                     ;
                     //html/values
                         h.qaList.all('li').each(function(li){

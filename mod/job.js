@@ -382,10 +382,10 @@ YUI.add('ja-mod-job',function(Y){
                     statementRef={},
                     propertyData=d.rs.property.data,
                     propertyTree=[],
-//                    micro=new Y.Template(),
                     html='',
                     width=800,
-                    qaRef={}
+                    qaRef={},
+                    qaTemplate={}
                 ;
                 d.propertyQaCount={};
                 address.full=address.streetRef+' '+address.streetName+' '+d.rs.location.data[address.location].name;
@@ -399,17 +399,20 @@ YUI.add('ja-mod-job',function(Y){
                         +  '<li>Count of each of the top level statements</li>'
                         +  '<li>Property part statistics, perhaps a data grid?</li>'
                         +'</ul>';
-                }else
+                }
+                else
                 if(this.hasClass('ja-rep-detail')){
                     html='<h1>Details - Job#'+jobId+' '+address.full+'</h1>';
                     if(jobDetail===false){
                         html+='<em>no information entered as yet</em>';
                     }else{
+
                         html+='<h3>Property/Site definition</h3>';
                         propertyTree=Y.JA.lib.job.tree.build(propertyData,job.address);
                         Y.each(propertyTree,function(branch){
                             html+='<ul>'+Y.JA.lib.job.tree.output(branch)+'<ul>';
                         });
+
                         html+='<h3>Values</h3>';
                         qaRef=Y.JA.lib.job.detail(jobDetail);
                         Y.each(qaRef,function(ref,refId){
@@ -423,21 +426,51 @@ YUI.add('ja-mod-job',function(Y){
                                 }
                             });
                         });
+
                         html+='<h3>Safety</h3>';
                         Y.each(qaRef,function(ref,refId){
-                            if(refId!=='Safety'){return;}
+                            //filter
+                            if(refId!=='Safety' && refId!=='SafetyLevel'){return;}
                             Y.each(ref,function(rec){
                                 if(Y.Lang.isArray(rec.value)){ //checkbox
                                     if(rec.value[1]){
-                                        html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+rec.value[0]+'<br/>';
+                                        html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+refId+': '+rec.value[0]+'<br/>';
                                     }
                                 }else{
-                                    html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+rec.value+'<br/>';
+                                    html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+refId+': '+rec.value+'<br/>';
                                 }
                             });
                         });
+debugger;
+                        html+='<h3>Templating Examples</h3>';
+                        
+                        // template for each qa, not statement as these are not consistent
+                        
+                        // micro=new Y.Template(),
+
+
+                        html+='<h2>Coming</h2>';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     }
-                }else
+                }
+                else
                 if(this.hasClass('ja-rep-1')){
                     //substitute final values
 

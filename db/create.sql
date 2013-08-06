@@ -31,7 +31,9 @@ INSERT INTO `prop` (id, type, name) VALUES
 (42, false, 'ceiling'),
 (43, false, 'floor'),
 (44, false, 'door'),
-(45, false, 'window');
+(45, false, 'window'),
+(46, false, 'decking')
+;
 
 INSERT INTO `propType` (`prop`, `type`) VALUES
 (22, 3),(22, 4),
@@ -43,13 +45,14 @@ INSERT INTO `propType` (`prop`, `type`) VALUES
 INSERT INTO `propChild` (`prop`, `child`) VALUES
 (21, 22),(21, 23),
 (3, 5),
-(5, 41),(5, 42),(5, 43),(5, 44),(5, 56)
+(4, 46),
+(5, 41),(5, 42),(5, 43),(5, 44),(5, 45)
 ;
 
 delete from `qa`;
 INSERT INTO `qa` (`id`, `seq`, `prop`, `name`, `rule`, `codeType`, `code`) VALUES
-(1, 2, null, 'Defect Minor', null, 'H', 'Defect Minor <textarea placeholder="description"></textarea>'),
-(2, 1, null, 'Defect Major', null, 'H', 'Defect Major <textarea placeholder="description"></textarea>'),
+(1, 1, null, 'Defect Major', null, 'H', 'Defect Major <textarea data-ref="DMaj" placeholder="description"></textarea>'),
+(2, 2, null, 'Defect Minor', null, 'H', 'Defect Minor <textarea data-ref="DMin" placeholder="description"></textarea>'),
 (3, 4, null, 'Cracking', null, 'H', 'Cracking <textarea placeholder="description"></textarea>'),
 (4, 4, null, 'Advisory', null, 'H', 'Advisory <textarea placeholder="description"></textarea>'),
 (5, 5, null, 'Safety', null, 'H', 'Safety <select><option>note</option><option>warning</option><option>critical</option></select><textarea placeholder="description"></textarea>'),

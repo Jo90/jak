@@ -1,9 +1,11 @@
 <?php
 /** /db/propTree.php
  *
- * generate propTree records from rules in prop
+ *  generate propTree JSON from rules in prop, propType and propChild
  */
 namespace ja;
+
+date_default_timezone_set('Australia/NSW');
 
 $r = new \stdClass;
 
@@ -11,88 +13,75 @@ echo '<h3>Build propTree ', date('l jS \of F Y h:i:s A') , '</h3>';
 
     if ($stmt = $mysqli->prepare("select * from `prop`")) {
         $r->propSuccess = $stmt->execute();
-        $r->propRows = $mysqli->affected_rows;
         $r->prop = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     if ($stmt = $mysqli->prepare("select * from `propType`")) {
         $r->propTypeSuccess = $stmt->execute();
-        $r->propTypeRows = $mysqli->affected_rows;
         $r->propType = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
     if ($stmt = $mysqli->prepare("select * from `propChild`")) {
         $r->propChildSuccess = $stmt->execute();
-        $r->propChildRows = $mysqli->affected_rows;
         $r->propChild = \ja\fetch_result($stmt,'id');
         $stmt->close();
     }
 
-    if ($stmt = $mysqli->prepare(
-        "select p.id, p.name, group_concat(ptp.id separator ', ') as 'types'
-           from prop     as p,
-                propType as pt,
-                prop     as ptp
-          where p.id    = pt.prop
-            and pt.type = ptp.id
-       group by p.id, p.name"
-    )) {
-        $r->v_prop_typesSuccess = $stmt->execute();
-        $r->v_prop_typesRows = $mysqli->affected_rows;
-        $r->v_prop_typeId = \ja\fetch_result($stmt,'id');
-        $stmt->close();
-    }
-
-    //start with prop with type 'site'
-    foreach ($r->v_prop_typeId as $propType) {
-        if ($propType->name == 'site') {$propRoot = $propType;}
-    }
-
-function getNodeTypes($node) {
+function propChildren($propIdArr) {
     global $r;
-    foreach ($r->v_prop_typeId as $prop) {
-        if ($prop->id == $node) {$arr = explode(',', $prop->types);}
+    $children = array();
+    foreach ($r->propChild as $propChild) {
+        if (in_array($propChild->prop, $propIdArr)) {$children[] = $propChild->child;}
     }
-    return isset($arr) ? $arr : false;
-}
-
-function getNodesOfType($type) {
-    global $r;
-    $arr = array();
-    foreach ($r->v_prop_typeId as $prop) {
-        if (in_array($type, explode(',', $prop->types))) {
-            $arr[] = $prop->id;
-        }
-    }
-    return count($arr)>0 ? $arr : false;
-}
-
-function nodeChildren($node) {
-    global $r;
-    $typeChildren = array();
-    if ($types = getNodeTypes($node)) {
-        foreach ($r->propChild as $pl) {
-            if (in_array($pl->prop, $types)) {$typeChildren[] = $pl->child;}
-        }
-    }
-    return count($typeChildren)>0 ? $typeChildren : false;
-}
-
-function buildTree($node) {
-    global $r;
-    if (!($nodeChildren = nodeChildren($node))) return;
-    $tree = new \stdClass;
-    foreach ($nodeChildren as $child) {
-        $childNodeTypes = getNodeTypes($child);
-        foreach ($childNodeTypes as $childType) {
-            //if a propType get any associated nodes
-            if ($childType == 1 && ($nodesOftype = getNodesOfType($child))) {
-                foreach ($nodesOftype as $branchNode) {
-                    $tree->{$branchNode} = buildTree($branchNode);
+    //if child is type get all of type
+    $childs = $children;
+    foreach ($childs as $child) {
+        $prop = $r->prop->{$child};
+        if ($prop->type) {
+            foreach ($r->propType as $propType) {
+                if ($propType->type == $prop->id) {
+                    $children[] = $propType->prop;
                 }
             }
         }
     }
+    //remove meta child
+    foreach ($children as $key=>$child) {
+        $prop = $r->prop->{$child};
+        if ($prop->type) {
+            unset($children[$key]);
+        }
+    }
+    return $children;
+}
+
+function buildTree($propIds) {
+    global $r;
+    $propIdArr = $propIds;
+    foreach ($propIds as $propId) {
+        $prop = $r->prop->{$propId};
+        if (!$prop->type) {//actual prop part
+            //get any types
+            foreach ($r->propType as $propType) {
+                if ($propType->prop == $propId) {
+                    $propIdArr[] = $r->prop->{$propType->type}->id;
+                }
+            }
+        }
+    }
+    $propChildren = propChildren($propIdArr);
+    if (!is_array($propChildren)) return null;
+
+    $tree = new \stdClass;
+    foreach ($propChildren as $childId) {
+        $tree->{$childId} = buildTree(array($childId));
+    }
     return $tree;
 }
-file_put_contents('propTree.json', json_encode((object) array($propRoot->id=>buildTree($propRoot->id))));
+
+//start with prop with type 'site'
+foreach ($r->prop as $prop) {
+    if ($prop->name == 'site') {$propRoot = $prop;}
+}
+print_r(buildTree(array($propRoot->id)));
+file_put_contents('propTree.json', json_encode((object) array($propRoot->id=>buildTree(array($propRoot->id)))));

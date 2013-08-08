@@ -598,8 +598,9 @@ YUI.add('ja-pod-job',function(Y){
                 nodeClick:function(e){
                     h.tvNode=e.treenode;
                     var property=Y.JSON.parse(h.tvNode.get('nodeId')),
-                        propBranch,
-                        propOptions=[],
+                        prop=JA.data.prop[property.prop],
+                        childReal='',
+                        childMeta='',
                         path=e.treenode.path()
                     ;
                     trigger.tree.nodeFocus(true);
@@ -607,14 +608,42 @@ YUI.add('ja-pod-job',function(Y){
                     h.qaTreeLabel.set('innerHTML',path[path.length-1].replace(/(<span style.*?<\/span>)/g,''));
                     d.qaCount=0;
                     //build property action options
-                        propBranch=Y.JA.lib.job.traverse(JA.propStructure,property.prop);
-                        for(var i in propBranch){
-                            propOptions.push('<option value="'+i+'">'+JA.data.prop[i].name+'</option>');
-                        };
+                        //real
+                            Y.each(prop.children.real,function(propId){
+                                childReal+='<option value="'+propId+'">'+JA.data.prop[propId].name+'</option>';
+                            });
+                            if(childReal!==''){childReal='<optgroup label="create">'+childReal+'</optgroup>';}
+                        //meta
+                            Y.each(prop.types,function(propTypeId){
+                                var p=JA.data.prop[propTypeId],
+                                    metaStr='',
+                                    realStr=''
+                                ;
+                                //real
+                                    Y.each(p.children.real,function(propId){
+                                        realStr+='<option value="'+propId+'">'+JA.data.prop[propId].name+'</option>';
+                                    });
+                                    if(realStr!==''){
+                                        childReal+='<optgroup label="'+p.name+'">'+realStr+'</optgroup>';
+                                    }
+                                //meta
+                                    Y.each(p.children.meta,function(metaPropId){
+                                        Y.each(JA.data.prop,function(pt){
+                                            //props contains types
+                                            if(!pt.meta && (Y.Array.indexOf(pt.types,metaPropId)!==-1 || pt.id===metaPropId)){
+                                                metaStr+='<option value="'+pt.id+'">'+JA.data.prop[pt.id].name+'</option>';
+                                            }
+                                        });
+                                    });
+                                    if(metaStr!==''){
+                                        childMeta+='<optgroup label="'+p.name+'">'+metaStr+'</optgroup>';
+                                    }
+                            });
                     h.propertyAction.set('innerHTML',
                         '<option>...</option>'+
                         '<option>set new detail</option>'+
-                        (propOptions.length===0?'':'<optgroup label="create">'+propOptions.join('')+'</optgroup>')+
+                        childReal+
+                        childMeta+
                         (h.tvNode.get('isLeaf')?'<optgroup label="remove"><option value="remove">proceed</option></optgroup>':'')
                     );
                     //display qa

@@ -45,12 +45,9 @@ function propChildren($propIdArr) {
             }
         }
     }
-    //remove meta child
+    //remove meta children
     foreach ($children as $key=>$child) {
-        $prop = $r->prop->{$child};
-        if ($prop->type) {
-            unset($children[$key]);
-        }
+        if ($r->prop->{$child}->type) {unset($children[$key]);}
     }
     return $children;
 }
@@ -83,5 +80,4 @@ function buildTree($propIds) {
 foreach ($r->prop as $prop) {
     if ($prop->name == 'site') {$propRoot = $prop;}
 }
-print_r(buildTree(array($propRoot->id)));
 file_put_contents('propTree.json', json_encode((object) array($propRoot->id=>buildTree(array($propRoot->id)))));

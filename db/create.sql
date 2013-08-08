@@ -66,13 +66,3 @@ INSERT INTO `qa` (`id`, `seq`, `prop`, `name`, `rule`, `codeType`, `code`) VALUE
 (13, 1, 43, 'Kitchen Floor', '27', 'H', 'Kitchen Floor <input type="text" placeholder="Kitchen Floor" />'),
 (14, 1, 41, 'Building Wall', '22', 'H', 'Building Wall <select><option>Interior</option><option>Exterior</option></select>')
 ;
-
-create or replace view `v_prop_types` as
-select p.id, p.name, group_concat(concat(ptp.name,'(',ptp.id,')') separator ', ') as 'types'
-  from prop     as p,
-       propType as pt,
-       prop     as ptp
- where p.id=pt.prop
-   and pt.type=ptp.id
-   and ptp.id not in (1,7)
- group by p.id, p.name;

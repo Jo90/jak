@@ -22,6 +22,7 @@ modules:{
             'event-outside',
             'gallery-yui3treeview-ng',
             'ja-yui3-sugar',
+            'jsonselect',
             'node-event-simulate',
             'overlay',
             'recordset',
@@ -39,6 +40,9 @@ modules:{
      */
     'moment':{
         fullpath:'/js/moment.js'
+    },
+    'jsonselect':{
+        fullpath:'/js/jsonselect.min.js'
     },
     /**
      * css
@@ -99,6 +103,13 @@ modules:{
         requires:['ja-common']
     },
     /**
+     * libraries
+     */
+    'ja-lib-job':{
+        fullpath:'/lib/job.js',
+        requires:['ja-common']
+    },
+    /**
      * modules
      */
     'ja-mod-calendar':{
@@ -111,7 +122,7 @@ modules:{
     },
     'ja-mod-job':{
         fullpath:'/mod/job.js',
-        requires:['ja-common','ja-css-mod-job','ja-pod-rep']
+        requires:['ja-common','ja-css-mod-job','ja-lib-job','ja-pod-rep']
     },
     /**
      * plugins
@@ -136,7 +147,7 @@ modules:{
     },
     'ja-pod-job':{
         fullpath:'/pod/job.js',
-        requires:['ja-common','ja-css-pod-job']
+        requires:['ja-common','ja-css-pod-job','ja-lib-job']
     },
     'ja-pod-propPart':{
         fullpath:'/pod/propPart.js',
@@ -151,11 +162,11 @@ modules:{
         requires:['ja-common','ja-css-pod-rep']
     },
     'ja-pod-usr':{
-        fullpath:'/pod/usr.php',
+        fullpath:'/pod/usr.js',
         requires:['ja-common','ja-css-pod-usr']
     },
     'ja-pod-usrFind':{
-        fullpath:'/pod/usrFind.php',
+        fullpath:'/pod/usrFind.js',
         requires:['ja-common','ja-css-pod-usrFind']
     },
     /**

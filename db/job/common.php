@@ -52,6 +52,45 @@ function job_getJob($criteria) {
     return $r;
 }
 
+function job_getJobUsr($criteria) {
+    global $mysqli;
+
+    $r = initResult($criteria);
+
+    $cnd   = '';
+    $limit = '';
+
+    //conditions
+    if (isset($criteria->usrJobIds) && is_array($criteria->usrJobIds) && count($criteria->usrJobIds) > 0) {
+        $jobUsrIds = implode(',', $criteria->jobUsrIds);
+        $cnd = "where id in ($jobUsrIds)";
+    } else
+    if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0) {
+        $jobIds = implode(',', $criteria->jobIds);
+        $cnd = "where job in ($jobIds)";
+    } else
+    //usrs
+    if (isset($criteria->usrIds) && is_array($criteria->usrIds) && count($criteria->usrIds) > 0) {
+        $usrIds = implode(',', $criteria->usrIds);
+        $cnd = "where usr in ($usrIds)";
+    }
+
+    if (isset($criteria->rowLimit)) {
+        $limit = ' limit ' . $criteria->rowLimit;
+    }
+
+    if ($stmt = $mysqli->prepare(
+        "select *
+           from `jobUsr` $cnd $limit"
+    )) {
+        $r->success = $stmt->execute();
+        $r->rows = $mysqli->affected_rows;
+        $r->data = \ja\fetch_result($stmt,'id');
+        $stmt->close();
+    }
+    return $r;
+}
+
 function job_getJobProperty($criteria) {
     global $mysqli;
 
@@ -91,20 +130,33 @@ function job_getJobProperty($criteria) {
 
 function job_setJob(&$i) {
     global $mysqli;
-    db::remove('job',$i);
+    $tab = 'job';
+    db::remove($tab,$i);
     if (isset($i->record)) {
         foreach ($i->record as $rec) {
-            db::update('job',$rec) or db::insert('job',$rec);
+            db::update($tab,$rec) or db::insert($tab,$rec);
+        }
+    }
+}
+
+function job_setJobUsr(&$i) {
+    global $mysqli;
+    $tab = 'jobUsr';
+    db::remove($tab,$i);
+    if (isset($i->record)) {
+        foreach ($i->record as $rec) {
+            db::update($tab,$rec) or db::insert($tab,$rec);
         }
     }
 }
 
 function job_setJobProperty(&$i) {
     global $mysqli;
-    db::remove('jobProperty', $i);
+    $tab = 'jobProperty';
+    db::remove($tab,$i);
     if (isset($i->record)) {
         foreach ($i->record as $rec) {
-            db::update('jobProperty',$rec) or db::insert('jobProperty',$rec);
+            db::update($tab,$rec) or db::insert($tab,$rec);
         }
     }
 }

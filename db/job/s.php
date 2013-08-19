@@ -42,7 +42,7 @@ foreach ($post as $i) {
         $temp = usr_getUsr($criteria);
         $criteria->usrIds = array();
         foreach ($temp->data as $d) {$criteria->usrIds[] = $d->id;}
-        $temp = usr_getUsrJob($criteria);
+        $temp = job_getJobUsr($criteria);
         foreach ($temp->data as $d) {$criteria->jobIds[] = $d->job;}
     }
 
@@ -54,25 +54,11 @@ foreach ($post as $i) {
     foreach ($r->address->data as $d) {$criteria->locationIds[] = $d->location;}
     $r->location = addr_getLocation($criteria);
 
-    $r->usrJob = usr_getUsrJob($criteria);
-    foreach ($r->usrJob->data as $d) {$criteria->usrIds[] = $d->usr;}
+    $r->jobUsr = job_getJobUsr($criteria);
+    foreach ($r->jobUsr->data as $d) {$criteria->usrIds[] = $d->usr;}
     $r->usr = usr_getUsr($criteria);
     
     $r->property = addr_getProperty($criteria);
-
-    $criteria->propertyIds = array();
-    foreach ($r->property->data as $d) {$criteria->propertyIds[] = $d->id;}
-
-/* >>>>FINISH
-    $r->propPartAnswer = qa_getPropPartAnswer($criteria);
-    $criteria->answerIds = array();
-    foreach ($r->propPartAnswer->data as $d) {$criteria->answerIds[] = $d->answer;}
-
-    $r->answer = qa_getAnswer($criteria);
-
-    $r->answerInfo         = shared_getInfo((object)array('dbTable'=>$dbTable['answer']        ,'pks'=>$criteria->answerIds));
-    $r->propPartAnswerInfo = shared_getInfo((object)array('dbTable'=>$dbTable['propPartAnswer'],'pks'=>$criteria->propPartIds));
-*/
 }
 header('Content-type: text/plain');
 echo json_encode($post);

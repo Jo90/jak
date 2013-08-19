@@ -10,8 +10,8 @@ YUI.add('ja-pod-job',function(Y){
 
         cfg=Y.merge({
             title   :'job',
-            width   :1250,
             visible :true,
+            width   :1250,
             xy      :[10,20],
             zIndex  :99999
         },cfg);
@@ -20,11 +20,12 @@ YUI.add('ja-pod-job',function(Y){
             id         :'job',
             title      :cfg.title,
             description:'job details',
-            version    :'v1.0 March 2013'
+            version    :'v1.0 August 2013'
         };
 
         var self=this,
             d={
+                defaultPurpose:'purpose...',
                 qa:{
                     existing:'add to existing statement',
                     new:'add as a new statement'
@@ -44,8 +45,8 @@ YUI.add('ja-pod-job',function(Y){
             if(typeof cfg.appointment!=='undefined'){delete cfg.appointment;}
             cfg=Y.merge(cfg,p);
             Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
-            h.ol.show();
             trigger.reset();
+            h.ol.show();
             typeof p.job!=='undefined'
                 ?io.fetch.job()
                 :io.insert.job();
@@ -89,8 +90,7 @@ YUI.add('ja-pod-job',function(Y){
                    +'<optgroup label="top level issues">'
                    +  qaTopStatements
                    +'</optgroup>'
-                );
-                h.qaSelect.set('selectedIndex',0);
+                ).set('selectedIndex',0);
         };
 
         io={
@@ -102,9 +102,7 @@ YUI.add('ja-pod-job',function(Y){
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
-                            job:{
-                                criteria:{jobIds:[cfg.job]}
-                            },
+                            job:{criteria:{jobIds:[cfg.job]}},
                             usr:JA.user.usr
                         }])
                     });
@@ -117,18 +115,79 @@ YUI.add('ja-pod-job',function(Y){
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var rs=Y.JSON.parse(o.responseText)[0].job.record[0]
-                            ;
-                            cfg.job=rs.data.id;
+                            cfg.job=Y.JSON.parse(o.responseText)[0].job.record[0].data.id;
                             io.fetch.job();
                         }},
                         data:Y.JSON.stringify([{
-                            job:{record:[{
-                                data:{
-                                    appointment:cfg.appointment
-                                }
-                            }]},
+                            job:{record:[{data:{appointment:cfg.appointment}}]},
                             usr:JA.user.usr
+                        }])
+                    });
+                },
+                jobUsr:function(jobUsr){
+                    Y.JA.widget.busy.set('message','new user job...');
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            var data=Y.JSON.parse(o.responseText)[0].jobUsr.record[0].data
+                            ;
+                            jobUsr.id     =data.id;
+                            jobUsr.job    =data.job;
+                            jobUsr.purpose=data.purpose;
+                            render.jobUsr(jobUsr);
+                            Y.JA.widget.busy.set('message','');
+                        }},
+                        data:Y.JSON.stringify([{
+                            jobUsr:{record:[{data:{
+                                usr    :jobUsr.usr,
+                                job    :jobUsr.job,
+                                purpose:d.defaultPurpose
+                            }}]},
+                            user:JA.user.usr
+                        }])
+                    });
+                },
+                usr:function(){
+                    Y.JA.widget.busy.set('message','new user...');
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            var data=Y.JSON.parse(o.responseText)[0].usr.record[0].data
+                            ;
+                            io.insert.jobUsr({
+                                job      :parseInt(f.jobId.get('value'),10),
+                                usr      :data.id,
+                                firstName:data.firstName,
+                                lastName :data.lastName
+                            });
+                        }},
+                        data:Y.JSON.stringify([{
+                            usr:{record:[{data:{
+                                firstName:f.usrFirstName.get('value'),
+                                lastName :f.usrLastName.get('value')
+                            }}]},
+                            user:JA.user.usr
+                        }])
+                    });
+                }
+            },
+            remove:{
+                jobUsr:function(e){
+                    var row=this.ancestor('li')
+                    ;
+                    Y.JA.widget.busy.set('message','new user job...');
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            row.remove();
+                            Y.JA.widget.busy.set('message','');
+                        }},
+                        data:Y.JSON.stringify([{
+                            jobUsr:{remove:[parseInt(row.one('.ja-data-jobUsr-id').get('value'),10)]},
+                            user:JA.user.usr
                         }])
                     });
                 }
@@ -200,7 +259,34 @@ YUI.add('ja-pod-job',function(Y){
                         on:{complete:callback},
                         data:Y.JSON.stringify([{
                             property:post,
-                            usr:JA.user.usr
+                            user    :JA.user.usr
+                        }])
+                    });
+                }
+            },
+            update:{
+                jobUsr:function(){
+                    var rec=this.ancestor('li')
+                    ;
+                    Y.JA.widget.busy.set('message','updating...');
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(){
+                            Y.JA.widget.busy.set('message','');
+                        }},
+                        data:Y.JSON.stringify([{
+                            jobUsr:{
+                                record:[{
+                                    data:{
+                                        id     :parseInt(rec.one('.ja-data-jobUsr-id').get('value'),10),
+                                        job    :parseInt(f.jobId.get('value'),10),
+                                        usr    :parseInt(rec.one('.ja-data-jobUsr-usr').get('value'),10),
+                                        purpose:rec.one('.ja-data-jobUsr-purpose').get('value')
+                                    }
+                                }]
+                            },
+                            user:JA.user.usr
                         }])
                     });
                 }
@@ -209,54 +295,50 @@ YUI.add('ja-pod-job',function(Y){
 
         listeners=function(){
             h.close.on('click',function(){h.ol.hide();Y.JA.widget.dialogMask.hide();});
+            //users
+                h.usrAdd.on('click',io.insert.usr);
+                h.usrFind.on('click',pod.display.usrFind);
+                h.tvUsers.delegate('keyup',trigger.jobUsr.display,'.ja-data-usr-firstName,.ja-data-usr-lastName');
+                h.tvUsers.delegate('change',io.update.jobUsr,'.ja-data-jobUsr-purpose');
+                h.tvUsers.delegate('click',io.remove.jobUsr,'.ja-remove');
             //tree
                 h.tree.on('nodeclick',trigger.tree.nodeClick);
                 //using treeNode to get contentBox fails
                 h.tree.get('contentBox').delegate('click',function(){h.tvLabel=this;},'.yui3-treenode-label-content');
                 h.propertyAction.on('click',trigger.tree.action);
             //all
-                h.bd.delegate('click',pod.display.info,'.ja-info');
-                h.hd.delegate('click',trigger.showHide,'.ja-eye');
-                h.bd.delegate('click',trigger.showHide,'.ja-eye');
+                h.ol.get('contentBox').delegate('click',trigger.showHide,'.ja-eye');
             //qa
                 h.qaSelect.on('change',trigger.qa.add);
                 h.qaList.delegate('click',trigger.qa.remove,'.ja-remove');
                 h.qaList.delegate('click',function(){h.qaListRec=this;},'>li');
             //save
                 h.save.on('click',io.save.job);
-            //custom
-                Y.on(JA.my.podInfo.customEvent.save,pod.result.info);
         };
 
         pod={
             display:{
-                info:function(){
-                    var config={
-                            visible:true
-                        },
-                        section=this.ancestor('.ja-section')
-                    ;
-                    h.podInvoke=this;
-                    if(section.hasClass('ja-section-statement')){
-                        config.title     ='Answers';
-                        config.categories=['General','Feedback','Clarify','Warning'];
-                        config.dbTable   =JA.data.dbTable['answer'].id;
-                    }
-                    config.pk=parseInt(this.ancestor('li').one('.ja-data-id').get('value'),10);
-                    JA.my.podInfo.display(config);
+                usrFind:function(e){
+                    e.halt();
+                    h.podInvoke=e.currentTarget;
+                    if(!self.my.podUsrFind){pod.load.usrFind({});return false;}
+                    self.my.podUsrFind.display({
+                        firstName:f.usrFirstName.get('value'),
+                        lastName :f.usrLastName.get('value')
+                    });
                 }
             },
             load:{
-            },
-            result:{
-                info:function(rs){
-                    var cnt=rs.info.record.length,
-                        li=h.podInvoke.ancestor('li'),
-                        section=li.ancestor('.ja-section')
-                    ;
-                    //update note count
-                        h.podInvoke.one('span').set('innerHTML',cnt===0?'':cnt);
-                    //update count reference
+                usrFind:function(p){
+                    Y.use('ja-pod-usrFind',function(Y){
+                        self.my.podUsrFind=new Y.JA.pod.usrFind(p);
+                        //listeners
+                        Y.JA.whenAvailable.inDOM(self,'my.podUsrFind',function(){
+                            this.my.podUsrFind.set('zIndex',h.ol.get('zIndex')+10);
+                            h.podInvoke.simulate('click');
+                        });
+                        Y.on(self.my.podUsrFind.customEvent.returnSelection,io.insert.jobUsr);
+                    });
                 }
             }
         };
@@ -265,27 +347,8 @@ YUI.add('ja-pod-job',function(Y){
             job:function(id,o){
                 d.rs=Y.JSON.parse(o.responseText)[0].result;
                 var addresses=d.rs.address.data,
-                    tree=[],
                     job=Y.JA.firstRecord(d.rs.job.data), //only 1 job anyway
-                    jobDetail=(job.detail!=='' && job.detail!==null?Y.JSON.parse(job.detail):false),
-                    buildTree=function(parent){
-                        var branch={
-                                label:'<!--'+parent.id+','+parent.prop+'-->'
-                                    +JA.data.prop[parent.prop].name
-                                    +(parent.detail!==null?' '+parent.detail:'')
-                                    +'&nbsp; <span style="font-size:0.7em">'
-                                    +  (typeof d.propertyQaCount[parent.id]!=='undefined' && d.propertyQaCount[parent.id]>0?d.propertyQaCount[parent.id]:'')
-                                    +'</span>'
-                            }
-                        ;
-                        Y.each(d.rs.property.data,function(p){
-                            if(p.parent===parent.id){
-                                if(!branch.children){branch.children=[];}
-                                branch.children.push(buildTree(p));
-                            }
-                        });
-                        return branch;
-                    }
+                    jobDetail=(job.detail!=='' && job.detail!==null?Y.JSON.parse(job.detail):false)
                 ;
                 d.propertyQaCount={};
                 trigger.reset();
@@ -293,7 +356,7 @@ YUI.add('ja-pod-job',function(Y){
                 f.jobRef.set('value',job.ref);
                 if(job.appointment!==null){
                     f.jobAppointment.set('value',moment.unix(job.appointment).format('DDMMMYY hh:mma'));
-                };
+                }
                 if(job.confirmed!==null){
                     f.jobConfirmed.set('value',moment.unix(job.confirmed).format('DDMMMYY hh:mma'));
                 }
@@ -307,6 +370,12 @@ YUI.add('ja-pod-job',function(Y){
                     addresses[job.address].streetName+', '+
                     d.rs.location.data[addresses[job.address].location].full
                 );
+                //users
+                    Y.each(d.rs.jobUsr.data,function(jobUsr,idx){
+                        jobUsr.firstName=d.rs.usr.data[jobUsr.usr].firstName;
+                        jobUsr.lastName =d.rs.usr.data[jobUsr.usr].lastName;
+                        render.jobUsr(jobUsr);
+                    });
                 //qa stats
                     if(Y.Lang.isObject(jobDetail)){
                         Y.each(jobDetail,function(property,idx){
@@ -320,18 +389,20 @@ YUI.add('ja-pod-job',function(Y){
                     }
                 //property tree
                     h.tree.remove(0);
-                    tree=[];
+                    d.tree=[];
                     Y.each(d.rs.property.data,function(property){
                         if(property.address===job.address && property.parent===null){
-                            tree.push(buildTree(property));
+                            d.tree.push(Y.JA.lib.job.buildTree(property,d));
                         }
                     });
-                    h.tree.add(tree);
+                    h.tree.add(d.tree);
                 //statements
                     h.qaList.set('innerHTML','');
                 //create statements and set values
                     if(Y.Lang.isObject(jobDetail)){
                         Y.each(jobDetail,function(property,idx){
+                            //filter tree definition
+                                if(idx==='tree'){return;}
                             var propertyId=parseInt(idx,10)
                             ;
                             Y.each(property,function(statement){
@@ -374,57 +445,69 @@ YUI.add('ja-pod-job',function(Y){
                         +' #<input type="text" class="ja-data ja-data-id" title="job number" disabled="disabled" />'
                         +'<input type="hidden" class="ja-data ja-data-address" />'
                         +' &nbsp; <span class="ja-display-address"></span> &nbsp; '
-                        //display
-                            +'<span class="ja-section ja-section-display">'
-                            +    Y.JA.html('btn',{action:'eye',title:'change view',classes:'ja-eye-open ja-display-service',label:'services'})
-                            +    ' &nbsp;'
-                            +    Y.JA.html('btn',{action:'eye',title:'change view',classes:'ja-eye-open ja-display-details',label:'details'})
-                            +  ']'
-                            +'</span>'
                         +Y.JA.html('btn',{action:'close',title:'close pod'}),
-                    bodyContent:
-                        //job
-                             'ref:<input type="text" class="ja-data ja-data-ref" title="old system reference" placeholder="ref#" />'
-                            +'Appointment:<input type="text" class="ja-data ja-date ja-data-appointment" title="appointment date" placeholder="appointment" />'
-                            +'&nbsp; Confirmed:<input type="text" class="ja-data ja-date ja-data-confirmed" title="confirmed date" placeholder="confirmed" />'
-                            +'&nbsp; Reminder:<input type="text" class="ja-data ja-data-reminder ja-date" title="reminder date" placeholder="reminder" />'
-                            +'<select class="ja-data ja-data-weather">'
-                            +  '<option>fine</option>'
-                            +  '<option>cloudy</option>'
-                            +  '<option>wet</option>'
-                            +  '<option>dark</option>'
-                            +'</select>'
-                            +Y.JA.html('btn',{action:'save',title:'save',label:'save'})
-                        //services
-                            +'<fieldset class="ja-list-service">'
-                            +  '<legend>services</legend>'
-                            +'</fieldset>'
-                        +'<div class="ja-section-details">'
-                        //property
-                            +  '<fieldset class="ja-section ja-section-property">'
-                            +    '<legend>'
-                            +      '<div>select a property component</div>'
-                            +      '<div>'
-                            +        '<span></span> <select><select>'
-                            +      '</div>'
-                            +    '</legend>'
-                            +  '</fieldset>'
-                        //question/answers
-                            +  '<fieldset class="ja-section ja-section-qa">'
-                            +    '<legend>'
-                            +      Y.JA.html('btn',{action:'eye',label:'statement&nbsp;',title:'change view',classes:'ja-eye-open'})
-                            +      '<select></select>'
-                            +      '<span></span>'
-                            +    '</legend>'
-                            +    '<ul></ul>'
-                            +  '</fieldset>'
-                        +'</div>',
+                    bodyContent:Y.JA.html('btn',{action:'save',title:'save',label:'save'}),
                     width  :cfg.width,
                     visible:cfg.visible,
                     xy     :cfg.xy,
                     zIndex :cfg.zIndex
                 }).render();
 
+                h.tv=new Y.TabView({
+                    children:[
+                        {
+                            label:'Job',
+                            content:
+                                'ref:<input type="text" class="ja-data ja-data-ref" title="old system reference" placeholder="ref#" /><br/>'
+                                +'Appointment:<input type="text" class="ja-data ja-date ja-data-appointment" title="appointment date" placeholder="appointment" /><br/>'
+                                +'Confirmed:<input type="text" class="ja-data ja-date ja-data-confirmed" title="confirmed date" placeholder="confirmed" /><br/>'
+                                +'Reminder:<input type="text" class="ja-data ja-data-reminder ja-date" title="reminder date" placeholder="reminder" /><br/>'
+                                +'<select class="ja-data ja-data-weather">'
+                                +  '<option>fine</option>'
+                                +  '<option>cloudy</option>'
+                                +  '<option>wet</option>'
+                                +  '<option>dark</option>'
+                                +'</select>'
+                        },
+                        {
+                            label:'Users',
+                            content:
+                                '<input type="text" class="ja-data-usr-firstName" placeholder="first name"/>'
+                               +'<input type="text" class="ja-data-usr-lastName" placeholder="family name"/>'
+                               +Y.JA.html('btn',{action:'find',title:'find user'})
+                               +Y.JA.html('btn',{action:'add',title:'create user'})
+                               +'<ul class="ja-list ja-list-jobUsr"></ul>'
+                        },
+                        {
+                            label:'Services',
+                            content:
+                                '<ul>'
+                               +'services, price'
+                               +'</ul>'
+                        },
+                        {
+                            label:'Property',
+                            content:
+                                 '<fieldset class="ja-section ja-section-property">'
+                                +  '<legend>'
+                                +    '<div>select a property component</div>'
+                                +    '<div>'
+                                +      '<span></span> <select><select>'
+                                +    '</div>'
+                                +  '</legend>'
+                                +'</fieldset>'
+                                +'<fieldset class="ja-section ja-section-qa">'
+                                +  '<legend>'
+                                +    'Statements'
+                                +    '<select></select>'
+                                +    '<span></span>'
+                                +  '</legend>'
+                                +  '<ul></ul>'
+                                +'</fieldset>'
+                        }
+                    ]
+                }).render(h.ol.bodyNode);
+                
                 h.hd              =h.ol.headerNode;
                 h.bd              =h.ol.bodyNode;
                 h.ft              =h.ol.footerNode;
@@ -436,24 +519,30 @@ YUI.add('ja-pod-job',function(Y){
                 f.jobAddress      =h.hd.one('.ja-data-address');
                 f.jobAddressDetail=h.hd.one('.ja-display-address');
 
-                f.jobRef          =h.bd.one('.ja-data-ref');
-                f.jobAppointment  =h.bd.one('.ja-data-appointment');
-                f.jobConfirmed    =h.bd.one('.ja-data-confirmed');
-                f.jobReminder     =h.bd.one('.ja-data-reminder');
-                f.jobWeather      =h.bd.one('.ja-data-weather');
+                h.tvJob           =h.tv.item(0).get('panelNode');
+                h.tvUsers         =h.tv.item(1).get('panelNode');
+                h.tvServices      =h.tv.item(2).get('panelNode');
+                h.tvProperty      =h.tv.item(3).get('panelNode');
 
-                h.displayServices =h.bd.one('.ja-display-services');
-                h.serviceList     =h.bd.one('.ja-list-service');
+                f.jobRef          =h.tvJob.one('.ja-data-ref');
+                f.jobAppointment  =h.tvJob.one('.ja-data-appointment');
+                f.jobConfirmed    =h.tvJob.one('.ja-data-confirmed');
+                f.jobReminder     =h.tvJob.one('.ja-data-reminder');
+                f.jobWeather      =h.tvJob.one('.ja-data-weather');
 
-                h.detailsSection  =h.bd.one('.ja-section-details');
+                f.usrFirstName    =h.tvUsers.one('.ja-data-usr-firstName');
+                f.usrLastName     =h.tvUsers.one('.ja-data-usr-lastName');
+                h.usrFind         =h.tvUsers.one('.ja-find');
+                h.usrAdd          =h.tvUsers.one('.ja-add');
+                h.jobUsrList      =h.tvUsers.one('ul');
 
-                h.propertySection =h.detailsSection.one('.ja-section-property');
+                h.propertySection =h.tvProperty.one('.ja-section-property');
                 h.propertyFocusNo =h.propertySection.one('>legend>div');
                 h.propertyFocusYes=h.propertySection.one('>legend>div:nth-child(2)');
                 h.propertyPath    =h.propertyFocusYes.one('>span');
                 h.propertyAction  =h.propertyFocusYes.one('>select');
 
-                h.qaSection  =h.bd.one('.ja-section-qa');
+                h.qaSection  =h.tvProperty.one('.ja-section-qa');
                 h.qaSelect   =h.qaSection.one('> legend > select');
                 h.qaTreeLabel=h.qaSection.one('> legend > span');
                 h.qaList     =h.qaSection.one('> ul');
@@ -465,6 +554,30 @@ YUI.add('ja-pod-job',function(Y){
                     toggleOnLabelClick:false,
                     render:h.propertySection
                 });
+            },
+            jobUsr:function(o){
+                var nn=Y.Node.create(
+                     '<li>'
+                    +  '<input type="hidden" class="ja-data ja-data-jobUsr-id" value="'+o.id+'" />'
+                    +  '<input type="hidden" class="ja-data ja-data-jobUsr-usr" value="'+o.usr+'" />'
+                    +  '<span>'+o.firstName+' '+o.lastName+'</span>'
+                    +  '<select class="ja-data ja-data-jobUsr-purpose">'
+                    +    '<option>'+d.defaultPurpose+'</option>'
+                    +    '<option>Owner</option>'
+                    +    '<option>Inspector</option>'
+                    +    '<option>Tenant/Occupier</option>'
+                    +    '<option>Agent</option>'
+                    +    '<option>Other</option>'
+                    +  '</select>'
+                    +  Y.JA.html('btn',{action:'remove',title:'remove user'})
+                    +'</li>'
+                );
+                h.jobUsrList.append(nn);
+                Y.JA.matchSelect(nn.one('.ja-data-jobUsr-purpose'),o.purpose);
+                f.usrFirstName.set('value','');
+                f.usrLastName.set('value','');
+                trigger.jobUsr.display();
+                return nn;
             },
             qaStatement:function(propertyId){
                 return Y.Node.create('<li data-qa-propertyId="'+propertyId+'"></li>');
@@ -491,11 +604,13 @@ YUI.add('ja-pod-job',function(Y){
                 f.jobReminder     .set('value','');
                 f.jobWeather      .set('value','');
                 trigger.tree.nodeFocus(false);
+                h.jobUsrList.set('innerHTML','');
+                trigger.jobUsr.display();
             },
             qa:{
                 add:function(){
                     var selectedIndex=this.get('selectedIndex'),
-                        property=trigger.tree.labelData(),
+                        property=Y.JSON.parse(h.tvNode.get('nodeId')),
                         value=parseInt(this.get('value'),10),
                         opts=this.get('options'),
                         opt0=opts.item(0),
@@ -583,49 +698,11 @@ YUI.add('ja-pod-job',function(Y){
                     }
                 }
             },
-            showHide:function(){
-                var section=this.ancestor('.ja-section'),
-                    sectionList=section.one('ul')
-                ;
-                if(section.hasClass('ja-section-display')){
-                    if(this.hasClass('ja-display-service')){
-                        if(this.hasClass('ja-eye-open')){
-                            this.replaceClass('ja-eye-open','ja-eye-closed');
-                            h.serviceList.setStyle('display','none');
-                        }else{
-                            this.replaceClass('ja-eye-closed','ja-eye-open');
-                            h.serviceList.setStyle('display','');
-                        }
-                    }else if(this.hasClass('ja-display-details')){
-                        if(this.hasClass('ja-eye-open')){
-                            this.replaceClass('ja-eye-open','ja-eye-closed');
-                            h.detailsSection.setStyle('display','none');
-                        }else{
-                            this.replaceClass('ja-eye-closed','ja-eye-open');
-                            h.detailsSection.setStyle('display','');
-                        }
-                    }
-                }else if(section.hasClass('ja-section-statement')){
-                    if(this.hasClass('ja-eye-open')){
-                        this.replaceClass('ja-eye-open','ja-eye-squint');
-                        sectionList.all('.ja-actions').setStyle('display','none');
-                        section.setStyle('width','30em');
-                    }else if(this.hasClass('ja-eye-squint')){
-                        this.replaceClass('ja-eye-squint','ja-eye-closed');
-                        sectionList.all('.ja-info').setStyle('display','none');
-                        section.setStyle('width','26em');
-                    }else{
-                        this.replaceClass('ja-eye-closed','ja-eye-open');
-                        section.setStyle('width','35em');
-                        sectionList.all('.ja-actions,.ja-info').setStyle('display','');
-                    }
-                }
-            },
             tree:{
                 action:function(e){
                     var selectedIndex=this.get('selectedIndex'),
                         value=this.get('value'),
-                        property=trigger.tree.labelData(),
+                        property=Y.JSON.parse(h.tvNode.get('nodeId')),
                         propId,
                         newDetail=''
                     ;
@@ -633,23 +710,22 @@ YUI.add('ja-pod-job',function(Y){
                     if(value==='remove'){
                         trigger.tree.nodeFocus(false);
                         io.save.property(
-                            {remove:[trigger.tree.labelData().id]},
-                            function(){h.tvNode.remove();}
+                            {remove:[Y.JSON.parse(h.tvNode.get('nodeId')).id]},
+                            function(){
+                                h.tvNode.remove();
+                            }
                         );
                         return;
-                    }
+                    }else
                     if(selectedIndex===1){
                         if(newDetail=prompt('enter new property part detail')){
+                            property.detail=newDetail;
                             io.save.property(
-                                {record:[{
-                                    data:{
-                                        id    :property.id,
-                                        detail:newDetail
-                                    }
-                                }]},
+                                {record:[{data:property}]},
                                 function(){
-                                    h.tvNode.set('label','<!--'+property.id+','+property.prop+'-->'+JA.data.prop[property.prop].name+' '+newDetail);
-                                    h.tvLabel.set('innerHTML','<!--'+property.id+','+property.prop+'-->'+JA.data.prop[property.prop].name+' '+newDetail);
+                                    h.tvNode.set('label',JA.data.prop[property.prop].name+' '+newDetail);
+                                    h.tvNode.set('nodeId',Y.JSON.stringify(property));
+                                    h.tvLabel.set('innerHTML',JA.data.prop[property.prop].name+' '+newDetail);
                                     h.propertyPath.set('innerHTML',h.tvNode.path().join('/'));
                                 }
                             );
@@ -660,37 +736,26 @@ YUI.add('ja-pod-job',function(Y){
                             {record:[{
                                 data:{
                                     address:parseInt(f.jobAddress.get('value'),10),
-                                    parent :trigger.tree.labelData().id,
+                                    parent :Y.JSON.parse(h.tvNode.get('nodeId')).id,
                                     prop   :propId
                                 }
                             }]},
                             function(id,o){
-                                var rs=Y.JSON.parse(o.responseText)[0].property.record[0].data
-                                ;
-                                //treeNode widget gives error on get('contentBox') DOM node
-                                //added data as comment
                                 h.tvNode.add({
-                                    label:'<!--'+rs.id+','+propId+'-->'+JA.data.prop[propId].name
+                                    label :JA.data.prop[propId].name,
+                                    nodeId:Y.JSON.stringify(Y.JSON.parse(o.responseText)[0].property.record[0].data)
                                 });
                             }
                         );
                     }
                     this.set('selectedIndex',0);
                 },
-                labelData:function(){
-                    var label=h.tvNode.get('label'),
-                        data=label.substring(4,label.indexOf('-->')).split(',')
-                    ;
-                    return {
-                        id  :parseInt(data[0],10),
-                        prop:parseInt(data[1],10)
-                    };
-                },
                 nodeClick:function(e){
                     h.tvNode=e.treenode;
-                    var property=trigger.tree.labelData(),
-                        propBranch,
-                        propOptions=[],
+                    var property=Y.JSON.parse(h.tvNode.get('nodeId')),
+                        prop=JA.data.prop[property.prop],
+                        childReal='',
+                        childMeta='',
                         path=e.treenode.path()
                     ;
                     trigger.tree.nodeFocus(true);
@@ -698,14 +763,42 @@ YUI.add('ja-pod-job',function(Y){
                     h.qaTreeLabel.set('innerHTML',path[path.length-1].replace(/(<span style.*?<\/span>)/g,''));
                     d.qaCount=0;
                     //build property action options
-                        propBranch=trigger.traverse(JA.propStructure,property.prop);
-                        for(var i in propBranch){
-                            propOptions.push('<option value="'+i+'">'+JA.data.prop[i].name+'</option>');
-                        };
+                        //real
+                            Y.each(prop.children.real,function(propId){
+                                childReal+='<option value="'+propId+'">'+JA.data.prop[propId].name+'</option>';
+                            });
+                            if(childReal!==''){childReal='<optgroup label="create">'+childReal+'</optgroup>';}
+                        //meta
+                            Y.each(prop.types,function(propTypeId){
+                                var p=JA.data.prop[propTypeId],
+                                    metaStr='',
+                                    realStr=''
+                                ;
+                                //real
+                                    Y.each(p.children.real,function(propId){
+                                        realStr+='<option value="'+propId+'">'+JA.data.prop[propId].name+'</option>';
+                                    });
+                                    if(realStr!==''){
+                                        childReal+='<optgroup label="'+p.name+'">'+realStr+'</optgroup>';
+                                    }
+                                //meta
+                                    Y.each(p.children.meta,function(metaPropId){
+                                        Y.each(JA.data.prop,function(pt){
+                                            //props contains types
+                                            if(!pt.meta && (Y.Array.indexOf(pt.types,metaPropId)!==-1 || pt.id===metaPropId)){
+                                                metaStr+='<option value="'+pt.id+'">'+JA.data.prop[pt.id].name+'</option>';
+                                            }
+                                        });
+                                    });
+                                    if(metaStr!==''){
+                                        childMeta+='<optgroup label="'+p.name+'">'+metaStr+'</optgroup>';
+                                    }
+                            });
                     h.propertyAction.set('innerHTML',
                         '<option>...</option>'+
                         '<option>set new detail</option>'+
-                        (propOptions.length===0?'':'<optgroup label="create">'+propOptions.join('')+'</optgroup>')+
+                        childReal+
+                        childMeta+
                         (h.tvNode.get('isLeaf')?'<optgroup label="remove"><option value="remove">proceed</option></optgroup>':'')
                     );
                     //display qa
@@ -717,11 +810,6 @@ YUI.add('ja-pod-job',function(Y){
                                 li.setStyle('display','none');
                             }
                         });
-                    console.log(
-                        "\nYou clicked "+h.tvNode.get("label")+(h.tvNode.get("isLeaf")?" (leaf)":" (node)")+
-                        "\nIndex is: "+h.tvNode.get('index')+
-                        "\nState is: "+(h.tvNode.get("collapsed") ? "collapsed" : "expanded")
-                    );
                 },
                 nodeFocus:function(state){
                     if(state){
@@ -737,17 +825,10 @@ YUI.add('ja-pod-job',function(Y){
                     }
                 }
             },
-            traverse:function(o,key){
-                var obj
-                ;
-                for(var i in o){
-                    if(parseInt(i,10)===key){return o[i];}
-                    if(typeof(o[i])=='object'){
-                        obj=trigger.traverse(o[i],key);
-                        if(obj!==false){return obj;}
-                    }
+            jobUsr:{
+                display:function(){
+                    h.usrAdd.setStyle('display',f.usrFirstName.get('value')===''||f.usrLastName.get('value')===''?'none':'');
                 }
-                return false;
             }
         };
         /**

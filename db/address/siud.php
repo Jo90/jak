@@ -1,6 +1,5 @@
 <?php
 /** //db/address/siud.php
- *
  */
 namespace ja;
 

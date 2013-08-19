@@ -77,13 +77,17 @@ YUI({<?php require 'modules.inc'; ?>}).use(
                 ;
 
                 //extend prop with propChild and propType to ease lookup
+                Y.each(JA.data.prop,function(prop){
+                    prop.children={meta:[],real:[]};
+                    prop.types=[];
+                });
                 Y.each(JA.data.propChild,function(propChild){
-                    if(typeof JA.data.prop[propChild.prop].child){JA.data.prop[propChild.prop].child=[];}
-                    JA.data.prop[propChild.prop].child.push(propChild.child);
+                    JA.data.prop[propChild.prop].meta
+                        ?JA.data.prop[propChild.prop].children.meta.push(propChild.child)
+                        :JA.data.prop[propChild.prop].children.real.push(propChild.child);
                 });
                 Y.each(JA.data.propType,function(propType){
-                    if(typeof JA.data.prop[propType.type].child){JA.data.prop[propType.prop].type=[];}
-                    JA.data.prop[propType.prop].type.push(propType.type);
+                    JA.data.prop[propType.prop].types.push(propType.type);
                 });
 
                 Y.JA.pod.userLogon({

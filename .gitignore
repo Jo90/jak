@@ -10,3 +10,7 @@
 # temporary and miscellaneous files
 *.tmp
 *.temp
+
+*.sql
+
+db/build.sql

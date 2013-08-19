@@ -1,6 +1,5 @@
 <?php
 /** //db/address/common.php
- *
  */
 namespace ja;
 
@@ -114,9 +113,9 @@ function addr_setAddress(&$i) {
 
                 //site, null parent
                 //>>>>>FINISH should not hard code site, et al Ids
-                $siteId     = 31;
-                $buildingId = 32;
-                $landId     = 33;
+                $siteId     = 21;
+                $buildingId = 22;
+                $landId     = 23;
                 $addressId = $rec->data->id;
                 $rec->property = (object) array (
                     'record' => array (

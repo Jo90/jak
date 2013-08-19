@@ -1,6 +1,5 @@
 <?php
 /** //db/address/common.php
- *
  */
 namespace ja;
 

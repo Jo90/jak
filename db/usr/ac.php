@@ -1,8 +1,5 @@
 <?php
 /** //db/address/ac.php
- *
- *  used by
- *  - /mod/job.js
  */
 namespace ja;
 

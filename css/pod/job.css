@@ -20,6 +20,9 @@
 .ja-pod-job .ja-data-ref {width:2.5em;}
 .ja-pod-job .ja-data-jobService-fee {width:4em;}
 
+/*jobUsr*/
+.ja-pod-job .ja-list-jobUsr li span {display:inline-block;width:15em;}
+
 /*property*/
 .ja-pod-job .ja-section-property {float:left;width:25em;}
 .ja-pod-job .ja-section-property > legend > div {font-size:.7em;}

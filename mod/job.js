@@ -178,11 +178,11 @@ YUI.add('ja-mod-job',function(Y){
                     var usrInfo=[]
                     ;
                     //usr
-                    Y.each(d.rs.usrJob.data,function(usrJob){
-                        if(usrJob.job!==job.id){return;}
+                    Y.each(d.rs.jobUsr.data,function(jobUsr){
+                        if(jobUsr.job!==job.id){return;}
                         Y.each(d.rs.usr.data,function(usr){
-                            if(usr.id!==usrJob.usr){return;}
-                            usrInfo.push(usr.firstName+'('+usrJob.purpose+')');
+                            if(usr.id!==jobUsr.usr){return;}
+                            usrInfo.push(usr.firstName+'('+jobUsr.purpose+')');
                         });
                     });
                     h.dt.addRow({
@@ -399,8 +399,8 @@ YUI.add('ja-mod-job',function(Y){
                         +  '<li>Count of each of the top level statements</li>'
                         +  '<li>Property part statistics, perhaps a data grid?</li>'
                         +'</ul>';
-                }
-                else
+                }else
+
                 if(this.hasClass('ja-rep-detail')){
                     html='<h1>Details - Job#'+jobId+' '+address.full+'</h1>';
                     if(jobDetail===false){
@@ -427,10 +427,10 @@ YUI.add('ja-mod-job',function(Y){
                             });
                         });
 
-                        html+='<h3>Safety</h3>';
+                        html+='<h3>Ret*</h3>';
                         Y.each(qaRef,function(ref,refId){
                             //filter
-                            if(refId!=='Safety' && refId!=='SafetyLevel'){return;}
+                            if(!/Ret.*/.test(refId)){return;}
                             Y.each(ref,function(rec){
                                 if(Y.Lang.isArray(rec.value)){ //checkbox
                                     if(rec.value[1]){
@@ -441,7 +441,21 @@ YUI.add('ja-mod-job',function(Y){
                                 }
                             });
                         });
-debugger;
+                        html+='<h3>Roof*</h3>';
+                        Y.each(qaRef,function(ref,refId){
+                            //filter
+                            if(!/Roof.*/.test(refId)){return;}
+                            Y.each(ref,function(rec){
+                                if(Y.Lang.isArray(rec.value)){ //checkbox
+                                    if(rec.value[1]){
+                                        html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+refId+': '+rec.value[0]+'<br/>';
+                                    }
+                                }else{
+                                    html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+refId+': '+rec.value+'<br/>';
+                                }
+                            });
+                        });
+
                         html+='<h3>Templating Examples</h3>';
                         
                         // template for each qa, not statement as these are not consistent
@@ -469,8 +483,8 @@ debugger;
 
 
                     }
-                }
-                else
+                }else
+
                 if(this.hasClass('ja-rep-1')){
                     //substitute final values
 

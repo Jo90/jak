@@ -166,7 +166,7 @@ modules:{
         requires:['ja-common','ja-css-pod-usr']
     },
     'ja-pod-usrFind':{
-        fullpath:'/pod/usrFind.php',
+        fullpath:'/pod/usrFind.js',
         requires:['ja-common','ja-css-pod-usrFind']
     },
     /**

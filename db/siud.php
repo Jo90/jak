@@ -36,6 +36,12 @@ foreach ($post as $i) {
                     ? $r->job = job_getJobProperty($dataSet)
                     : job_setJobProperty($dataSet);
                 break;
+            case 'jobUsr':
+                require_once 'job/common.php';
+                $criteria
+                    ? $r->jobUsr = job_getJobUsr($dataSet)
+                    : job_setJobUsr($dataSet);
+                break;
             case 'property':
                 require_once 'address/common.php';
                 $criteria
@@ -43,6 +49,10 @@ foreach ($post as $i) {
                     : addr_setProperty($dataSet);
                 break;
             case 'usr':
+                require_once 'usr/common.php';
+                $criteria
+                    ? $r->usr = usr_getUsr($dataSet->criteria)
+                    : usr_setUsr($dataSet);
                 break;
         }
     }

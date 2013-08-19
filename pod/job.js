@@ -10,8 +10,8 @@ YUI.add('ja-pod-job',function(Y){
 
         cfg=Y.merge({
             title   :'job',
-            width   :1250,
             visible :true,
+            width   :1250,
             xy      :[10,20],
             zIndex  :99999
         },cfg);
@@ -20,7 +20,7 @@ YUI.add('ja-pod-job',function(Y){
             id         :'job',
             title      :cfg.title,
             description:'job details',
-            version    :'v1.0 March 2013'
+            version    :'v1.0 August 2013'
         };
 
         var self=this,
@@ -45,8 +45,8 @@ YUI.add('ja-pod-job',function(Y){
             if(typeof cfg.appointment!=='undefined'){delete cfg.appointment;}
             cfg=Y.merge(cfg,p);
             Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
-            h.ol.show();
             trigger.reset();
+            h.ol.show();
             typeof p.job!=='undefined'
                 ?io.fetch.job()
                 :io.insert.job();

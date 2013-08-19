@@ -33,11 +33,11 @@ function propChildren($propIdArr) {
     foreach ($r->propChild as $propChild) {
         if (in_array($propChild->prop, $propIdArr)) {$children[] = $propChild->child;}
     }
-    //if child is type get all of type
+    //if child is meta get all of meta
     $childs = $children;
     foreach ($childs as $child) {
         $prop = $r->prop->{$child};
-        if ($prop->type) {
+        if ($prop->meta) {
             foreach ($r->propType as $propType) {
                 if ($propType->type == $prop->id) {
                     $children[] = $propType->prop;
@@ -47,7 +47,7 @@ function propChildren($propIdArr) {
     }
     //remove meta children
     foreach ($children as $key=>$child) {
-        if ($r->prop->{$child}->type) {unset($children[$key]);}
+        if ($r->prop->{$child}->meta) {unset($children[$key]);}
     }
     return $children;
 }
@@ -57,7 +57,7 @@ function buildTree($propIds) {
     $propIdArr = $propIds;
     foreach ($propIds as $propId) {
         $prop = $r->prop->{$propId};
-        if (!$prop->type) {//actual prop part
+        if (!$prop->meta) {//actual prop part
             //get any types
             foreach ($r->propType as $propType) {
                 if ($propType->prop == $propId) {

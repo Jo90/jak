@@ -97,7 +97,7 @@ YUI.add('ja-pod-usrFind',function(Y){
                 h.ol.hide();
                 Y.JA.widget.dialogMask.hide();
             });
-            h.dtc.delegate('click',trigger.selectUsr,'tr');
+            h.dtc.delegate('click',trigger.usr.select,'td');
             //Y.one('.ja-add-user').on('click',pod.display.usr);
             h.userFind.on('click',io.fetch.usr);
             //custom
@@ -109,20 +109,20 @@ YUI.add('ja-pod-usrFind',function(Y){
                 usr:function(e){
                     e.halt();
                     h.podInvoke=e.currentTarget;
-                    if(!self.my.usrFind){pod.load.usr({});return false;}
-                    self.my.usrFind.display({});
+                    if(!self.my.usr){pod.load.usr({});return false;}
+                    self.my.usr.display({});
                 }
             },
             load:{
                 usr:function(p){
                     Y.use('ja-pod-usr',function(Y){
-                        self.my.usrFind=new Y.JA.pod.usr(p);
+                        self.my.usr=new Y.JA.pod.usr(p);
                         //listeners
-                        Y.JA.whenAvailable.inDOM(self,'my.usrFind',function(){
-                            this.my.usrFind.set('zIndex',h.ol.get('zIndex')+10);
+                        Y.JA.whenAvailable.inDOM(self,'my.usr',function(){
+                            this.my.usr.set('zIndex',h.ol.get('zIndex')+10);
                             h.podInvoke.simulate('click');
                         });
-                        Y.on(self.my.usrFind.customEvent.returnSelection,pod.result.usr);
+//                        Y.on(self.my.usr.customEvent.returnSelection,pod.result.usr);
                     });
                 }
             },
@@ -142,7 +142,8 @@ YUI.add('ja-pod-usrFind',function(Y){
                         id       :usr.id,
                         title    :usr.title,
                         firstName:usr.firstName,
-                        lastName :usr.lastName
+                        lastName :usr.lastName,
+                        edit     :Y.JA.html('btn',{action:'edit',title:'edit user'})
                     });
                 });
                 Y.JA.widget.busy.set('message','');
@@ -177,7 +178,8 @@ YUI.add('ja-pod-usrFind',function(Y){
                         {key:'id'         ,label:'id'    },
                         {key:'title'      ,label:'title' },
                         {key:'firstName'  ,label:'name'  },
-                        {key:'lastName'   ,label:'family'}
+                        {key:'lastName'   ,label:'family'},
+                        {key:'edit'       ,label:'edit'  ,allowHTML:true}
                     ],
                     data    :[],
                     sortable:true,
@@ -188,16 +190,24 @@ YUI.add('ja-pod-usrFind',function(Y){
         };
 
         trigger={
-            selectUsr:function(e){
-                var cells=this.all('td')
-                ;
-                Y.fire(self.customEvent.returnSelection,{
-                    id       :parseInt(cells.item(0).get('innerHTML'),10),
-                    title    :cells.item(1).get('innerHTML'),
-                    firstName:cells.item(2).get('innerHTML'),
-                    lastName :cells.item(3).get('innerHTML')
-                });
-                h.close.simulate('click');
+            usr:{
+                select:function(e){
+                    var rec=this.ancestor('tr'),
+                        cells=rec.all('td')
+                    ;
+                    //exclude edit
+                        if(this.hasClass('yui3-datatable-col-edit')){
+                            pod.display.usr(e);
+                            return;
+                        }
+                    Y.fire(self.customEvent.returnSelection,{
+                        id       :parseInt(cells.item(0).get('innerHTML'),10),
+                        title    :cells.item(1).get('innerHTML'),
+                        firstName:cells.item(2).get('innerHTML'),
+                        lastName :cells.item(3).get('innerHTML')
+                    });
+                    h.close.simulate('click');
+                }
             }
         };
 

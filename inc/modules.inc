@@ -162,7 +162,7 @@ modules:{
         requires:['ja-common','ja-css-pod-rep']
     },
     'ja-pod-usr':{
-        fullpath:'/pod/usr.php',
+        fullpath:'/pod/usr.js',
         requires:['ja-common','ja-css-pod-usr']
     },
     'ja-pod-usrFind':{

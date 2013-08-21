@@ -1,7 +1,8 @@
 /** /css/pod/usr.css
  *
  */
-
-.ja-pod-usr .ja-data-firstName {width:15em;}
-.ja-pod-usr .ja-data-lastName  {width:15em;}
+.ja-pod-usr .ja-data-usr-id        {width:2em;}
+.ja-pod-usr .ja-data-usr-title     {width:4em;}
+.ja-pod-usr .ja-data-usr-firstName,
+.ja-pod-usr .ja-data-usr-lastName  {width:8em;}
 

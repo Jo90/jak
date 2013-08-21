@@ -51,7 +51,7 @@ foreach ($post as $i) {
             case 'usr':
                 require_once 'usr/common.php';
                 $criteria
-                    ? $r->usr = usr_getUsr($dataSet->criteria)
+                    ? $r->usr = usr_getUsr($dataSet)
                     : usr_setUsr($dataSet);
                 break;
         }

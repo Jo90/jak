@@ -124,24 +124,23 @@ YUI.add('ja-pod-job',function(Y){
                         }])
                     });
                 },
-                jobUsr:function(jobUsr){
+                jobUsr:function(usr){
                     Y.JA.widget.busy.set('message','new user job...');
                     Y.io('/db/siud.php',{
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var data=Y.JSON.parse(o.responseText)[0].jobUsr.record[0].data
+                            var jobUsr=Y.JSON.parse(o.responseText)[0].jobUsr.record[0].data
                             ;
-                            jobUsr.id     =data.id;
-                            jobUsr.job    =data.job;
-                            jobUsr.purpose=data.purpose;
+                            jobUsr.firstName=usr.firstName;
+                            jobUsr.lastName =usr.lastName;
                             render.jobUsr(jobUsr);
                             Y.JA.widget.busy.set('message','');
                         }},
                         data:Y.JSON.stringify([{
                             jobUsr:{record:[{data:{
-                                usr    :jobUsr.usr,
-                                job    :jobUsr.job,
+                                usr    :usr.id,
+                                job    :parseInt(f.jobId.get('value'),10),
                                 purpose:d.defaultPurpose
                             }}]},
                             user:JA.user.usr
@@ -346,8 +345,7 @@ YUI.add('ja-pod-job',function(Y){
         populate={
             job:function(id,o){
                 d.rs=Y.JSON.parse(o.responseText)[0].result;
-                var addresses=d.rs.address.data,
-                    job=Y.JA.firstRecord(d.rs.job.data), //only 1 job anyway
+                var job=Y.JA.firstRecord(d.rs.job.data), //only 1 job anyway
                     jobDetail=(job.detail!=='' && job.detail!==null?Y.JSON.parse(job.detail):false)
                 ;
                 d.propertyQaCount={};
@@ -366,9 +364,9 @@ YUI.add('ja-pod-job',function(Y){
                 Y.JA.matchSelect(f.jobWeather,job.weather);
                 f.jobAddress.set('value',job.address);
                 f.jobAddressDetail.set('innerHTML',
-                    addresses[job.address].streetRef+' '+
-                    addresses[job.address].streetName+', '+
-                    d.rs.location.data[addresses[job.address].location].full
+                    d.rs.jobAddress.data[job.address].streetRef+' '+
+                    d.rs.jobAddress.data[job.address].streetName+', '+
+                    d.rs.jobAddressLocation.data[d.rs.jobAddress.data[job.address].location].full
                 );
                 //users
                     Y.each(d.rs.jobUsr.data,function(jobUsr,idx){

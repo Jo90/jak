@@ -9,22 +9,26 @@ YUI.add('ja-pod-usr',function(Y){
         ){cfg={};}
 
         cfg=Y.merge({
-            title      :'team',
-            visible    :false,
-            width      :1000,
+            title      :'user',
+            visible    :true,
+            width      :700,
             xy         :[10,20],
-            zIndex     :999
+            zIndex     :999999
         },cfg);
 
         this.info={
-            id         :'usrEdit',
+            id         :'usr',
             title      :cfg.title,
             description:'edit user/contact/client details',
             version    :'v1.0 August 2013'
         };
 
         var self=this,
-            d={},h={},
+            d={
+                defaultAddressPurpose:'Home',
+                defaultInfoCategory  :'Phone'
+            },
+            f={},h={},
             initialise,
             io={},
             listeners,
@@ -39,6 +43,7 @@ YUI.add('ja-pod-usr',function(Y){
             Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
             trigger.reset();
             h.ol.show();
+            io.fetch.usr();
         };
 
         this.get=function(what){
@@ -74,12 +79,17 @@ YUI.add('ja-pod-usr',function(Y){
                         }])
                     });
                 }
+            },
+            save:{
+                usr:function(){
+                    debugger;
+                }
             }
         };
 
         listeners=function(){
             h.close.on('click',function(){h.ol.hide();Y.JA.widget.dialogMask.hide();});
-
+            h.save.on('click',io.save.usr);
         };
 
         pod={
@@ -130,6 +140,23 @@ YUI.add('ja-pod-usr',function(Y){
 
         populate={
             usr:function(id,o){
+                var rs=Y.JSON.parse(o.responseText)[0].result
+                ;
+                Y.each(rs.usr.data,function(usr){
+                    f.usrId       .set('value',usr.id);
+                    f.usrTitle    .set('value',usr.title);
+                    f.usrFirstName.set('value',usr.firstName);
+                    f.usrLastName .set('value',usr.lastName);
+                    //address
+                        Y.each(rs.usrAddress.data,function(usrAddress){
+                            render.usrAddress(usrAddress);
+                        });
+                    //info
+                        Y.each(rs.usrInfo.data,function(usrInfo){
+                            render.usrInfo(usrInfo);
+                        });
+                });
+                Y.JA.widget.busy.set('message','');
             }
         };
 
@@ -137,56 +164,84 @@ YUI.add('ja-pod-usr',function(Y){
             base:function(){
                 h.ol=new Y.Overlay({
                     headerContent:
-                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAPS">'+self.info.title+'</span> '
-                       +Y.JA.html('btn',{action:'add',label:'add new group',title:'add information category'})
-                       +Y.JA.html('btn',{action:'close',title:'close pod'})
-                   ,bodyContent:''
-                   ,footerContent:Y.JA.html('btn',{action:'save',title:'save' ,label:'save'})
-                   ,visible:cfg.visible
-                   ,width  :cfg.width
-                   ,xy     :cfg.xy
-                   ,zIndex :cfg.zIndex
-                }).plug(Y.Plugin.Resize).render();
+                        '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAK">'+self.info.title+'</span> '
+                       +'<input type="text" disabled="diusabled" class="ja-data ja-data-usr-id">'
+                       +'<input type="text" placeholder="title" class="ja-data ja-data-usr-title">'
+                       +'<input type="text" placeholder="first name" class="ja-data ja-data-usr-firstName">'
+                       +'<input type="text" placeholder="last name" class="ja-data ja-data-usr-lastName">'
+                       +Y.JA.html('btn',{action:'close',title:'close pod'}),
+                    bodyContent:'',
+                    footerContent:Y.JA.html('btn',{action:'save',title:'save' ,label:'save'}),
+                    visible:cfg.visible,
+                    width  :cfg.width,
+                    xy     :cfg.xy,
+                    zIndex :cfg.zIndex
+                }).render();
 
                 h.tv=new Y.TabView({
                     children:[
-                        {
-                            label:'Address',
-                            content:
-                                'address stuff'
-                        },
-                        {
-                            label:'Info',
-                            content:
-                                'info stuff'
-                        }
+                        {label:'Address',content:'<ul></ul>'},
+                        {label:'Info'   ,content:'<ul></ul>'}
                     ]
                 }).render(h.ol.bodyNode);
                 //shortcuts
-                    h.hd     =h.ol.headerNode;
-                    h.bd     =h.ol.bodyNode;
-                    h.ft     =h.ol.footerNode;
-                    h.bb     =h.ol.get('boundingBox');
-                    h.close  =h.hd.one('.ja-close');
+                    h.hd   =h.ol.headerNode;
+                    h.bd   =h.ol.bodyNode;
+                    h.ft   =h.ol.footerNode;
+                    h.bb   =h.ol.get('boundingBox');
+                    h.close=h.hd.one('.ja-close');
+                    h.save =h.ft.one('.ja-save');
 
-                    h.tvAddress=h.tv.item(0).get('panelNode');
-                    h.tvInfo   =h.tv.item(1).get('panelNode');
+                    f.usrId       =h.hd.one('.ja-data-usr-id');
+                    f.usrTitle    =h.hd.one('.ja-data-usr-title');
+                    f.usrFirstName=h.hd.one('.ja-data-usr-firstName');
+                    f.usrLastName =h.hd.one('.ja-data-usr-lastName');
+
+                    h.tvUsrAddress    =h.tv.item(0).get('panelNode');
+                    h.tvUsrAddressList=h.tvUsrAddress.one('ul');
+                    h.tvUsrInfo       =h.tv.item(1).get('panelNode');
+                    h.tvUsrInfoList   =h.tvUsrInfo.one('ul');
+            },
+            usrAddress:function(obj){
+                var nn=Y.Node.create(
+                     '<li>'
+                    +  '<input type="hidden" class="ja-data ja-data-usrAddress-id" value="'+obj.id+'" />'
+                    +  '<select class="ja-data ja-data-usrAddress-purpose">'
+                    +    '<option>'+d.defaultAddressPurpose+'</option>'
+                    +    '<option>Work</option>'
+                    +    '<option>Postal</option>'
+                    +    '<option>Other</option>'
+                    +  '</select>'
+                    +  '<span>'+obj.streetRef+' '+obj.streetName+' '+obj.locationName+'</span>'
+                    +  Y.JA.html('btn',{action:'remove',title:'remove'})
+                    +'</li>'
+                );
+                h.tvUsrAddressList.append(nn);
+                Y.JA.matchSelect(nn.one('.ja-data-usrAddress-purpose'),obj.purpose);
+                return nn;
+            },
+            usrInfo:function(obj){
+                var nn=Y.Node.create(
+                     '<li>'
+                    +  '<input type="hidden" class="ja-data ja-data-usrInfo-id" value="'+obj.id+'" />'
+                    +  '<select class="ja-data ja-data-usrInfo-category">'
+                    +    '<option>'+d.defaultInfoCategory+'</option>'
+                    +    '<option>Phone</option>'
+                    +    '<option>Fax</option>'
+                    +    '<option>Other</option>'
+                    +  '</select>'
+                    +  '<span>'+obj.detail+'</span>'
+                    +  Y.JA.html('btn',{action:'remove',title:'remove'})
+                    +'</li>'
+                );
+                h.tvUsrInfoList.append(nn);
+                Y.JA.matchSelect(nn.one('.ja-data-usrInfo-category'),obj.category);
+                return nn;
             }
         };
 
         trigger={
             reset:function(){
-                f.jobId           .set('value','');
-                f.jobAddress      .set('value','');
-                f.jobAddressDetail.set('innerHTML','');
-                f.jobRef          .set('value','');
-                f.jobAppointment  .set('value','');
-                f.jobConfirmed    .set('value','');
-                f.jobReminder     .set('value','');
-                f.jobWeather      .set('value','');
-                trigger.tree.nodeFocus(false);
-                h.jobUsrList.set('innerHTML','');
-                trigger.jobUsr.display();
             }
         };
 

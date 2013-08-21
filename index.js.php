@@ -30,9 +30,7 @@ if (defined('JA_ENV_DEVICE')) {echo 'JA.env.device="' , JA_ENV_DEVICE , '";' , P
 
 if (isset($_SESSION[JA_MEMBER])) {
     require_once 'db/usr/common.php';
-    $criteria = new \stdClass;
-    $criteria->usrIds = array($_SESSION[JA_MEMBER]);
-    $r = usr_getUsr($criteria);
+    $r = usr_getUsr((object) array('criteria' => (object) array('usrIds' => array($_SESSION[JA_MEMBER]))));
     $member = firstElement($r->data);
     echo('JA.user.usr=' . json_encode($member) . ';' . PHP_EOL);
 }

@@ -1,20 +1,15 @@
 <?php
 /** //inc/userLogon.php
- *
  */
 namespace ja;
 
-//logout
 if (isset($_REQUEST['logout'])) {unset($_SESSION[JA_MEMBER]); exit;}
-
 if (!isset($_REQUEST['logon'], $_REQUEST['hash'])) {exit;}
 
 //logon
 require_once '../db/usr/common.php';
-$criteria = new \stdClass;
 
-$criteria->logon = $_REQUEST['logon'];
-$r = usr_getUsr($criteria);
+$r = usr_getUsr((object) array('criteria' => (object) array('logon' => $_REQUEST['logon'])));
 if (!isset($r->data)) {exit;}
 $member = firstElement($r->data);
 

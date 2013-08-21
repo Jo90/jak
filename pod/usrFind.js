@@ -9,8 +9,8 @@ YUI.add('ja-pod-usrFind',function(Y){
         ){cfg={};}
 
         cfg=Y.merge({
-            title      :'find user',
-            width      :1000,
+            title      :'user',
+            width      :500,
             xy         :[10,20],
             zIndex     :99999
         },cfg);
@@ -98,10 +98,7 @@ YUI.add('ja-pod-usrFind',function(Y){
                 Y.JA.widget.dialogMask.hide();
             });
             h.dtc.delegate('click',trigger.usr.select,'td');
-            //Y.one('.ja-add-user').on('click',pod.display.usr);
             h.userFind.on('click',io.fetch.usr);
-            //custom
-                Y.on('ja-db-usrFind:s',populate.usr);
         };
 
         pod={
@@ -110,7 +107,9 @@ YUI.add('ja-pod-usrFind',function(Y){
                     e.halt();
                     h.podInvoke=e.currentTarget;
                     if(!self.my.usr){pod.load.usr({});return false;}
-                    self.my.usr.display({});
+                    self.my.usr.display({
+                        usr:parseInt(e.currentTarget.ancestor('tr').one('td.yui3-datatable-col-id').get('innerHTML'),10)
+                    });
                 }
             },
             load:{
@@ -119,7 +118,7 @@ YUI.add('ja-pod-usrFind',function(Y){
                         self.my.usr=new Y.JA.pod.usr(p);
                         //listeners
                         Y.JA.whenAvailable.inDOM(self,'my.usr',function(){
-                            this.my.usr.set('zIndex',h.ol.get('zIndex')+10);
+                            self.my.usr.set('zIndex',h.ol.get('zIndex')+10);
                             h.podInvoke.simulate('click');
                         });
 //                        Y.on(self.my.usr.customEvent.returnSelection,pod.result.usr);
@@ -135,7 +134,8 @@ YUI.add('ja-pod-usrFind',function(Y){
 
         populate={
             usr:function(id,o){
-                var rs=Y.JSON.parse(o.responseText)[0].usr.result;
+                var rs=Y.JSON.parse(o.responseText)[0].usr.result
+                ;
                 h.dt.set('data',null);
                 Y.each(rs.usr.data,function(usr){
                     h.dt.addRow({
@@ -163,7 +163,7 @@ YUI.add('ja-pod-usrFind',function(Y){
                     width  :cfg.width,
                     xy     :cfg.xy,
                     zIndex :cfg.zIndex
-                }).plug(Y.Plugin.Resize).render();
+                }).render();
                 //shortcuts
                     h.hd           =h.ol.headerNode;
                     h.bd           =h.ol.bodyNode;

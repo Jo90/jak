@@ -7,37 +7,38 @@ namespace ja;
 require_once ROOT . '/db/common.php';
 require_once ROOT . '/db/prop/common.php';
 
-function job_getJob($criteria) {
+function job_getJob($i, $extend = false) {
     global $mysqli;
 
-    $r = initResult($criteria);
+    $r = $extend ? initResult($i) : new \stdClass;
+    $c = $i->criteria;
 
     $cnd     = '';
     $orderBy = '';
     $limit   = '';
 
     //criteria
-    if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0) {
-        $jobIds = implode(',', $criteria->jobIds);
+    if (isset($c->jobIds) && is_array($c->jobIds) && count($c->jobIds) > 0) {
+        $jobIds = implode(',', $c->jobIds);
         $cnd = "where id in ($jobIds)";
     } else
-    if (isset($criteria->addressIds) && is_array($criteria->addressIds) && count($criteria->addressIds) > 0) {
-        $addressIds = implode(',', $criteria->addressIds);
+    if (isset($c->addressIds) && is_array($c->addressIds) && count($c->addressIds) > 0) {
+        $addressIds = implode(',', $c->addressIds);
         $cnd = "where address in ($addressIds)";
     } else
-    if (isset($criteria->appointmentStart,$criteria->appointmentEnd)) {
-        $cnd = "where appointment between $criteria->appointmentStart and $criteria->appointmentEnd";
+    if (isset($c->appointmentStart,$c->appointmentEnd)) {
+        $cnd = "where appointment between $c->appointmentStart and $c->appointmentEnd";
     } else
     //last jobs
-    if (isset($criteria->lastJob) && $criteria->lastJob) {
+    if (isset($c->lastJob) && $c->lastJob == 1) {
         $orderBy = 'order by id desc';
     }
 
-    if (isset($criteria->orderBy)) {
-        $orderBy = ' order by ' . $criteria->orderBy;
+    if (isset($c->orderBy)) {
+        $orderBy = ' order by ' . $c->orderBy;
     }
-    if (isset($criteria->rowLimit)) {
-        $limit = ' limit ' . $criteria->rowLimit;
+    if (isset($c->rowLimit)) {
+        $limit = ' limit ' . $c->rowLimit;
     }
 
     if ($stmt = $mysqli->prepare(
@@ -52,31 +53,32 @@ function job_getJob($criteria) {
     return $r;
 }
 
-function job_getJobUsr($criteria) {
+function job_getJobUsr($i, $extend = false) {
     global $mysqli;
 
-    $r = initResult($criteria);
+    $r = $extend ? initResult($i) : new \stdClass;
+    $c = $i->criteria;
 
     $cnd   = '';
     $limit = '';
 
     //conditions
-    if (isset($criteria->usrJobIds) && is_array($criteria->usrJobIds) && count($criteria->usrJobIds) > 0) {
-        $jobUsrIds = implode(',', $criteria->jobUsrIds);
+    if (isset($c->jobUsrIds) && is_array($c->jobUsrIds) && count($c->jobUsrIds) > 0) {
+        $jobUsrIds = implode(',', $c->jobUsrIds);
         $cnd = "where id in ($jobUsrIds)";
     } else
-    if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0) {
-        $jobIds = implode(',', $criteria->jobIds);
+    if (isset($c->jobIds) && is_array($c->jobIds) && count($c->jobIds) > 0) {
+        $jobIds = implode(',', $c->jobIds);
         $cnd = "where job in ($jobIds)";
     } else
     //usrs
-    if (isset($criteria->usrIds) && is_array($criteria->usrIds) && count($criteria->usrIds) > 0) {
-        $usrIds = implode(',', $criteria->usrIds);
+    if (isset($c->usrIds) && is_array($c->usrIds) && count($c->usrIds) > 0) {
+        $usrIds = implode(',', $c->usrIds);
         $cnd = "where usr in ($usrIds)";
     }
 
-    if (isset($criteria->rowLimit)) {
-        $limit = ' limit ' . $criteria->rowLimit;
+    if (isset($c->rowLimit)) {
+        $limit = ' limit ' . $c->rowLimit;
     }
 
     if ($stmt = $mysqli->prepare(
@@ -91,29 +93,30 @@ function job_getJobUsr($criteria) {
     return $r;
 }
 
-function job_getJobProperty($criteria) {
+function job_getJobProperty($i, $extend = false) {
     global $mysqli;
 
-    $r = initResult($criteria);
+    $r = $extend ? initResult($i) : new \stdClass;
+    $c = $i->criteria;
 
     $cnd   = '';
     $limit = '';
 
-    if (isset($criteria->jobPropertyIds) && is_array($criteria->jobPropertyIds) && count($criteria->jobPropertyIds) > 0) {
-        $jobPropertyIds = implode(',', $criteria->jobPropertyIds);
+    if (isset($c->jobPropertyIds) && is_array($c->jobPropertyIds) && count($c->jobPropertyIds) > 0) {
+        $jobPropertyIds = implode(',', $c->jobPropertyIds);
         $cnd = "where id in ($jobPropertyIds)";
     } else
-    if (isset($criteria->jobIds) && is_array($criteria->jobIds) && count($criteria->jobIds) > 0){
-        $jobIds = implode(',', $criteria->jobIds);
+    if (isset($c->jobIds) && is_array($c->jobIds) && count($c->jobIds) > 0){
+        $jobIds = implode(',', $c->jobIds);
         $cnd = "where job in ($jobIds)";
     } else
-    if (isset($criteria->propertyIds) && is_array($criteria->propertyIds) && count($criteria->propertyIds) > 0){
-        $propertyIds = implode(',', $criteria->propertyIds);
+    if (isset($c->propertyIds) && is_array($c->propertyIds) && count($c->propertyIds) > 0){
+        $propertyIds = implode(',', $c->propertyIds);
         $cnd = "where property in ($propertyIds)";
     }
 
-    if (isset($criteria->rowLimit)) {
-        $limit = ' limit ' . $criteria->rowLimit;
+    if (isset($c->rowLimit)) {
+        $limit = ' limit ' . $c->rowLimit;
     }
 
     if ($stmt = $mysqli->prepare(

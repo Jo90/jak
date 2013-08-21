@@ -2,6 +2,6 @@
  *
  */
 
-.ja-pod-usrFind .ja-data-firstName {width:15em;}
-.ja-pod-usrFind .ja-data-lastName  {width:15em;}
+.ja-pod-usrFind .ja-data-usr-firstName,
+.ja-pod-usrFind .ja-data-usr-lastName  {width:8em;}
 

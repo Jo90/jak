@@ -9,8 +9,8 @@ namespace ja;
  */
 
 function initResult(&$i) {
-    $i->log = array();
-    $i->result = new \stdClass;
+    if (!isset($i->log   )) {$i->log = array();}
+    if (!isset($i->result)) {$i->result = new \stdClass;}
     return $i->result;
 }
 

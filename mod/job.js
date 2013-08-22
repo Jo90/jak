@@ -80,10 +80,8 @@ YUI.add('ja-mod-job',function(Y){
                         headers:{'Content-Type':'application/json'},
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
-                            job:{
-                            	criteria:criteria
-                            },
-                            usr:JA.user.usr
+                            job:{criteria:criteria},
+                            user:JA.user.usr
                         }])
                     });
                 },
@@ -112,7 +110,7 @@ YUI.add('ja-mod-job',function(Y){
                                     appointment:moment().day(7).unix()
                                 }
                             }]},
-                            usr:JA.user.usr
+                            user:JA.user.usr
                         }])
                     });
                 }
@@ -131,10 +129,8 @@ YUI.add('ja-mod-job',function(Y){
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(){row.remove();}},
                         data:Y.JSON.stringify([{
-                            job:{
-                                remove:[jobId]
-                            },
-                            usr:JA.user.usr
+                            job:{remove:[jobId]},
+                            user:JA.user.usr
                         }])
                     });
                 }
@@ -189,9 +185,9 @@ YUI.add('ja-mod-job',function(Y){
                     h.dt.addRow({
                         job        :'<input type="button" title="Job #'+job.id+' created '+moment.unix(job.created).format('DD MMM YYYY hh:mm a')+'" value="'+job.id+'" />',
                         ref        :job.ref,
-                        streetRef  :job.address===null?'':d.rs.address.data[job.address].streetRef,
-                        streetName :job.address===null?'':d.rs.address.data[job.address].streetName,
-                        location   :job.address===null?'':d.rs.location.data[d.rs.address.data[job.address].location].full,
+                        streetRef  :job.address===null?'':d.rs.jobAddress.data[job.address].streetRef,
+                        streetName :job.address===null?'':d.rs.jobAddress.data[job.address].streetName,
+                        location   :job.address===null?'':d.rs.jobAddressLocation.data[d.rs.jobAddress.data[job.address].location].full,
                         appointment:job.appointment===null
                                        ?''
                                        :'<span>'+moment.unix(job.appointment).format('DDMMMYY hh:mma')+'</span>',

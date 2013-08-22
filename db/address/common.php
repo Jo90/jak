@@ -5,27 +5,28 @@ namespace ja;
 
 require_once ROOT . '/db/common.php';
 
-function addr_getAddress($criteria) {
+function addr_getAddress($i, $extend = false) {
     global $mysqli;
 
-    $r = initResult($criteria);
+    $r = $extend ? initResult($i) : new \stdClass;
+    $c = $i->criteria;
 
     $cnd   = '';
     $limit = '';
 
     //criteria
-    if (isset($criteria->addressIds) && is_array($criteria->addressIds) && count($criteria->addressIds) > 0) {
-        $addressIds = implode(',', $criteria->addressIds);
+    if (isset($c->addressIds) && is_array($c->addressIds) && count($c->addressIds) > 0) {
+        $addressIds = implode(',', $c->addressIds);
         $cnd = "where id in ($addressIds)";
     } else
-    if (isset($criteria->location, $criteria->streetName, $criteria->streetRef)) {
-        $cnd = 'where location = ' . $criteria->location
-             . ' and streetName like "' . $criteria->streetName . '%"'
-             . ' and streetRef like "' . $criteria->streetRef . '%"';
+    if (isset($c->location, $c->streetName, $c->streetRef)) {
+        $cnd = 'where location = ' . $c->location
+             . ' and streetName like "' . $c->streetName . '%"'
+             . ' and streetRef like "' . $c->streetRef . '%"';
     }
 
-    if (isset($criteria->rowLimit)) {
-        $limit = ' limit ' . $criteria->rowLimit;
+    if (isset($c->rowLimit)) {
+        $limit = ' limit ' . $c->rowLimit;
     }
 
     if ($stmt = $mysqli->prepare(
@@ -40,22 +41,23 @@ function addr_getAddress($criteria) {
     return $r;
 }
 
-function addr_getLocation($criteria) {
+function addr_getLocation($i, $extend = false) {
     global $mysqli;
 
-    $r = initResult($criteria);
+    $r = $extend ? initResult($i) : new \stdClass;
+    $c = $i->criteria;
 
     $cnd   = '';
     $limit = '';
 
     //criteria
-    if (isset($criteria->locationIds) && is_array($criteria->locationIds) && count($criteria->locationIds) > 0) {
-        $locationIds = implode(',', $criteria->locationIds);
+    if (isset($c->locationIds) && is_array($c->locationIds) && count($c->locationIds) > 0) {
+        $locationIds = implode(',', $c->locationIds);
         $cnd = "where id in ($locationIds)";
     }
 
-    if (isset($criteria->rowLimit)) {
-        $limit = ' limit ' . $criteria->rowLimit;
+    if (isset($c->rowLimit)) {
+        $limit = ' limit ' . $c->rowLimit;
     }
 
     if ($stmt = $mysqli->prepare(
@@ -70,25 +72,26 @@ function addr_getLocation($criteria) {
     return $r;
 }
 
-function addr_getProperty($criteria) {
+function addr_getProperty($i, $extend = false) {
     global $mysqli;
 
-    $r = initResult($criteria);
+    $r = $extend ? initResult($i) : new \stdClass;
+    $c = $i->criteria;
 
     $cnd   = '';
     $limit = '';
 
-    if (isset($criteria->propertyIds) && is_array($criteria->propertyIds) && count($criteria->propertyIds) > 0) {
-        $propertyIds = implode(',', $criteria->propertyIds);
+    if (isset($c->propertyIds) && is_array($c->propertyIds) && count($c->propertyIds) > 0) {
+        $propertyIds = implode(',', $c->propertyIds);
         $cnd = "where id in ($propertyIds)";
     }
-    if (isset($criteria->addressIds) && is_array($criteria->addressIds) && count($criteria->addressIds) > 0) {
-        $addressIds = implode(',', $criteria->addressIds);
+    if (isset($c->addressIds) && is_array($c->addressIds) && count($c->addressIds) > 0) {
+        $addressIds = implode(',', $c->addressIds);
         $cnd = "where address in ($addressIds)";
     }
 
-    if (isset($criteria->rowLimit)) {
-        $limit = ' limit ' . $criteria->rowLimit;
+    if (isset($c->rowLimit)) {
+        $limit = ' limit ' . $c->rowLimit;
     }
 
     if ($stmt = $mysqli->prepare(

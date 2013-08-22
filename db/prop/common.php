@@ -4,21 +4,22 @@
  */
 namespace ja;
 
-function prop_getProp($criteria) {
+function prop_getProp($i) {
     global $mysqli;
 
     $r = initResult($i);
+    $c = $i->criteria;
 
     $cnd   = '';
     $limit = '';
 
-    if (isset($criteria->propIds) && is_array($criteria->propIds) && count($criteria->propIds) > 0) {
-        $propIds = implode(',', $criteria->propIds);
+    if (isset($c->propIds) && is_array($c->propIds) && count($c->propIds) > 0) {
+        $propIds = implode(',', $c->propIds);
         $cnd = "where id in ($propIds)";
     }
 
-    if (isset($criteria->rowLimit)) {
-        $limit = ' limit ' . $criteria->rowLimit;
+    if (isset($c->rowLimit)) {
+        $limit = ' limit ' . $c->rowLimit;
     }
 
     if ($stmt = $mysqli->prepare(

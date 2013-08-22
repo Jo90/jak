@@ -146,6 +146,7 @@ YUI.add('ja-mod-job',function(Y){
             Y.one('.ja-add-job').on('click',JA.my.podAddress.display);
             h.dtc.delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
             h.dtc.delegate('click',trigger.report,'.ja-rep');
+            h.dtc.delegate('click',trigger.upload,'.ja-info');
             h.dtc.delegate('click',io.remove.job,'.ja-remove');
             //custom
                 Y.on(JA.my.podAddress.customEvent.select,io.insert.job);
@@ -206,6 +207,7 @@ YUI.add('ja-mod-job',function(Y){
                                    +Y.JA.html('btn',{action:'rep',title:'details'            ,classes:'ja-rep-detail'})
                                    +Y.JA.html('btn',{action:'rep',title:'inspection report 1',classes:'ja-rep-1'}),
                         actions    :Y.JA.html('btn',{action:'remove',title:'remove'})
+                        		   +Y.JA.html('btn',{action:'info',title:'upload image'})
                     });
                 });
                 Y.JA.widget.busy.set('message','');
@@ -361,7 +363,7 @@ YUI.add('ja-mod-job',function(Y){
                         {key:'reminder'   ,label:'Reminder'   ,allowHTML:true},
                         {key:'usr'        ,label:'Clients'    },
                         {key:'report'     ,label:'Reports'    ,allowHTML:true},
-                        {key:'actions'    ,label:''           ,allowHTML:true}
+                        {key:'actions'    ,label:'Actions'    ,allowHTML:true}
                     ],
                     data    :[],
                     sortable:true,
@@ -492,6 +494,9 @@ YUI.add('ja-mod-job',function(Y){
                     width=1000;
                 }
                 JA.my.podRep.display({html:html,visible:true,width:width});
+            },
+            upload:function(e){
+                JA.my.podUpload.display({});
             },
             selectGridCell:function(e){
                 if(this.hasClass('yui3-datatable-col-job')||

@@ -10,7 +10,7 @@ require_once 'config.php';
 JA={
     data:{},
     env:{
-        customEventSequence:0, //sequence to help generate unqiue custom events
+        customEventSequence:0, //sequence to help generate unique custom events
         fileserver:'<?php echo JA_FILESERVER; ?>',
         server    :'<?php echo JA_SERVER; ?>'
     },
@@ -54,6 +54,7 @@ YUI({<?php require 'modules.inc'; ?>}).use(
     'ja-pod-info',
     'ja-pod-job',
     'ja-pod-rep',
+    'ja-pod-upload',
     'ja-widget',
     function(Y){
 
@@ -131,6 +132,7 @@ YUI({<?php require 'modules.inc'; ?>}).use(
                     JA.my.podInfo   =new Y.JA.pod.info({visible:false});
                     JA.my.podJob    =new Y.JA.pod.job({visible:false});
                     JA.my.podRep    =new Y.JA.pod.rep({visible:false});
+                    JA.my.podUpload =new Y.JA.pod.upload({visible:false});
 
                 //panels
                     my.panelBuild=function(){

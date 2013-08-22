@@ -23,6 +23,7 @@ modules:{
             'gallery-yui3treeview-ng',
             'ja-yui3-sugar',
             'jsonselect',
+            'moment',
             'node-event-simulate',
             'overlay',
             'recordset',
@@ -31,7 +32,7 @@ modules:{
             'tabview',
             'template',
             'tree',
-            'moment',
+			'uploader',
             'yql'
         ]
     },
@@ -160,6 +161,10 @@ modules:{
     'ja-pod-rep':{
         fullpath:'/pod/rep.js',
         requires:['ja-common','ja-css-pod-rep']
+    },
+    'ja-pod-upload':{
+        fullpath:'/pod/upload.js',
+        requires:['ja-common','ja-css-pod-upload']
     },
     'ja-pod-usr':{
         fullpath:'/pod/usr.js',

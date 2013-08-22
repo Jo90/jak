@@ -59,7 +59,7 @@ foreach ($post as $i) {
 
     $r->jobUsr = job_getJobUsr($i->job);
     if (isset($r->jobUsr->data)) {
-        foreach ($r->jobUsr->data as $d) {$i->job->usrIds[] = $d->usr;}
+        foreach ($r->jobUsr->data as $d) {$c->usrIds[] = $d->usr;}
         $r->usr        = usr_getUsr($i->job);
         $r->usrAddress = usr_getUsrAddress($i->job);
         $r->usrInfo    = usr_getUsrInfo($i->job);

@@ -30,6 +30,7 @@ foreach ($post as $i) {
     foreach ($r->address->data as $d) {$c->locationIds[] = $d->location;}
     $r->location = addr_getLocation($i->usr);
 
+    $r->usrInfo = usr_getUsrInfo($i->usr);
 }
 header('Content-type: text/plain');
 echo json_encode($post);

@@ -331,7 +331,6 @@ YUI.add('ja-pod-job',function(Y){
                 usrFind:function(p){
                     Y.use('ja-pod-usrFind',function(Y){
                         self.my.podUsrFind=new Y.JA.pod.usrFind(p);
-                        //listeners
                         Y.JA.whenAvailable.inDOM(self,'my.podUsrFind',function(){
                             this.my.podUsrFind.set('zIndex',h.ol.get('zIndex')+10);
                             h.podInvoke.simulate('click');

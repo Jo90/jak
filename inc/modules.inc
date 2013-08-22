@@ -163,7 +163,7 @@ modules:{
     },
     'ja-pod-usr':{
         fullpath:'/pod/usr.js',
-        requires:['ja-common','ja-css-pod-usr']
+        requires:['ja-common','ja-css-pod-usr','ja-pod-address']
     },
     'ja-pod-usrFind':{
         fullpath:'/pod/usrFind.js',

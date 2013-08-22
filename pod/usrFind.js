@@ -37,9 +37,10 @@ YUI.add('ja-pod-usrFind',function(Y){
             d.pod=Y.merge(d.pod,p);
             Y.JA.widget.dialogMask.mask(h.ol.get('zIndex'));
             h.ol.show();
-            if(typeof p.firstName!=='undefined' && p.firstName!==''){f.usrFirstName.set('value',p.firstName);}
-            if(typeof p.lastName !=='undefined' && p.lastName !==''){f.usrLastName.set('value',p.lastName);}
-            h.userFind.simulate('click');
+            trigger.reset();
+            if(typeof p.firstName!=='undefined'){f.usrFirstName.set('value',p.firstName);}
+            if(typeof p.lastName !=='undefined'){f.usrLastName.set('value',p.lastName);}
+            h.usrFind.simulate('click');
         };
 
         this.get=function(what){
@@ -86,19 +87,34 @@ YUI.add('ja-pod-usrFind',function(Y){
                 }
             },
             insert:{
-                usrFind:function(){
-                    //DO
+                usr:function(){
+                    Y.JA.widget.busy.set('message','new user...');
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            h.usrFind.simulate('click');
+                        }},
+                        data:Y.JSON.stringify([{
+                            usr:{record:[{data:{
+                                firstName:f.usrFirstName.get('value'),
+                                lastName :f.usrLastName.get('value')
+                            }}]},
+                            user:JA.user.usr
+                        }])
+                    });
                 }
             }
         };
 
         listeners=function(){
-            h.close.on('click',function(){
-                h.ol.hide();
-                Y.JA.widget.dialogMask.hide();
-            });
+            h.close.on('click',function(){h.ol.hide();Y.JA.widget.dialogMask.hide();});
+
+            h.hd.delegate('keyup',trigger.usr.display,'.ja-data-usr-firstName,.ja-data-usr-lastName');
+
             h.dtc.delegate('click',trigger.usr.select,'td');
-            h.userFind.on('click',io.fetch.usr);
+            h.usrFind.on('click',io.fetch.usr);
+            h.usrAdd.on('click',io.insert.usr);
         };
 
         pod={
@@ -157,7 +173,8 @@ YUI.add('ja-pod-usrFind',function(Y){
                         '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JAPS">'+self.info.title+'</span> '
                        +'<input type="text" class="ja-data-usr-firstName" placeholder="first name"/>'
                        +'<input type="text" class="ja-data-usr-lastName" placeholder="family name"/>'
-                       +Y.JA.html('btn',{action:'find',title:'find user'})
+                       +Y.JA.html('btn',{action:'find' ,title:'find user'})
+                       +Y.JA.html('btn',{action:'add'  ,title:'create user'})
                        +Y.JA.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:'',
                     width  :cfg.width,
@@ -170,7 +187,8 @@ YUI.add('ja-pod-usrFind',function(Y){
                     h.bb           =h.ol.get('boundingBox');
                     f.usrFirstName =h.hd.one('.ja-data-usr-firstName');
                     f.usrLastName  =h.hd.one('.ja-data-usr-lastName');
-                    h.userFind     =h.hd.one('.ja-find');
+                    h.usrFind      =h.hd.one('.ja-find');
+                    h.usrAdd       =h.hd.one('.ja-add');
                     h.close        =h.hd.one('.ja-close');
                 //grid
                 h.dt=new Y.DataTable({
@@ -190,7 +208,15 @@ YUI.add('ja-pod-usrFind',function(Y){
         };
 
         trigger={
+            reset:function(){
+                f.usrFirstName.set('value','');
+                f.usrLastName .set('value','');
+                trigger.usr.display();
+            },
             usr:{
+                display:function(){
+                    h.usrAdd.setStyle('display',f.usrFirstName.get('value')===''||f.usrLastName.get('value')===''?'none':'');
+                },
                 select:function(e){
                     var rec=this.ancestor('tr'),
                         cells=rec.all('td')

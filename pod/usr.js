@@ -54,6 +54,10 @@ YUI.add('ja-pod-usr',function(Y){
             if(what==='cfg'   ){cfg=Y.merge(cfg,value);}
         };
 
+        this.customEvent={
+            close:self.info.id+(++JA.env.customEventSequence)+':close'
+        };
+
         this.my={}; //children
 
         /**
@@ -179,12 +183,7 @@ YUI.add('ja-pod-usr',function(Y){
                         }},
                         data:Y.JSON.stringify([{
                             usr:{record:[{
-                                data:{
-                                    id       :parseInt(f.usrId.get('value'),10),
-                                    title    :f.usrTitle    .get('value'),
-                                    firstName:f.usrFirstName.get('value'),
-                                    lastName :f.usrLastName .get('value')
-                                }
+                                data:trigger.getUsr()
                             }]},
                             user:JA.user.usr
                         }])
@@ -240,7 +239,11 @@ YUI.add('ja-pod-usr',function(Y){
         };
 
         listeners=function(){
-            h.close.on('click',function(){h.ol.hide();Y.JA.widget.dialogMask.hide();});
+            h.close.on('click',function(){
+                h.ol.hide();
+                Y.JA.widget.dialogMask.hide();
+                Y.fire(self.customEvent.close,trigger.getUsr());
+            });
             //global
                 h.tvBox.delegate('click',trigger.record.add   ,'.ja-add');
                 h.tvBox.delegate('click',trigger.record.remove,'.ja-remove');
@@ -385,6 +388,14 @@ YUI.add('ja-pod-usr',function(Y){
         };
 
         trigger={
+            getUsr:function(){
+                return {
+                    id       :parseInt(f.usrId.get('value'),10),
+                    title    :f.usrTitle    .get('value'),
+                    firstName:f.usrFirstName.get('value'),
+                    lastName :f.usrLastName .get('value')
+                };
+            },
             record:{
                 add:function(e){
                     if(this.hasClass('ja-tv-usrAddress')){

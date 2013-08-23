@@ -137,14 +137,17 @@ YUI.add('ja-pod-usrFind',function(Y){
                             self.my.usr.set('zIndex',h.ol.get('zIndex')+10);
                             h.podInvoke.simulate('click');
                         });
-//                        Y.on(self.my.usr.customEvent.returnSelection,pod.result.usr);
+                        Y.on(self.my.usr.customEvent.close,function(usr){
+                            var tr=h.podInvoke.ancestor('tr')
+                            ;
+                            tr.one('.yui3-datatable-col-title'    ).set('innerHTML',usr.title);
+                            tr.one('.yui3-datatable-col-firstName').set('innerHTML',usr.firstName);
+                            tr.one('.yui3-datatable-col-lastName' ).set('innerHTML',usr.lastName);
+                        });
                     });
                 }
             },
             result:{
-                usr:function(rs){
-                    debugger;
-                }
             }
         };
 

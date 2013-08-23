@@ -16,12 +16,14 @@
 .ja-pod-job .ja-actions {float:right;}
 
 /*job*/
+.ja-pod-job .ja-panel-job > span {display:inline-block;width:10em;text-align:right;}
 .ja-pod-job .ja-data-id,
 .ja-pod-job .ja-data-ref {width:2.5em;}
 .ja-pod-job .ja-data-jobService-fee {width:4em;}
 
 /*jobUsr*/
 .ja-pod-job .ja-list-jobUsr li span {display:inline-block;width:15em;}
+.ja-pod-job .ja-list-jobUsr .ja-data-usr-name {cursor:pointer;}
 
 /*property*/
 .ja-pod-job .ja-section-property {float:left;width:25em;}

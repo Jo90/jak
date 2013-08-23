@@ -7,7 +7,7 @@ body {background-color:#669CE8;}
 img.ja-bg-bl {position:fixed;z-index:-1;bottom:0;left:0}
 img.ja-bg-br {position:fixed;z-index:-1;bottom:0;right:0}
 
-.ja-date, .ja-time {width:8em;}
+.ja-date, .ja-time {width:10em;}
 
 .yui3-tabview-panel {
   overflow:auto;width:98%; /* ensure containment */

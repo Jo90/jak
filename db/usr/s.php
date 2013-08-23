@@ -22,13 +22,15 @@ foreach ($post as $i) {
         $c = $i->usr->criteria;
 
     $r->usr = usr_getUsr($i->usr);
-    $r->usrAddress = usr_getUsrAddress($i->usr);
 
-    foreach ($r->usrAddress->data as $d) {$c->addressIds[] = $d->address;}
-    $r->address = addr_getAddress($i->usr);
-    $c->locationIds = array();
-    foreach ($r->address->data as $d) {$c->locationIds[] = $d->location;}
-    $r->location = addr_getLocation($i->usr);
+    $r->usrAddress = usr_getUsrAddress($i->usr);
+    if (isset($r->usrAddress->data)) {
+        foreach ($r->usrAddress->data as $d) {$c->addressIds[] = $d->address;}
+        $r->address = addr_getAddress($i->usr);
+        $c->locationIds = array();
+        foreach ($r->address->data as $d) {$c->locationIds[] = $d->location;}
+        $r->location = addr_getLocation($i->usr);
+    }
 
     $r->usrInfo = usr_getUsrInfo($i->usr);
 }

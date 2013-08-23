@@ -134,8 +134,8 @@ YUI.add('ja-pod-job',function(Y){
                             ;
                             jobUsr.firstName=usr.firstName;
                             jobUsr.lastName =usr.lastName;
-                            render.jobUsr(jobUsr);
                             Y.JA.widget.busy.set('message','');
+                            render.jobUsr(jobUsr);
                         }},
                         data:Y.JSON.stringify([{
                             jobUsr:{record:[{data:{
@@ -153,14 +153,7 @@ YUI.add('ja-pod-job',function(Y){
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var data=Y.JSON.parse(o.responseText)[0].usr.record[0].data
-                            ;
-                            io.insert.jobUsr({
-                                job      :parseInt(f.jobId.get('value'),10),
-                                usr      :data.id,
-                                firstName:data.firstName,
-                                lastName :data.lastName
-                            });
+                            io.insert.jobUsr(Y.JSON.parse(o.responseText)[0].usr.record[0].data);
                         }},
                         data:Y.JSON.stringify([{
                             usr:{record:[{data:{
@@ -300,6 +293,7 @@ YUI.add('ja-pod-job',function(Y){
                 h.tvUsers.delegate('keyup',trigger.jobUsr.display,'.ja-data-usr-firstName,.ja-data-usr-lastName');
                 h.tvUsers.delegate('change',io.update.jobUsr,'.ja-data-jobUsr-purpose');
                 h.tvUsers.delegate('click',io.remove.jobUsr,'.ja-remove');
+                h.jobUsrList.delegate('click',pod.display.usr,'span.ja-data-usr-name');
             //tree
                 h.tree.on('nodeclick',trigger.tree.nodeClick);
                 //using treeNode to get contentBox fails
@@ -317,6 +311,14 @@ YUI.add('ja-pod-job',function(Y){
 
         pod={
             display:{
+                usr:function(e){
+                    e.halt();
+                    h.podInvoke=e.currentTarget;
+                    if(!self.my.usr){pod.load.usr({});return false;}
+                    self.my.usr.display({
+                        usr:parseInt(e.currentTarget.ancestor('li').one('.ja-data-jobUsr-usr').get('value'),10)
+                    });
+                },
                 usrFind:function(e){
                     e.halt();
                     h.podInvoke=e.currentTarget;
@@ -328,6 +330,19 @@ YUI.add('ja-pod-job',function(Y){
                 }
             },
             load:{
+                usr:function(p){
+                    Y.use('ja-pod-usr',function(Y){
+                        self.my.usr=new Y.JA.pod.usr(p);
+                        //listeners
+                        Y.JA.whenAvailable.inDOM(self,'my.usr',function(){
+                            self.my.usr.set('zIndex',h.ol.get('zIndex')+10);
+                            h.podInvoke.simulate('click');
+                        });
+                        Y.on(self.my.usr.customEvent.close,function(usr){
+                            h.podInvoke.set('innerHTML',usr.title+' '+usr.firstName+' '+usr.lastName);
+                        });
+                    });
+                },
                 usrFind:function(p){
                     Y.use('ja-pod-usrFind',function(Y){
                         self.my.podUsrFind=new Y.JA.pod.usrFind(p);
@@ -455,11 +470,11 @@ YUI.add('ja-pod-job',function(Y){
                         {
                             label:'Job',
                             content:
-                                'ref:<input type="text" class="ja-data ja-data-ref" title="old system reference" placeholder="ref#" /><br/>'
-                                +'Appointment:<input type="text" class="ja-data ja-date ja-data-appointment" title="appointment date" placeholder="appointment" /><br/>'
-                                +'Confirmed:<input type="text" class="ja-data ja-date ja-data-confirmed" title="confirmed date" placeholder="confirmed" /><br/>'
-                                +'Reminder:<input type="text" class="ja-data ja-data-reminder ja-date" title="reminder date" placeholder="reminder" /><br/>'
-                                +'<select class="ja-data ja-data-weather">'
+                                '<span>ref:</span><input type="text" class="ja-data ja-data-ref" title="old system reference" placeholder="ref#" /><br/>'
+                                +'<span>Appointment:</span><input type="text" class="ja-data ja-date ja-data-appointment" title="appointment date" placeholder="appointment" /><br/>'
+                                +'<span>Confirmed:</span><input type="text" class="ja-data ja-date ja-data-confirmed" title="confirmed date" placeholder="confirmed" /><br/>'
+                                +'<span>Reminder:</span><input type="text" class="ja-data ja-data-reminder ja-date" title="reminder date" placeholder="reminder" /><br/>'
+                                +'<span>Weather:</span><select class="ja-data ja-data-weather">'
                                 +  '<option>fine</option>'
                                 +  '<option>cloudy</option>'
                                 +  '<option>wet</option>'
@@ -520,6 +535,10 @@ YUI.add('ja-pod-job',function(Y){
                 h.tvUsers         =h.tv.item(1).get('panelNode');
                 h.tvServices      =h.tv.item(2).get('panelNode');
                 h.tvProperty      =h.tv.item(3).get('panelNode');
+                h.tvJob           .addClass('ja-panel-job');
+                h.tvUsers         .addClass('ja-panel-users');
+                h.tvServices      .addClass('ja-panel-services');
+                h.tvProperty      .addClass('ja-panel-property');
 
                 f.jobRef          =h.tvJob.one('.ja-data-ref');
                 f.jobAppointment  =h.tvJob.one('.ja-data-appointment');
@@ -557,7 +576,7 @@ YUI.add('ja-pod-job',function(Y){
                      '<li>'
                     +  '<input type="hidden" class="ja-data ja-data-jobUsr-id" value="'+o.id+'" />'
                     +  '<input type="hidden" class="ja-data ja-data-jobUsr-usr" value="'+o.usr+'" />'
-                    +  '<span>'+o.firstName+' '+o.lastName+'</span>'
+                    +  '<span class="ja-data-usr-name" title="edit user">'+o.firstName+' '+o.lastName+'</span>'
                     +  '<select class="ja-data ja-data-jobUsr-purpose">'
                     +    '<option>'+d.defaultPurpose+'</option>'
                     +    '<option>Owner</option>'

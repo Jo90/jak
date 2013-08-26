@@ -72,6 +72,10 @@ modules:{
         fullpath:'/css/pod/rep.css',
         type:'css'
     },
+    'ja-css-pod-upload':{
+        fullpath:'/css/pod/upload.css',
+        type:'css'
+    },
     'ja-css-pod-usr':{
         fullpath:'/css/pod/usr.css',
         type:'css'

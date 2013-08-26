@@ -354,8 +354,20 @@ YUI.add('ja-pod-usr',function(Y){
                 Y.fire(self.customEvent.close,trigger.getUsr());
             });
             //global
-                h.tvBox.delegate('click',trigger.record.add   ,'.ja-add');
-                h.tvBox.delegate('click',trigger.record.remove,'.ja-remove');
+                //add
+                    h.tvBox.delegate('click',function(e){
+                        if(this.hasClass('ja-tv-usrAddress')){pod.display.address();}else
+                        if(this.hasClass('ja-tv-usrInfo'   )){io.insert.usrInfo();}else
+                        if(this.hasClass('ja-tv-grp'       )){io.insert.grp();}
+                    },'.ja-add');
+                //remove
+                    h.tvBox.delegate('click',function(e){
+                        var list=this.ancestor('.ja-list');
+                        if(list.hasClass('ja-list-grp'       )){if(confirm('this will remove the entire group')){io.remove.grp(e);}}else
+                        if(list.hasClass('ja-list-usrAddress')){io.remove.usrAddress(e);}else
+                        if(list.hasClass('ja-list-usrGrp'    )){io.remove.usrGrp(e);    }else
+                        if(list.hasClass('ja-list-usrInfo'   )){io.remove.usrInfo(e);   }
+                    },'.ja-remove');
             //usr
                 h.hd.delegate('change',io.update.usr,'.ja-data');
             //usrAddress
@@ -593,27 +605,6 @@ YUI.add('ja-pod-usr',function(Y){
                     firstName:f.usrFirstName.get('value'),
                     lastName :f.usrLastName .get('value')
                 };
-            },
-            record:{
-                add:function(e){
-                    if(this.hasClass('ja-tv-usrAddress')){
-                        pod.display.address();
-                    }else if(this.hasClass('ja-tv-usrInfo')){
-                        io.insert.usrInfo();
-                    }else if(this.hasClass('ja-tv-grp')){
-                        io.insert.grp();
-                    }
-                },
-                remove:function(e){
-                    var list=this.ancestor('.ja-list')
-                    ;
-                    if(list.hasClass('ja-list-grp'       )){
-                        if(confirm('this will remove the entire group')){io.remove.grp(e);}
-                    }else
-                    if(list.hasClass('ja-list-usrAddress')){io.remove.usrAddress(e);}else
-                    if(list.hasClass('ja-list-usrGrp'    )){io.remove.usrGrp(e);    }else
-                    if(list.hasClass('ja-list-usrInfo'   )){io.remove.usrInfo(e);   }
-                }
             },
             reset:function(){
                 h.hd.all('.ja-data').set('value','');

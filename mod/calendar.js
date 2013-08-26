@@ -23,16 +23,54 @@ YUI.add('ja-mod-calendar',function(Y){
             version    :'v1.0 March 2013'
         };
 
+        var self=this,
+            d={},
+            listeners,
+            pod={},
+            populate={},
+            render={}
+        ;
+
+        this.my={}; //children
+
         /**
          * private
          */
 
-        function listeners(){
+        listeners=function(){
             Y.on(JA.my.podJob.customEvent.save,function(){
                 JA.my.fc.fullCalendar('refetchEvents');
             });
         };
 
+
+        pod={
+            display:{
+                address:function(){
+                    if(!self.my.podAddress){pod.load.address();return false;}
+                    self.my.podAddress.display({});
+                }
+            },
+            load:{
+                address:function(){
+                    Y.use('ja-pod-address',function(Y){
+                        self.my.podAddress=new Y.JA.pod.address({});
+                        Y.JA.whenAvailable.inDOM(self,'my.podAddress',function(){
+                            self.my.podAddress.set('zIndex',cfg.zIndex+10);
+                            pod.display.address();
+                        });
+                        Y.on(self.my.podAddress.customEvent.select,function(address){
+                            JA.my.podJob.display({
+                                address    :address.data.id,
+                                appointment:moment(d.dayClickEvent).unix(),
+                                visible    :true
+                            });
+                        });
+                    });
+                }
+            }
+        };
+        
         render={
             base:function(){
                 JA.my.fc=$(Y.Node.getDOMNode(cfg.node))
@@ -88,11 +126,10 @@ YUI.add('ja-mod-calendar',function(Y){
                     },
                     weekMode:'liquid',
                     //events
-                    dayClick:function(day){
-                        JA.my.podJob.display({
-                            appointment:moment(day).unix(),
-                            visible    :true
-                        });
+                    dayClick:function(e){
+                        d.dayClickEvent=e //date
+                        ;
+                        pod.display.address(e);
                     },
                     eventClick:function(e){
                         JA.my.podJob.display({

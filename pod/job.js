@@ -121,7 +121,10 @@ YUI.add('ja-pod-job',function(Y){
                             io.fetch.job();
                         }},
                         data:Y.JSON.stringify([{
-                            job:{record:[{data:{appointment:cfg.appointment}}]},
+                            job:{record:[{data:{
+                                address    :cfg.address,
+                                appointment:cfg.appointment
+                            }}]},
                             usr:JA.user.usr
                         }])
                     });
@@ -313,6 +316,10 @@ YUI.add('ja-pod-job',function(Y){
 
         pod={
             display:{
+                upload:function(){
+                    if(!self.my.podUpload){pod.load.upload({});return false;}
+                    self.my.podUpload.display({});
+                },
                 usr:function(e){
                     e.halt();
                     h.podInvoke=e.currentTarget;
@@ -332,6 +339,19 @@ YUI.add('ja-pod-job',function(Y){
                 }
             },
             load:{
+                upload:function(p){
+                    Y.use('ja-pod-upload',function(Y){
+                        self.my.podUpload=new Y.JA.pod.upload(p);
+                        //listeners
+                        Y.JA.whenAvailable.inDOM(self,'my.podUpload',function(){
+                            self.my.podUpload.set('zIndex',h.ol.get('zIndex')+10);
+                            pod.display.upload();
+                        });
+                        Y.on(self.my.podUpload.customEvent.select,function(rs){
+                            debugger;
+                        });
+                    });
+                },
                 usr:function(p){
                     Y.use('ja-pod-usr',function(Y){
                         self.my.usr=new Y.JA.pod.usr(p);
@@ -649,7 +669,7 @@ YUI.add('ja-pod-job',function(Y){
                             opt1.set('text',d.qa.existing);
                         }
                     }else if(selectedIndex===2){
-                        alert('upload file coming...');
+                        pod.display.upload();
                     }else{
                         if(newStatement || d.qaCount===0){
                             nnStatement=render.qaStatement(property.id);

@@ -47,6 +47,7 @@ YUI.add('ja-pod-upload',function(Y){
         };
 
         this.customEvent={
+            select:self.info.id+(++JA.env.customEventSequence)+':select'
         };
 
         this.my={};
@@ -64,9 +65,32 @@ YUI.add('ja-pod-upload',function(Y){
 
         listeners=function(){
             h.close.on('click',function(){
-            	h.ol.hide();
-            	Y.JA.widget.dialogMask.hide();
+                h.ol.hide();
+                Y.JA.widget.dialogMask.hide();
             });
+
+            //uploader events
+            h.uploader.after("fileselect",function(event){
+                var fileList  = event.fileList;
+                var fileTable = h.bd.one('table tbody');
+                if (fileList.length > 0 && Y.one("#nofiles")) {
+                    Y.one("#nofiles").remove();
+                }
+                if(d.uploadDone){
+                    d.uploadDone=false;
+                    fileTable.set('innerHTML','');
+                }
+
+                Y.each(fileList,function(fileInstance){
+                    fileTable.append(
+                        "<tr id='" + fileInstance.get("id") + "_row" + "'>" +
+                           "<td class='filename'>" + fileInstance.get("name") + "</td>" +
+                           "<td class='filesize'>" + fileInstance.get("size") + "</td>" +
+                           "<td class='percentdone'>Hasn't started yet</td>"
+                    );
+                });
+            });
+
         };
 
         render={
@@ -74,23 +98,37 @@ YUI.add('ja-pod-upload',function(Y){
                 h.ol=new Y.Overlay({
                     headerContent:
                          '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JA">'+self.info.title+'</span> '
-                        +' #<input type="text" class="ja-data ja-data-id" title="job number" disabled="disabled" />'
-                        +'<input type="hidden" class="ja-data ja-data-address" />'
-                        +' &nbsp; <span class="ja-display-address"></span> &nbsp; '
+                        +'<div class="ja-selectFiles"></div>'
+                        +'<button type="button" id="uploadFilesButton" class="yui3-button" style="width:250px; height:35px;">Upload Files</button>'
+                        +'<span></span>'
                         +Y.JA.html('btn',{action:'close',title:'close pod'}),
-                    bodyContent:Y.JA.html('btn',{action:'save',title:'save',label:'save'}),
+                    bodyContent:
+                        '<table id="filenames">'
+                        +  '<thead>'
+                        +    '<tr><th>File name</th><th>File size</th><th>Percent uploaded</th></tr>'
+                        +    '<tr id="nofiles">'
+                        +      '<td colspan="3">No files have been selected.</td>'
+                        +    '</tr>'
+                        +  '</thead>'
+                        +  '<tbody></tbody>'
+                        +'</table>',
                     width  :cfg.width,
                     visible:cfg.visible,
                     xy     :cfg.xy,
                     zIndex :cfg.zIndex
                 }).render();
             
-                h.bb=h.ol.get('boundingBox');
-                h.hd=h.ol.headerNode;
-	            h.bd=h.ol.bodyNode;
-                h.ui=new Y.Uploader({width: "300px", 
-                    	             height: "40px"}).render(h.bd);
+                h.bb   =h.ol.get('boundingBox');
+                h.hd   =h.ol.headerNode;
+                h.bd   =h.ol.bodyNode;
                 h.close=h.hd.one('.ja-close');
+
+                h.uploader=new Y.Uploader({
+                    width :"300px",
+                    height:"40px"
+                }).render(h.hd.one('.ja-selectFiles'));
+                d.uploadDone = false;
+
             }
         };
 

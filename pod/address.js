@@ -141,7 +141,7 @@
                     visible :cfg.visible,
                     width   :cfg.width,
                     zIndex  :cfg.zIndex
-                }).plug(Y.Plugin.Resize).render();
+                }).render();
                 //shortcuts
                     h.hd           =h.ol.headerNode;
                     h.bd           =h.ol.bodyNode;

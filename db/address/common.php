@@ -172,10 +172,11 @@ function addr_setAddress(&$i) {
 
 function addr_setProperty(&$i) {
     global $mysqli;
-    db::remove('property', $i);
+    $tab = 'property';
+    db::remove($tab, $i);
     if (isset($i->record)) {
         foreach ($i->record as $rec) {
-            db::update('property',$rec) or db::insert('property',$rec);
+            db::update($tab,$rec) or db::insert($tab,$rec);
         }
     }
 }

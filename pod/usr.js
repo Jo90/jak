@@ -25,8 +25,10 @@ YUI.add('ja-pod-usr',function(Y){
 
         var self=this,
             d={
-                defaultAddressPurpose:'Home',
-                defaultInfoCategory  :'specify...'
+                defaultGrpType          :'Family',
+                defaultUsrAddressPurpose:'Home',
+                defaultUsrGrpInterest   :'Interest...',
+                defaultUsrInfoCategory  :'specify...'
             },
             f={},h={},
             initialise,
@@ -85,11 +87,28 @@ YUI.add('ja-pod-usr',function(Y){
                 }
             },
             insert:{
-                usr:function(){
-                    Y.JA.widget.busy.set('message','new user...');
-
-                    debugger;
-
+                grp:function(){
+                    Y.JA.widget.busy.set('message','new group...');
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            //insert default record for current user (usr,grpNode)
+                            io.insert.usrGrp(
+                                {
+                                    id       :parseInt(f.usrId.get('value'),10),
+                                    title    :f.usrTitle    .get('value'),
+                                    firstName:f.usrFirstName.get('value'),
+                                    lastName :f.usrLastName .get('value')
+                                },
+                                render.grp(Y.JSON.parse(o.responseText)[0].grp.record[0].data)
+                            );
+                        }},
+                        data:Y.JSON.stringify([{
+                            grp :{record:[{data:{type:d.defaultGrpType,name:''}}]},
+                            user:JA.user.usr
+                        }])
+                    });
                 },
                 usrAddress:function(rsAddress){
                     Y.JA.widget.busy.set('message','new user address...');
@@ -97,21 +116,38 @@ YUI.add('ja-pod-usr',function(Y){
                         method:'POST',
                         headers:{'Content-Type':'application/json'},
                         on:{complete:function(id,o){
-                            var obj=Y.JSON.parse(o.responseText)[0].usrAddress.record[0].data
-                            ;
-                            obj.streetRef   =rsAddress.data.streetRef;
-                            obj.streetName  =rsAddress.data.streetName;
-                            obj.locationName=rsAddress.data.locationName;
-                            render.usrAddress(obj);
+                            render.usrAddress(
+                                Y.JSON.parse(o.responseText)[0].usrAddress.record[0].data,
+                                rsAddress.data
+                            );
                         }},
                         data:Y.JSON.stringify([{
                             usrAddress:{record:[{
                                 data:{
                                     usr    :parseInt(f.usrId.get('value'),10),
                                     address:rsAddress.data.id,
-                                    purpose:d.defaultAddressPurpose
+                                    purpose:d.defaultUsrAddressPurpose
                                 }
                             }]},
+                            user:JA.user.usr
+                        }])
+                    });
+                },
+                usrGrp:function(usr,grpNode){
+                    Y.JA.widget.busy.set('message','new user group...');
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            render.usrGrp(Y.JSON.parse(o.responseText)[0].usrGrp.record[0].data,grpNode,usr);
+                            Y.JA.widget.busy.set('message','');
+                        }},
+                        data:Y.JSON.stringify([{
+                            usrGrp:{record:[{data:{
+                                usr     :usr.id,
+                                grp     :parseInt(grpNode.one('.ja-data-grp-id').get('value'),10),
+                                interest:d.defaultUsrGrpInterest
+                            }}]},
                             user:JA.user.usr
                         }])
                     });
@@ -131,7 +167,7 @@ YUI.add('ja-pod-usr',function(Y){
                             usrInfo:{record:[{
                                 data:{
                                     usr     :parseInt(f.usrId.get('value'),10),
-                                    category:d.defaultInfoCategory,
+                                    category:d.defaultUsrInfoCategory,
                                     detail  :''
                                 }
                             }]},
@@ -141,6 +177,21 @@ YUI.add('ja-pod-usr',function(Y){
                 }
             },
             remove:{
+                grp:function(e){
+                    var li=e.currentTarget.ancestor('li')
+                    ;
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            li.remove();
+                        }},
+                        data:Y.JSON.stringify([{
+                            grp:{remove:[parseInt(li.one('.ja-data-grp-id').get('value'),10)]},
+                            user:JA.user.usr
+                        }])
+                    });
+                },
                 usrAddress:function(e){
                     var li=e.currentTarget.ancestor('li')
                     ;
@@ -152,6 +203,19 @@ YUI.add('ja-pod-usr',function(Y){
                         }},
                         data:Y.JSON.stringify([{
                             usrAddress:{remove:[parseInt(li.one('.ja-data-usrAddress-id').get('value'),10)]},
+                            user:JA.user.usr
+                        }])
+                    });
+                },
+                usrGrp:function(e){
+                    var li=e.currentTarget.ancestor('li')
+                    ;
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){li.remove();}},
+                        data:Y.JSON.stringify([{
+                            usrGrp:{remove:[parseInt(li.one('.ja-data-usrGrp-id').get('value'),10)]},
                             user:JA.user.usr
                         }])
                     });
@@ -173,6 +237,28 @@ YUI.add('ja-pod-usr',function(Y){
                 }
             },
             update:{
+                grp:function(e){
+                    var li=this.ancestor('li')
+                    ;
+                    Y.JA.widget.busy.set('message','updating group...');
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            Y.JA.widget.busy.set('message','');
+                        }},
+                        data:Y.JSON.stringify([{
+                            grp:{record:[{
+                                data:{
+                                    id  :parseInt(li.one('.ja-data-grp-id').get('value'),10),
+                                    type:li.one('.ja-data-grp-type').get('value'),
+                                    name:li.one('.ja-data-grp-name').get('value')
+                                }
+                            }]},
+                            user:JA.user.usr
+                        }])
+                    });
+                },
                 usr:function(){
                     Y.JA.widget.busy.set('message','updating user...');
                     Y.io('/db/siud.php',{
@@ -206,6 +292,29 @@ YUI.add('ja-pod-usr',function(Y){
                                     usr    :parseInt(f.usrId.get('value'),10),
                                     address:parseInt(li.one('.ja-data-usrAddress-address').get('value'),10),
                                     purpose:li.one('.ja-data-usrAddress-purpose').get('value')
+                                }
+                            }]},
+                            user:JA.user.usr
+                        }])
+                    });
+                },
+                usrGrp:function(e){
+                    var li=this.ancestor('li')
+                    ;
+                    Y.JA.widget.busy.set('message','updating user group...');
+                    Y.io('/db/siud.php',{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        on:{complete:function(id,o){
+                            Y.JA.widget.busy.set('message','');
+                        }},
+                        data:Y.JSON.stringify([{
+                            usrGrp:{record:[{
+                                data:{
+                                    id      :parseInt(li.one('.ja-data-usrGrp-id' ).get('value'),10),
+                                    usr     :parseInt(li.one('.ja-data-usrGrp-usr').get('value'),10),
+                                    grp     :parseInt(li.one('.ja-data-usrGrp-grp').get('value'),10),
+                                    interest:li.one('.ja-data-usrGrp-interest').get('value')
                                 }
                             }]},
                             user:JA.user.usr
@@ -253,6 +362,10 @@ YUI.add('ja-pod-usr',function(Y){
                 h.tvUsrAddressList.delegate('change',io.update.usrAddress,'.ja-data-usrAddress-purpose');
             //usrInfo
                 h.tvUsrInfoList.delegate('change',io.update.usrInfo,'.ja-data-usrInfo-category,.ja-data-usrInfo-detail');
+            //grp
+                h.tvGrpList.delegate('change',io.update.grp,'.ja-data-grp-type,.ja-data-grp-name');
+                h.tvGrpList.delegate('change',io.update.usrGrp,'.ja-data-usrGrp-interest');
+                h.tvGrpList.delegate('click',pod.display.usrFind,'.ja-add');
         };
 
         pod={
@@ -260,6 +373,12 @@ YUI.add('ja-pod-usr',function(Y){
                 address:function(e){
                     if(!self.my.podAddress){pod.load.address();return false;}
                     self.my.podAddress.display({});
+                },
+                usrFind:function(e){
+                    e.halt();
+                    h.podInvoke=e.currentTarget;
+                    if(!self.my.podUsrFind){pod.load.usrFind({});return false;}
+                    self.my.podUsrFind.display({});
                 }
             },
             load:{
@@ -272,34 +391,56 @@ YUI.add('ja-pod-usr',function(Y){
                         });
                         Y.on(self.my.podAddress.customEvent.select,io.insert.usrAddress);
                     });
+                },
+                usrFind:function(p){
+                    Y.use('ja-pod-usrFind',function(Y){
+                        self.my.podUsrFind=new Y.JA.pod.usrFind(p);
+                        Y.JA.whenAvailable.inDOM(self,'my.podUsrFind',function(){
+                            this.my.podUsrFind.set('zIndex',h.ol.get('zIndex')+10);
+                            h.podInvoke.simulate('click');
+                        });
+                        Y.on(self.my.podUsrFind.customEvent.returnSelection,function(usr){
+                            io.insert.usrGrp(usr,h.podInvoke.ancestor('li'));
+                        });
+                    });
                 }
             }
         };
 
         populate={
             usr:function(id,o){
-                var rs=Y.JSON.parse(o.responseText)[0].result
+                var rs =Y.JSON.parse(o.responseText)[0].result,
+                    usr=rs.usr.data[cfg.usr]
                 ;
-                Y.each(rs.usr.data,function(usr){
-                    f.usrId       .set('value',usr.id);
-                    f.usrTitle    .set('value',usr.title);
-                    f.usrFirstName.set('value',usr.firstName);
-                    f.usrLastName .set('value',usr.lastName);
-                    //address
-                        Y.each(rs.usrAddress.data,function(usrAddress){
-                            var a=rs.address.data[usrAddress.address],
-                                l=rs.location.data[a.location]
+                f.usrId       .set('value',usr.id);
+                f.usrTitle    .set('value',usr.title);
+                f.usrFirstName.set('value',usr.firstName);
+                f.usrLastName .set('value',usr.lastName);
+                //address
+                    if(rs.usrAddress && rs.usrAddress.data){
+                        Y.each(rs.usrAddress.data,function(usrAddress){if(usrAddress.usr===usr.id){
+                            var address=rs.address.data[usrAddress.address]
                             ;
-                            usrAddress.streetRef   =a.streetRef;
-                            usrAddress.streetName  =a.streetName;
-                            usrAddress.locationName=l.name;
-                            render.usrAddress(usrAddress);
-                        });
-                    //info
-                        Y.each(rs.usrInfo.data,function(usrInfo){
+                            address.locationName=rs.location.data[address.location].name;
+                            render.usrAddress(usrAddress,address);
+                        }});
+                    }
+                //info
+                    if(rs.usrInfo && rs.usrInfo.data){
+                        Y.each(rs.usrInfo.data,function(usrInfo){if(usrInfo.usr===usr.id){
                             render.usrInfo(usrInfo);
+                        }});
+                    }
+                //grp
+                    if(rs.grp && rs.grp.data){
+                        Y.each(rs.grp.data,function(grp){
+                            var grpNode=render.grp(grp)
+                            ;
+                            Y.each(rs.usrGrp.data,function(usrGrp){if(usrGrp.grp===grp.id){
+                                render.usrGrp(usrGrp,grpNode,rs.usr.data[usrGrp.usr]);
+                            }});
                         });
-                });
+                    }
                 Y.JA.widget.busy.set('message','');
             }
         };
@@ -324,7 +465,8 @@ YUI.add('ja-pod-usr',function(Y){
                 h.tv=new Y.TabView({
                     children:[
                         {label:'Address '+Y.JA.html('btn',{action:'add',title:'add',classes:'ja-tv-usrAddress'}),content:'<ul class="ja-list ja-list-usrAddress"></ul>'},
-                        {label:'Info '   +Y.JA.html('btn',{action:'add',title:'add',classes:'ja-tv-usrInfo'   }),content:'<ul class="ja-list ja-list-usrInfo"></ul>'}
+                        {label:'Info '   +Y.JA.html('btn',{action:'add',title:'add',classes:'ja-tv-usrInfo'   }),content:'<ul class="ja-list ja-list-usrInfo"></ul>'   },
+                        {label:'Groups ' +Y.JA.html('btn',{action:'add',title:'add',classes:'ja-tv-grp'       }),content:'<ul class="ja-list ja-list-grp"></ul>'       }
                     ]
                 }).render(h.ol.bodyNode);
                 //shortcuts
@@ -340,36 +482,92 @@ YUI.add('ja-pod-usr',function(Y){
                     f.usrLastName =h.hd.one('.ja-data-usr-lastName');
 
                     h.tvBox           =h.tv.get('boundingBox');
+
                     h.tvUsrAddress    =h.tv.item(0).get('panelNode');
                     h.tvUsrAddressList=h.tvUsrAddress.one('ul');
+
                     h.tvUsrInfo       =h.tv.item(1).get('panelNode');
                     h.tvUsrInfoList   =h.tvUsrInfo.one('ul');
+
+                    h.tvGrp           =h.tv.item(2).get('panelNode');
+                    h.tvGrpList       =h.tvGrp.one('ul');
             },
-            usrAddress:function(obj){
+            grp:function(grp){
                 var nn=Y.Node.create(
                      '<li>'
-                    +  '<input type="hidden" class="ja-data ja-data-usrAddress-id" value="'+obj.id+'" />'
-                    +  '<input type="hidden" class="ja-data ja-data-usrAddress-address" value="'+obj.address+'" />'
+                    +  '<fieldset>'
+                    +    '<legend>'
+                    +      '<input type="hidden" class="ja-data ja-data-grp-id" value="'+grp.id+'" />'
+                    +      '<select class="ja-data ja-data-grp-type">'
+                    +        '<option>'+d.defaultGrpType+'</option>'
+                    +        '<option>Family</option>'
+                    +        '<option>Business</option>'
+                    +        '<option>Group</option>'
+                    +        '<option>Other</option>'
+                    +      '</select>'
+                    +      '<input type="text" class="ja-data ja-data-grp-name" value="'+grp.name+'" placeholder="group name/description" />'
+                    +      Y.JA.html('btn',{action:'remove',title:'remove'})
+                    +      Y.JA.html('btn',{action:'add'   ,title:'add member'})
+                    +    '</legend>'
+                    +    '<ul class="ja-list ja-list-usrGrp"></ul>'
+                    +  '</fieldset>'
+                    +'</li>'
+                );
+                h.tvGrpList.append(nn);
+                Y.JA.matchSelect(nn.one('.ja-data-grp-type'),grp.type);
+                return nn;
+            },
+            usrAddress:function(usrAddress,address){
+                var nn=Y.Node.create(
+                     '<li>'
+                    +  '<input type="hidden" class="ja-data ja-data-usrAddress-id" value="'+usrAddress.id+'" />'
+                    +  '<input type="hidden" class="ja-data ja-data-usrAddress-address" value="'+usrAddress.address+'" />'
                     +  '<select class="ja-data ja-data-usrAddress-purpose">'
-                    +    '<option>'+d.defaultAddressPurpose+'</option>'
+                    +    '<option>'+d.defaultUsrAddressPurpose+'</option>'
                     +    '<option>Work</option>'
                     +    '<option>Postal</option>'
                     +    '<option>Other</option>'
                     +  '</select>'
-                    +  '<span>'+obj.streetRef+' '+obj.streetName+' '+obj.locationName+'</span>'
+                    +  '<span>'+address.streetRef+' '+address.streetName+' '+address.locationName+'</span>'
                     +  Y.JA.html('btn',{action:'remove',title:'remove'})
                     +'</li>'
                 );
                 h.tvUsrAddressList.append(nn);
-                Y.JA.matchSelect(nn.one('.ja-data-usrAddress-purpose'),obj.purpose);
+                Y.JA.matchSelect(nn.one('.ja-data-usrAddress-purpose'),usrAddress.purpose);
                 return nn;
             },
-            usrInfo:function(obj){
+            usrGrp:function(usrGrp,grpNode,usr){
                 var nn=Y.Node.create(
                      '<li>'
-                    +  '<input type="hidden" class="ja-data ja-data-usrInfo-id" value="'+obj.id+'" />'
+                    +  '<input type="hidden" class="ja-data ja-data-usrGrp-id"  value="'+usrGrp.id+'" />'
+                    +  '<input type="hidden" class="ja-data ja-data-usrGrp-usr" value="'+usr.id+'" />'
+                    +  '<input type="hidden" class="ja-data ja-data-usrGrp-grp" value="'+usrGrp.grp+'" />'
+                    +  '<select class="ja-data ja-data-usrGrp-interest">'
+                    +    '<option>'+d.defaultUsrGrpInterest+'</option>'
+                    +    '<option>Husband</option>'
+                    +    '<option>Wife</option>'
+                    +    '<option>Spouse</option>'
+                    +    '<option>Partner</option>'
+                    +    '<option>Member</option>'
+                    +    '<option>Child</option>'
+                    +    '<option>Friend</option>'
+                    +    '<option>Associate</option>'
+                    +    '<option>Other</option>'
+                    +  '</select>'
+                    +  '<span>'+usr.title+' '+usr.firstName+' '+usr.lastName+'</span>'
+                    +  Y.JA.html('btn',{action:'remove',title:'remove'})
+                    +'</li>'
+                );
+                grpNode.one('ul').append(nn);
+                Y.JA.matchSelect(nn.one('.ja-data-usrGrp-interest'),usrGrp.interest);
+                return nn;
+            },
+            usrInfo:function(usrInfo){
+                var nn=Y.Node.create(
+                     '<li>'
+                    +  '<input type="hidden" class="ja-data ja-data-usrInfo-id" value="'+usrInfo.id+'" />'
                     +  '<select class="ja-data ja-data-usrInfo-category">'
-                    +    '<option>'+d.defaultInfoCategory+'</option>'
+                    +    '<option>'+d.defaultUsrInfoCategory+'</option>'
                     +    '<option>Phone</option>'
                     +    '<option>EMail</option>'
                     +    '<option>Skype</option>'
@@ -377,12 +575,12 @@ YUI.add('ja-pod-usr',function(Y){
                     +    '<option>Fax</option>'
                     +    '<option>Other</option>'
                     +  '</select>'
-                    +  '<textarea class="ja-data ja-data-usrInfo-detail" placeholder="details">'+obj.detail+'</textarea>'
+                    +  '<textarea class="ja-data ja-data-usrInfo-detail" placeholder="details">'+usrInfo.detail+'</textarea>'
                     +  Y.JA.html('btn',{action:'remove',title:'remove'})
                     +'</li>'
                 );
                 h.tvUsrInfoList.append(nn);
-                Y.JA.matchSelect(nn.one('.ja-data-usrInfo-category'),obj.category);
+                Y.JA.matchSelect(nn.one('.ja-data-usrInfo-category'),usrInfo.category);
                 return nn;
             }
         };
@@ -402,22 +600,26 @@ YUI.add('ja-pod-usr',function(Y){
                         pod.display.address();
                     }else if(this.hasClass('ja-tv-usrInfo')){
                         io.insert.usrInfo();
+                    }else if(this.hasClass('ja-tv-grp')){
+                        io.insert.grp();
                     }
                 },
                 remove:function(e){
                     var list=this.ancestor('.ja-list')
                     ;
-                    if(list.hasClass('ja-list-usrAddress')){
-                        io.remove.usrAddress(e);
-                    }else if(list.hasClass('ja-list-usrInfo')){
-                        io.remove.usrInfo(e);
-                    }
+                    if(list.hasClass('ja-list-grp'       )){
+                        if(confirm('this will remove the entire group')){io.remove.grp(e);}
+                    }else
+                    if(list.hasClass('ja-list-usrAddress')){io.remove.usrAddress(e);}else
+                    if(list.hasClass('ja-list-usrGrp'    )){io.remove.usrGrp(e);    }else
+                    if(list.hasClass('ja-list-usrInfo'   )){io.remove.usrInfo(e);   }
                 }
             },
             reset:function(){
                 h.hd.all('.ja-data').set('value','');
                 h.tvUsrAddressList.set('innerHTML','');
                 h.tvUsrInfoList.set('innerHTML','');
+                h.tvGrpList.set('innerHTML','');
             }
         };
 

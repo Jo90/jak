@@ -87,6 +87,8 @@ YUI.add('ja-pod-job',function(Y){
                 h.qaSelect.set('innerHTML',
                     '<option>'+d.qa.new+'</option>'
                    +'<option>'+d.qa.existing+'</option>'
+                   +'<optgroup label="images">'
+                   +  '<option>upload</option>'
                    +'<optgroup label="top level issues">'
                    +  qaTopStatements
                    +'</optgroup>'
@@ -646,6 +648,8 @@ YUI.add('ja-pod-job',function(Y){
                             opt0.set('text',d.qa.new);
                             opt1.set('text',d.qa.existing);
                         }
+                    }else if(selectedIndex===2){
+                        alert('upload file coming...');
                     }else{
                         if(newStatement || d.qaCount===0){
                             nnStatement=render.qaStatement(property.id);

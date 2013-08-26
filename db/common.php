@@ -193,6 +193,26 @@ class db {
  *  DB get/set
  */
 
+function shared_getGrp($criteria) {
+    global $mysqli;
+    $r = initResult($criteria);
+    $cnd = "";
+    if (isset($criteria->grpIds) && is_array($criteria->grpIds) && count($criteria->grpIds) > 0) {
+        $grpIds = implode(',', $criteria->grpIds);
+        $cnd = "where id in ($grpIds)";
+    }
+    if ($stmt = $mysqli->prepare(
+        "select *
+           from `grp` $cnd"
+    )) {
+        $r->success = $stmt->execute();
+        $r->rows = $mysqli->affected_rows;
+        $r->data = \ja\fetch_result($stmt,'id');
+        $stmt->close();
+    }
+    return $r;
+}
+
 function shared_getInfo($criteria) {
     global $mysqli;
     $r = initResult($criteria);
@@ -221,12 +241,24 @@ function shared_getInfo($criteria) {
     return $r;
 }
 
-function shared_setInfo(&$i) {
+function shared_setGrp(&$i) {
     global $mysqli;
-    db::remove('info', $i);
+    $tab = 'grp';
+    db::remove($tab, $i);
     if (isset($i->record)) {
         foreach ($i->record as $rec) {
-            db::update('info',$rec) or db::insert('info',$rec);
+            db::update($tab,$rec) or db::insert($tab,$rec);
+        }
+    }
+}
+
+function shared_setInfo(&$i) {
+    global $mysqli;
+    $tab = 'info';
+    db::remove($tab, $i);
+    if (isset($i->record)) {
+        foreach ($i->record as $rec) {
+            db::update($tab,$rec) or db::insert($tab,$rec);
         }
     }
 }

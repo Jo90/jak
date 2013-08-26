@@ -19,6 +19,11 @@ foreach ($post as $i) {
                     ? $r->address = addr_getAddress($dataSet)
                     : addr_setAddress($dataSet);
                 break;
+            case 'grp':
+                $criteria
+                    ? $r->info = shared_getGrp($dataSet)
+                    : shared_setGrp($dataSet);
+                break;
             case 'info':
                 $criteria
                     ? $r->info = shared_getInfo($dataSet)
@@ -29,12 +34,6 @@ foreach ($post as $i) {
                 $criteria
                     ? $r->job = job_getJob($dataSet)
                     : job_setJob($dataSet);
-                break;
-            case 'jobProperty':
-                require_once 'job/common.php';
-                $criteria
-                    ? $r->job = job_getJobProperty($dataSet)
-                    : job_setJobProperty($dataSet);
                 break;
             case 'jobUsr':
                 require_once 'job/common.php';
@@ -59,6 +58,12 @@ foreach ($post as $i) {
                 $criteria
                     ? $r->usrAddress = usr_getUsrAddress($dataSet)
                     : usr_setUsrAddress($dataSet);
+                break;
+            case 'usrGrp':
+                require_once 'usr/common.php';
+                $criteria
+                    ? $r->usrAddress = usr_getUsrGrp($dataSet)
+                    : usr_setUsrGrp($dataSet);
                 break;
             case 'usrInfo':
                 require_once 'usr/common.php';

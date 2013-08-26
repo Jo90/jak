@@ -86,6 +86,44 @@ function usr_getUsrAddress($i, $extend = false) {
     return $r;
 }
 
+function usr_getUsrGrp($i, $extend = false) {
+    global $mysqli;
+
+    $r = $extend ? initResult($i) : new \stdClass;
+    $c = $i->criteria;
+
+    if (!isset($c)) {return null;}
+
+    $cnd  = '';
+    $limit = '';
+
+    if (isset($c->usrGrpIds)) {
+        $cnd  = 'id in (' . implode(',', $c->usrGrpIds) . ')';
+    } else
+    if (isset($c->usrIds)) {
+        $cnd  = 'usr in (' . implode(',', $c->usrIds) . ')';
+    } else
+    if (isset($c->grpIds)) {
+        $cnd  = 'grp in (' . implode(',', $c->grpIds) . ')';
+    }
+
+    if (isset($c->rowLimit)) {
+        $limit = ' limit ' . $c->rowLimit;
+    }
+
+    if ($stmt = $mysqli->prepare(
+        "select *
+           from `usrGrp`
+          where $cnd $limit"
+    )) {
+        $r->success = $stmt->execute();
+        $r->rows = $mysqli->affected_rows;
+        $r->data = \ja\fetch_result($stmt,'id');
+        $stmt->close();
+    }
+    return $r;
+}
+
 function usr_getUsrInfo($i, $extend = false) {
     global $mysqli;
 
@@ -135,6 +173,17 @@ function usr_setUsr(&$i) {
 function usr_setUsrAddress(&$i) {
     global $mysqli;
     $tab = 'usrAddress';
+    db::remove($tab, $i);
+    if (isset($i->record)) {
+        foreach ($i->record as $rec) {
+            db::update($tab,$rec) or db::insert($tab,$rec);
+        }
+    }
+}
+
+function usr_setUsrGrp(&$i) {
+    global $mysqli;
+    $tab = 'usrGrp';
     db::remove($tab, $i);
     if (isset($i->record)) {
         foreach ($i->record as $rec) {

@@ -91,19 +91,24 @@ YUI.add('ja-pod-upload',function(Y){
                 });
             });
 
+			h.uploader.on("uploadprogress", function(event){
+            	var fileRow = Y.one("#" + event.file.get("id") + "_row");
+                fileRow.one(".percentdone").set("text", event.percentLoaded + "%");
+       		});
+
         };
 
         render={
             base:function(){
                 h.ol=new Y.Overlay({
                     headerContent:
-                         '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JA">'+self.info.title+'</span> '
-                        +'<div class="ja-selectFiles"></div>'
+//                         '<span title="pod:'+self.info.id+' '+self.info.version+' '+self.info.description+' &copy;JA">'+self.info.title+'</span> '
+                         '<div class="ja-selectFiles"></div>'
                         +'<button type="button" id="uploadFilesButton" class="yui3-button" style="width:250px; height:35px;">Upload Files</button>'
                         +'<span></span>'
                         +Y.JA.html('btn',{action:'close',title:'close pod'}),
                     bodyContent:
-                        '<table id="filenames">'
+                         '<table id="filenames">'
                         +  '<thead>'
                         +    '<tr><th>File name</th><th>File size</th><th>Percent uploaded</th></tr>'
                         +    '<tr id="nofiles">'
@@ -124,8 +129,8 @@ YUI.add('ja-pod-upload',function(Y){
                 h.close=h.hd.one('.ja-close');
 
                 h.uploader=new Y.Uploader({
-                    width :"300px",
-                    height:"40px"
+                    width :"250px",
+                    height:"35px"
                 }).render(h.hd.one('.ja-selectFiles'));
                 d.uploadDone = false;
 

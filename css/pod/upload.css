@@ -4,3 +4,18 @@
 .ja-pod-upload .ja-close {float:right;}
 
 .ja-pod-upload .ja-selectFiles {display:inline-block; float:left;}
+
+.ja-pod-upload #filenames {
+	margin-left:0.5em;
+	width:75%; 
+}
+
+#filenames th
+{
+	text-align:left;
+}
+
+#filenames tr
+{
+	border: 1px solid black;
+}

@@ -100,12 +100,12 @@ YUI.add('ja-mod-calendar',function(Y){
                             }},
                             data:Y.JSON.stringify([{
                                 job:{
-                                	criteria:{
-                                    	appointmentStart:Math.round(start.getTime()/1000),
-                                    	appointmentEnd  :Math.round(end.getTime()/1000)
-                                    }	
-								},
-								usr:JA.user.usr
+                                    criteria:{
+                                        appointmentStart:Math.round(start.getTime()/1000),
+                                        appointmentEnd  :Math.round(end.getTime()/1000)
+                                    }
+                                },
+                                usr:JA.user.usr
                              }])
                          });
                     },
@@ -125,7 +125,6 @@ YUI.add('ja-mod-calendar',function(Y){
                         '':'(h:mm)TT'
                     },
                     weekMode:'liquid',
-                    //events
                     dayClick:function(e){
                         d.dayClickEvent=e //date
                         ;
@@ -142,7 +141,6 @@ YUI.add('ja-mod-calendar',function(Y){
                 });
             }
         };
-
         /**
          *  load & initialise
          */

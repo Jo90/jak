@@ -446,9 +446,10 @@ YUI.add('ja-pod-usr',function(Y){
                 //grp
                     if(rs.grp && rs.grp.data){
                         Y.each(rs.grp.data,function(grp){
-                            var grpNode=render.grp(grp)
+                            var grpNode=null
                             ;
                             Y.each(rs.usrGrp.data,function(usrGrp){if(usrGrp.grp===grp.id){
+                                if(grpNode===null){grpNode=render.grp(grp);}
                                 render.usrGrp(usrGrp,grpNode,rs.usr.data[usrGrp.usr]);
                             }});
                         });

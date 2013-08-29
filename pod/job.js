@@ -11,8 +11,8 @@ YUI.add('ja-pod-job',function(Y){
         cfg=Y.merge({
             title   :'job',
             visible :true,
-            width   :1250,
-            xy      :[10,20],
+            width   :1000,
+            xy      :[5,10],
             zIndex  :99999
         },cfg);
 
@@ -105,7 +105,7 @@ YUI.add('ja-pod-job',function(Y){
                         on:{complete:populate.job},
                         data:Y.JSON.stringify([{
                             job:{criteria:{jobIds:[cfg.job]}},
-                            usr:JA.user.usr
+                            user:JA.user.usr
                         }])
                     });
                 }
@@ -125,7 +125,7 @@ YUI.add('ja-pod-job',function(Y){
                                 address    :cfg.address,
                                 appointment:cfg.appointment
                             }}]},
-                            usr:JA.user.usr
+                            user:JA.user.usr
                         }])
                     });
                 },
@@ -406,9 +406,11 @@ YUI.add('ja-pod-job',function(Y){
                 );
                 //users
                     Y.each(d.rs.jobUsr.data,function(jobUsr,idx){
-                        jobUsr.firstName=d.rs.usr.data[jobUsr.usr].firstName;
-                        jobUsr.lastName =d.rs.usr.data[jobUsr.usr].lastName;
-                        render.jobUsr(jobUsr);
+                        if(jobUsr.job===job.id){
+                            jobUsr.firstName=d.rs.usr.data[jobUsr.usr].firstName;
+                            jobUsr.lastName =d.rs.usr.data[jobUsr.usr].lastName;
+                            render.jobUsr(jobUsr);
+                        }
                     });
                 //qa stats
                     if(Y.Lang.isObject(jobDetail)){

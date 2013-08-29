@@ -142,7 +142,6 @@ YUI.add('ja-mod-job',function(Y){
             Y.one('.ja-add-job').on('click',JA.my.podAddress.display);
             h.dtc.delegate('click',trigger.selectGridCell,'.yui3-datatable-cell');
             h.dtc.delegate('click',trigger.report,'.ja-rep');
-            h.dtc.delegate('click',trigger.upload,'.ja-info');
             h.dtc.delegate('click',io.remove.job,'.ja-remove');
             //custom
                 Y.on(JA.my.podAddress.customEvent.select,io.insert.job);
@@ -174,14 +173,11 @@ YUI.add('ja-mod-job',function(Y){
                 Y.each(jobs,function(job){
                     var usrInfo=[]
                     ;
-                    //usr
-                    Y.each(d.rs.jobUsr.data,function(jobUsr){
-                        if(jobUsr.job!==job.id){return;}
-                        Y.each(d.rs.usr.data,function(usr){
-                            if(usr.id!==jobUsr.usr){return;}
+                    Y.each(d.rs.jobUsr.data,function(jobUsr){if(jobUsr.job===job.id){
+                        Y.each(d.rs.usr.data,function(usr){if(usr.id===jobUsr.usr){
                             usrInfo.push(usr.firstName+'('+jobUsr.purpose+')');
-                        });
-                    });
+                        }});
+                    }});
                     h.dt.addRow({
                         job        :'<input type="button" title="Job #'+job.id+' created '+moment.unix(job.created).format('DD MMM YYYY hh:mm a')+'" value="'+job.id+'" />',
                         ref        :job.ref,
@@ -203,7 +199,6 @@ YUI.add('ja-mod-job',function(Y){
                                    +Y.JA.html('btn',{action:'rep',title:'details'            ,classes:'ja-rep-detail'})
                                    +Y.JA.html('btn',{action:'rep',title:'inspection report 1',classes:'ja-rep-1'}),
                         actions    :Y.JA.html('btn',{action:'remove',title:'remove'})
-                        		   +Y.JA.html('btn',{action:'info',title:'upload image'})
                     });
                 });
                 Y.JA.widget.busy.set('message','');
@@ -375,7 +370,7 @@ YUI.add('ja-mod-job',function(Y){
                     jobId=parseInt(rec.one('.yui3-datatable-col-job input').get('value'),10),
                     job=d.rs.job.data[jobId],
                     jobDetail=(job.detail!=='' && job.detail!==null?Y.JSON.parse(job.detail):false),
-                    address=d.rs.address.data[job.address],
+                    address=d.rs.jobAddress.data[job.address],
                     statement=[],
                     statementRef={},
                     propertyData=d.rs.property.data,
@@ -386,8 +381,7 @@ YUI.add('ja-mod-job',function(Y){
                     qaTemplate={}
                 ;
                 d.propertyQaCount={};
-                address.full=address.streetRef+' '+address.streetName+' '+d.rs.location.data[address.location].name;
-                //answers
+                address.full=address.streetRef+' '+address.streetName+' '+d.rs.jobAddressLocation.data[address.location].name;
 
                 if(this.hasClass('ja-rep-summary')){
                     html='<h2>Job#'+jobId+' '+address.full+'</h2>'
@@ -490,9 +484,6 @@ YUI.add('ja-mod-job',function(Y){
                     width=1000;
                 }
                 JA.my.podRep.display({html:html,visible:true,width:width});
-            },
-            upload:function(e){
-                JA.my.podUpload.display({});
             },
             selectGridCell:function(e){
                 if(this.hasClass('yui3-datatable-col-job')||

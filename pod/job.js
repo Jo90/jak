@@ -318,7 +318,11 @@ YUI.add('ja-pod-job',function(Y){
             display:{
                 upload:function(){
                     if(!self.my.podUpload){pod.load.upload({});return false;}
-                    self.my.podUpload.display({});
+                    self.my.podUpload.display({
+                        data:{
+                            address:parseInt(f.jobAddress.get('value'),10)
+                        }
+                    });
                 },
                 usr:function(e){
                     e.halt();

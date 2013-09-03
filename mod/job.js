@@ -371,14 +371,14 @@ YUI.add('ja-mod-job',function(Y){
                     job=d.rs.job.data[jobId],
                     jobDetail=(job.detail!=='' && job.detail!==null?Y.JSON.parse(job.detail):false),
                     address=d.rs.jobAddress.data[job.address],
-                    statement=[],
                     statementRef={},
                     propertyData=d.rs.property.data,
                     propertyTree=[],
+                    ancestory={},
                     html='',
+                    path='',
                     width=800,
-                    qaRef={},
-                    qaTemplate={}
+                    qaRef={}
                 ;
                 d.propertyQaCount={};
                 address.full=address.streetRef+' '+address.streetName+' '+d.rs.jobAddressLocation.data[address.location].name;
@@ -401,12 +401,14 @@ YUI.add('ja-mod-job',function(Y){
 
                         html+='<h3>Property/Site definition</h3>';
                         propertyTree=Y.JA.lib.job.tree.build(propertyData,job.address);
+
                         Y.each(propertyTree,function(branch){
                             html+='<ul>'+Y.JA.lib.job.tree.output(branch)+'<ul>';
+                            ancestory=Y.merge(ancestory,Y.JA.lib.job.tree.ancestory(branch));
                         });
 
                         html+='<h3>Values</h3>';
-                        qaRef=Y.JA.lib.job.detail(jobDetail);
+                        qaRef=Y.JA.lib.job.qaRef(jobDetail);
                         Y.each(qaRef,function(ref,refId){
                             Y.each(ref,function(rec){
                                 if(Y.Lang.isArray(rec.value)){ //checkbox
@@ -419,31 +421,33 @@ YUI.add('ja-mod-job',function(Y){
                             });
                         });
 
-                        html+='<h3>Ret*</h3>';
+                        html+='<h3>Bor*</h3>';
                         Y.each(qaRef,function(ref,refId){
                             //filter
-                            if(!/Ret.*/.test(refId)){return;}
+                            if(!/Bor.*/.test(refId)){return;}
                             Y.each(ref,function(rec){
+                                path=Y.JA.lib.job.tree.path(ancestory[rec.property]);
                                 if(Y.Lang.isArray(rec.value)){ //checkbox
                                     if(rec.value[1]){
-                                        html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+refId+': '+rec.value[0]+'<br/>';
+                                        html+=path+' - '+refId+': '+rec.value[0]+'<br/>';
                                     }
                                 }else{
-                                    html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+refId+': '+rec.value+'<br/>';
+                                    html+=path+' - '+refId+': '+rec.value+'<br/>';
                                 }
                             });
                         });
-                        html+='<h3>Roof*</h3>';
+                        html+='<h3>*Crack*</h3>';
                         Y.each(qaRef,function(ref,refId){
                             //filter
-                            if(!/Roof.*/.test(refId)){return;}
+                            if(refId.indexOf('Crack')===-1){return;}
                             Y.each(ref,function(rec){
+                                path=Y.JA.lib.job.tree.path(ancestory[rec.property]);
                                 if(Y.Lang.isArray(rec.value)){ //checkbox
                                     if(rec.value[1]){
-                                        html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+refId+': '+rec.value[0]+'<br/>';
+                                        html+=path+' - '+refId+': '+rec.value[0]+'<br/>';
                                     }
                                 }else{
-                                    html+=Y.JA.lib.job.ancestry(propertyData,rec.path[0]).propName.join('>')+' - '+refId+': '+rec.value+'<br/>';
+                                    html+=path+' - '+refId+': '+rec.value+'<br/>';
                                 }
                             });
                         });
